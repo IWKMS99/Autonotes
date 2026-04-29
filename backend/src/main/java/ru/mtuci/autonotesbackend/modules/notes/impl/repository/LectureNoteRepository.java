@@ -1,0 +1,33 @@
+package ru.mtuci.autonotesbackend.modules.notes.impl.repository;
+
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.Optional;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import ru.mtuci.autonotesbackend.modules.notes.impl.domain.LectureNote;
+import ru.mtuci.autonotesbackend.modules.notes.impl.domain.NoteStatus;
+
+@Repository
+public interface LectureNoteRepository extends JpaRepository<LectureNote, Long> {
+
+    @EntityGraph(attributePaths = "images")
+    List<LectureNote> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    @EntityGraph(attributePaths = "images")
+    Optional<LectureNote> findByIdAndUserId(Long id, Long userId);
+
+    List<LectureNote> findAllByStatusAndUpdatedAtBefore(NoteStatus status, OffsetDateTime updatedAt, Pageable pageable);
+
+    @Query(value = "SELECT * FROM lecture_notes WHERE deleted_at < :threshold", nativeQuery = true)
+    List<LectureNote> findAllSoftDeletedBefore(@Param("threshold") OffsetDateTime threshold, Pageable pageable);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query(value = "DELETE FROM lecture_notes WHERE id = :id", nativeQuery = true)
+    void hardDeleteById(@Param("id") Long id);
+}
