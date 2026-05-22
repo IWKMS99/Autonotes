@@ -100,6 +100,28 @@ const NoteDetailActions = ({ note, deleteLoading, onDelete }) => (
   </div>
 );
 
+const NoteDetailFileItem = ({ image, index }) => (
+  <div className="note-detail-file-card">
+    <span className="note-detail-file-card__icon">📄</span>
+
+    <div className="note-detail-file-card__content">
+      <p className="note-detail-file-card__name">
+        {image.originalFileName || `Изображение ${index + 1}`}
+      </p>
+      <p className="note-detail-file-card__order">
+        #{index + 1} в последовательности
+      </p>
+    </div>
+  </div>
+);
+
+const NoteDetailFilesEmptyState = () => (
+  <div className="note-detail-files-empty">
+    <span className="note-detail-files-empty__icon">📭</span>
+    Файлы не найдены
+  </div>
+);
+
 const NoteDetail = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -214,60 +236,19 @@ const NoteDetail = () => {
           </h3>
         </div>
           {note.images && note.images.length > 0 ? (
-            <div style={{
-              display: 'grid',
-              gap: 'var(--spacing-3)',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))'
-            }}>
+            <div className="note-detail-files-grid">
               {note.images
                 .sort((a, b) => a.orderIndex - b.orderIndex)
                 .map((image, idx) => (
-                  <div
+                  <NoteDetailFileItem
                     key={image.id || idx}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 'var(--spacing-3)',
-                      padding: 'var(--spacing-3)',
-                      backgroundColor: 'var(--background-color)',
-                      borderRadius: 'var(--radius-md)',
-                      border: '1px solid var(--border-color)'
-                    }}
-                  >
-                    <span style={{ fontSize: '1.25rem' }}>📄</span>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{
-                        fontSize: 'var(--font-size-sm)',
-                        fontWeight: '500',
-                        color: 'var(--text-primary)',
-                        margin: 0,
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap'
-                      }}>
-                        {image.originalFileName || `Изображение ${idx + 1}`}
-                      </p>
-                      <p style={{
-                        fontSize: 'var(--font-size-xs)',
-                        color: 'var(--text-muted)',
-                        margin: 'var(--spacing-1) 0 0 0'
-                      }}>
-                        #{idx + 1} в последовательности
-                      </p>
-                    </div>
-                  </div>
+                    image={image}
+                    index={idx}
+                  />
                 ))}
             </div>
           ) : (
-            <div style={{
-              textAlign: 'center',
-              padding: 'var(--spacing-8)',
-              color: 'var(--text-muted)',
-              fontSize: 'var(--font-size-sm)'
-            }}>
-              <span style={{ fontSize: '2rem', marginBottom: 'var(--spacing-2)', display: 'block' }}>📭</span>
-              Файлы не найдены
-            </div>
+            <NoteDetailFilesEmptyState />
           )}
         </div>
 
