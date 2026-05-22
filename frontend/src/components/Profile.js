@@ -3,6 +3,25 @@ import { getProfile, logout, getUsernameFromToken } from '../services/authServic
 import { getAllNotes } from '../services/noteService';
 import './Profile.css';
 
+const ProfileLoadingState = () => (
+  <div className="ui-center-state">
+    <div className="loading-spinner ui-loading-spinner--lg"></div>
+    <p className="ui-center-state__text">
+      Загрузка профиля...
+    </p>
+  </div>
+);
+
+const ProfileErrorState = ({ message }) => (
+  <div className="ui-center-state">
+    <div className="ui-center-state__icon">
+      ⚠️
+    </div>
+    <h2 className="profile-error-title">Ошибка загрузки</h2>
+    <p className="ui-center-state__text">{message}</p>
+  </div>
+);
+
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -58,27 +77,12 @@ const Profile = () => {
   };
 
   if (loading) {
-    return (
-      <div className="ui-center-state">
-        <div className="loading-spinner ui-loading-spinner--lg"></div>
-        <p className="ui-center-state__text">
-          Загрузка профиля...
-        </p>
-      </div>
-    );
-  }
+  return <ProfileLoadingState />;
+}
 
   if (error) {
-    return (
-      <div className="ui-center-state">
-        <div className="ui-center-state__icon">
-          ⚠️
-        </div>
-        <h2 className="profile-error-title">Ошибка загрузки</h2>
-        <p className="ui-center-state__text">{error}</p>
-      </div>
-    );
-  }
+  return <ProfileErrorState message={error} />;
+}
 
   return (
     <div className="slide-up">
