@@ -185,3 +185,17 @@
   border-radius: var(--radius-xl);
   transition: width var(--transition-normal);
 }
+
+.note-upload-error {
+  padding: var(--spacing-4);
+  background-color: #fef2f2;
+  border: 1px solid var(--error-color);
+  border-radius: var(--radius-md);
+  color: var(--error-color);
+  font-size: var(--font-size-sm);
+  margin-bottom: var(--spacing-6);
+}
+
+.note-upload-error__label {
+  font-weight: 500;
+}
