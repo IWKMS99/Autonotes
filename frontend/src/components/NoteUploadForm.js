@@ -92,6 +92,12 @@ const NoteUploadProgress = ({ progress }) => (
   </div>
 );
 
+const NoteUploadError = ({ message }) => (
+  <div className="note-upload-error" role="alert">
+    <span className="note-upload-error__label">Ошибка:</span> {message}
+  </div>
+);
+
 const NoteUploadForm = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -310,17 +316,7 @@ const NoteUploadForm = () => {
           )}
 
           {error && (
-            <div style={{
-              padding: 'var(--spacing-4)',
-              backgroundColor: '#fef2f2',
-              border: '1px solid var(--error-color)',
-              borderRadius: 'var(--radius-md)',
-              color: 'var(--error-color)',
-              fontSize: 'var(--font-size-sm)',
-              marginBottom: 'var(--spacing-6)'
-            }}>
-              <span style={{ fontWeight: '500' }}>Ошибка:</span> {error}
-            </div>
+            <NoteUploadError message={error} />
           )}
 
           <div style={{
