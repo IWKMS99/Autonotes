@@ -1,7 +1,4 @@
-version: '3.8'
-
 x-backend-environment: &backend-env
-  JAVA_TOOL_OPTIONS: "-Xms128m -Xmx256m"
   SPRING_DATASOURCE_URL: "jdbc:postgresql://db:5432/${POSTGRES_DB}"
   SPRING_DATASOURCE_USERNAME: "${POSTGRES_USER}"
   SPRING_DATASOURCE_PASSWORD: "${POSTGRES_PASSWORD}"
@@ -26,7 +23,7 @@ x-backend-environment: &backend-env
   app.scheduling.soft-delete-cleanup-cron: "${APP_SOFT_DELETE_CLEANUP_CRON}"
   OTEL_SERVICE_NAME: "autonotes-backend"
   OTEL_TRACES_EXPORTER: "otlp"
-  OTEL_EXPORTER_OTLP_ENDPOINT: "http://jaeger:4317"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "${OTEL_EXPORTER_OTLP_ENDPOINT}"
   OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
   OTEL_METRICS_EXPORTER: "none"
   OTEL_LOGS_EXPORTER: "none"
@@ -46,16 +43,17 @@ x-backend-common: &backend-common
     minio:
       condition: service_healthy
     jaeger:
-      condition: service_started
-  deploy:
-    resources:
-      limits:
-        memory: 450M
+      condition: service_healthy
+  healthcheck:
+    test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness | grep -q '\"status\":\"UP\"'"]
+    interval: 15s
+    timeout: 5s
+    retries: 12
+    start_period: 20s
 
 services:
   db:
     image: postgres:16-alpine
-    container_name: autonotes-db
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -72,7 +70,6 @@ services:
 
   minio:
     image: minio/minio:RELEASE.2025-09-07T16-13-09Z-cpuv1
-    container_name: autonotes-minio
     ports:
       - "${MINIO_API_PORT}:9000"
       - "${MINIO_CONSOLE_PORT}:9001"
@@ -90,7 +87,6 @@ services:
 
   rabbitmq:
     image: rabbitmq:3.13-management-alpine
-    container_name: autonotes-rabbitmq
     ports:
       - "${RABBITMQ_PORT}:5672"
       - "${RABBITMQ_CONSOLE_PORT}:15672"
@@ -106,98 +102,117 @@ services:
       retries: 5
 
   jaeger:
-    image: jaegertracing/all-in-one:latest
-    container_name: autonotes-jaeger
+    image: jaegertracing/all-in-one:1.60.0
     restart: unless-stopped
     ports:
-      - "16686:16686"
-      - "9411:9411"
-      - "4317:4317"
-      - "4318:4318"
+      - "${JAEGER_UI_PORT}:16686"
+      - "${JAEGER_ZIPKIN_PORT}:9411"
+      - "${JAEGER_OTLP_GRPC_PORT}:4317"
+      - "${JAEGER_OTLP_HTTP_PORT}:4318"
     environment:
       - COLLECTOR_ZIPKIN_HOST_PORT=:9411
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:16686/"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
 
   prometheus:
-    image: prom/prometheus:latest
-    container_name: autonotes-prometheus
+    image: prom/prometheus:v2.53.3
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ${PROMETHEUS_SCRAPE_CONFIG:-./monitoring/prometheus.single.yml}:/etc/prometheus/prometheus.yml:ro
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT}:9090"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9090/-/healthy"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 256M
 
   grafana:
-    image: grafana/grafana:latest
-    container_name: autonotes-grafana
+    image: grafana/grafana:11.1.0
     ports:
-      - "3001:3000"
+      - "${GRAFANA_PORT}:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on:
+      prometheus:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
     restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          memory: 256M
 
-  # --- ELASTICSEARCH ---
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.15.0
-    container_name: autonotes-elastic
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "ES_JAVA_OPTS=${ELASTICSEARCH_JAVA_OPTS:--Xms512m -Xmx512m}"
     ulimits:
       memlock:
         soft: -1
         hard: -1
-    deploy:
-      resources:
-        limits:
-          memory: 1500M
     ports:
-      - "9200:9200"
+      - "${ELASTICSEARCH_PORT}:9200"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:9200/_cluster/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
 
-  # --- LOGSTASH ---
   logstash:
     image: docker.elastic.co/logstash/logstash:8.15.0
-    container_name: autonotes-logstash
     volumes:
       - ./logging/logstash.conf:/usr/share/logstash/pipeline/logstash.conf:ro
     environment:
       - "LS_JAVA_OPTS=-Xms512m -Xmx512m"
     depends_on:
-      - elasticsearch
-    deploy:
-      resources:
-        limits:
-          memory: 700M
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9600/_node/pipelines | grep -q '\"status\":\"green\"'"]
+      interval: 20s
+      timeout: 10s
+      retries: 15
 
-  # --- KIBANA ---
   kibana:
     image: docker.elastic.co/kibana/kibana:8.15.0
-    container_name: autonotes-kibana
     ports:
-      - "5601:5601"
+      - "${KIBANA_PORT}:5601"
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     depends_on:
-      - elasticsearch
-    deploy:
-      resources:
-        limits:
-          memory: 800M
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5601/api/status"]
+      interval: 20s
+      timeout: 10s
+      retries: 20
 
-  # --- FILEBEAT ---
+  kibana-init:
+    image: curlimages/curl:8.8.0
+    depends_on:
+      kibana:
+        condition: service_healthy
+    volumes:
+      - ./logging/kibana/bootstrap.sh:/bootstrap.sh:ro
+      - ./logging/kibana/autonotes.ndjson:/autonotes.ndjson:ro
+    entrypoint: ["sh", "/bootstrap.sh"]
+    restart: "no"
+
   filebeat:
     image: docker.elastic.co/beats/filebeat:8.15.0
-    container_name: autonotes-filebeat
     user: root
     privileged: true
     volumes:
@@ -206,17 +221,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     command: ["filebeat", "-e", "--strict.perms=false"]
     depends_on:
-      - logstash
-    deploy:
-      resources:
-        limits:
-          memory: 200M
-
-  # --- CLUSTER ---
+      logstash:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "filebeat test output -e | grep -q 'Connection to backoff(async(tcp://logstash:5044)) established'"]
+      interval: 30s
+      timeout: 15s
+      retries: 6
 
   backend-1:
     <<: *backend-common
-    container_name: autonotes-backend-1
     environment:
       <<: *backend-env
       INSTANCE_ID: "Server 1"
@@ -225,7 +239,7 @@ services:
 
   backend-2:
     <<: *backend-common
-    container_name: autonotes-backend-2
+    profiles: ["cluster"]
     environment:
       <<: *backend-env
       INSTANCE_ID: "Server 2"
@@ -234,7 +248,7 @@ services:
 
   backend-3:
     <<: *backend-common
-    container_name: autonotes-backend-3
+    profiles: ["cluster"]
     environment:
       <<: *backend-env
       INSTANCE_ID: "Server 3"
@@ -243,24 +257,27 @@ services:
 
   nginx-lb:
     image: nginx:alpine
-    container_name: autonotes-lb
     ports:
-      - "8090:80"
+      - "${APP_PORT}:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${NGINX_LB_CONFIG:-./nginx/nginx.single.conf}:/etc/nginx/nginx.conf:ro
     depends_on:
-      - backend-1
-      - backend-2
-      - backend-3
+      backend-1:
+        condition: service_healthy
+
+  nginx-prometheus-exporter:
+    image: nginx/nginx-prometheus-exporter:1.3.0
+    command:
+      - -nginx.scrape-uri=http://nginx-lb:80/stub_status
+    depends_on:
+      - nginx-lb
 
   frontend:
     build: ./frontend
-    container_name: autonotes-frontend
     depends_on:
       - nginx-lb
     ports:
       - "3000:80"
-    restart: always
 
   ml:
     build:

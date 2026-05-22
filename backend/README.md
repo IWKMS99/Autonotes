@@ -1,6 +1,6 @@
 # Autonotes Backend
 
-[![Java CI with Gradle](https://github.com/IWKMS99/AutonotesBackend/actions/workflows/gradle.yml/badge.svg)](https://github.com/IWKMS99/AutonotesBackend/actions/workflows/gradle.yml)
+[![Java CI with Gradle](https://github.com/IWKMS99/Autonotes/actions/workflows/gradle.yml/badge.svg)](https://github.com/IWKMS99/Autonotes/actions/workflows/gradle.yml)
 
 Бэкенд-сервис платформы "Autonotes". Обеспечивает безопасное хранение данных, управление файлами и надежную интеграцию с ML-сервисом.
 
@@ -39,12 +39,20 @@
 1.  **Инфраструктура:**
     В корне проекта выполните:
     ```bash
-    docker-compose up -d db minio rabbitmq
+    docker compose up -d db minio rabbitmq
     ```
 2.  **Приложение:**
     ```bash
     ./gradlew bootRun
     ```
+
+### Docker Compose режимы backend
+
+- По умолчанию в проекте запускается один backend-инстанс (`backend-1`) для легкой демо-сборки.
+- Кластерный режим (3 backend-инстанса за `nginx-lb`) включается профилем:
+  ```bash
+  COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_SCRAPE_CONFIG=./monitoring/prometheus.cluster.yml docker compose up --build -d
+  ```
 
 ## 🔑 Конфигурация (Переменные окружения)
 
@@ -93,3 +101,12 @@
 ## 📚 API Документация
 
 Swagger UI доступен по адресу: **http://localhost:8080/swagger-ui.html**
+
+## 📊 Observability
+
+В docker-профиле backend публикует:
+- метрики в `/actuator/prometheus`;
+- trace-контекст в логах (`traceId`, `spanId`, `instance_id`);
+- tracing через OTLP endpoint (`OTEL_EXPORTER_OTLP_ENDPOINT`, по умолчанию `http://jaeger:4317`).
+
+Проверка локально через общий compose-стек из корня репозитория.

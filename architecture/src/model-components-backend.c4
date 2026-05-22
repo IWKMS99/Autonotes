@@ -1,0 +1,61 @@
+model {
+  extend autonotes.backend {
+    apiControllers = component 'REST Controllers' {
+      description 'NoteController, AuthController, UserController, SystemController'
+      technology 'Spring Web'
+    }
+
+    security = component 'Security (JWT)' {
+      description 'JwtRequestFilter, JwtService, SecurityConfig'
+      technology 'Spring Security'
+    }
+
+    notesCore = component 'Notes Module' {
+      description 'NoteService, NoteFacadeImpl'
+      technology 'Spring Service, JPA'
+    }
+
+    outboxPublisher = component 'Outbox Publisher' {
+      description 'OutboxPublisherService — scheduled publish'
+      technology 'Spring @Scheduled'
+    }
+
+    resultConsumer = component 'Result Consumer' {
+      description 'NoteResultConsumer — AMQP listener'
+      technology 'Spring AMQP'
+    }
+
+    notesMaintenance = component 'Notes Maintenance' {
+      description 'NoteCleanupService, SoftDeleteCleanupService'
+    }
+
+    filestorage = component 'File Storage' {
+      description 'FileStorageFacadeImpl, FileStorageService, StorageCleanupService'
+      technology 'S3 SDK, Tika'
+    }
+
+    userAuth = component 'User Module' {
+      description 'AuthService, UserService, ProfileService'
+    }
+
+    messagingConfig = component 'RabbitMQ Config' {
+      description 'RabbitMqConfig'
+      technology 'Spring AMQP'
+    }
+
+    security -> apiControllers 'JWT filter'
+    apiControllers -> notesCore 'notes API'
+    apiControllers -> userAuth 'auth API'
+    notesCore -> filestorage 'images'
+    notesCore -> outboxPublisher 'outbox in tx'
+    outboxPublisher -> messagingConfig 'publish'
+    messagingConfig -> autonotes.rabbitmq 'notes.exchange'
+    autonotes.rabbitmq -> resultConsumer 'results queue'
+    resultConsumer -> notesCore 'NoteResultDto'
+    notesCore -> autonotes.postgres 'JPA notes, outbox'
+    filestorage -> autonotes.minio 'S3'
+    userAuth -> autonotes.postgres 'JPA users'
+    notesMaintenance -> autonotes.postgres 'cleanup'
+    notesMaintenance -> filestorage 'S3 GC'
+  }
+}

@@ -1,0 +1,105 @@
+.profile-grid {
+  display: grid;
+  gap: var(--spacing-6);
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.profile-field__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-2);
+}
+
+.profile-field__icon {
+  font-size: 1.25rem;
+}
+
+.profile-field__title {
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.profile-field__value {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+.profile-field__value--primary {
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.profile-field__value--code {
+  font-size: var(--font-size-sm);
+  font-family: monospace;
+  background-color: var(--background-color);
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.profile-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--spacing-4);
+}
+
+.profile-stat-card {
+  text-align: center;
+  padding: var(--spacing-4);
+  background-color: var(--background-color);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.profile-stat-card__value {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  margin-bottom: var(--spacing-1);
+}
+
+.profile-stat-card__value--primary {
+  color: var(--primary-color);
+}
+
+.profile-stat-card__value--success {
+  color: var(--success-color);
+}
+
+.profile-stat-card__value--neutral {
+  color: var(--text-primary);
+}
+
+.profile-stat-card__label {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.profile-actions {
+  margin-top: var(--spacing-6);
+}
+
+.profile-logout-button {
+  font-size: var(--font-size-base);
+  padding: var(--spacing-3) var(--spacing-6);
+}
+
+.profile-error-title {
+  color: var(--text-primary);
+  margin: 0;
+}
+
+@media (max-width: 640px) {
+  .profile-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-logout-button {
+    width: 100%;
+  }
+}
