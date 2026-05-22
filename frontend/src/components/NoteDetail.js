@@ -8,6 +8,15 @@ import { getNoteById, deleteNote } from '../services/noteService';
 import { STATUS_TEXTS } from '../utils/constants';
 import './NoteDetail.css';
 
+const NoteDetailLoadingState = () => (
+  <div className="ui-center-state">
+    <div className="loading-spinner ui-loading-spinner--lg"></div>
+    <p className="ui-center-state__text">
+      Загрузка конспекта...
+    </p>
+  </div>
+);
+
 const NoteDetail = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -85,21 +94,7 @@ const NoteDetail = () => {
   };
 
   if (loading && !note) {
-    return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '50vh',
-        gap: 'var(--spacing-4)'
-      }}>
-        <div className="loading-spinner" style={{ width: '2rem', height: '2rem' }}></div>
-        <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-lg)' }}>
-          Загрузка конспекта...
-        </p>
-      </div>
-    );
+    return <NoteDetailLoadingState />;
   }
 
   if (error) {
