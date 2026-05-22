@@ -56,7 +56,7 @@ views {
     autonotes.backend.notesCore -> autonotes.postgres 'status COMPLETED, recognizedText, summaryText'
     autonotes.frontend.uiDashboard -> autonotes.frontend.noteService 'poll GET /api/v1/notes while PROCESSING'
     autonotes.frontend.noteService -> autonotes.frontend.apiClient
-    autonotes.frontend.apiClient -> autonotes.backend.apiControllers 'GET /api/v1/notes/by-id'
+    autonotes.frontend.apiClient -> autonotes.backend.apiControllers 'GET /api/v1/notes/{id}'
     autonotes.backend.apiControllers -> autonotes.backend.notesCore
     autonotes.backend.notesCore -> autonotes.postgres
     autonotes.backend.apiControllers -> autonotes.frontend.apiClient 'NoteDetailDto'

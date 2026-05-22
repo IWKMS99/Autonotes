@@ -1,4 +1,4 @@
-FROM eclipse-temurin:24-jdk-noble as builder
+FROM eclipse-temurin:24-jdk-noble AS builder
 
 WORKDIR /app
 
@@ -7,12 +7,13 @@ COPY gradlew ./
 COPY gradle ./gradle
 
 RUN chmod +x ./gradlew
+ENV GRADLE_OPTS="-Dorg.gradle.internal.http.connectionTimeout=60000 -Dorg.gradle.internal.http.socketTimeout=60000"
 
-RUN ./gradlew dependencies --no-daemon || true
+RUN for i in 1 2 3; do ./gradlew dependencies --no-daemon && break || sleep 5; done || true
 
 COPY src ./src
 
-RUN ./gradlew copyOtelAgent bootJar --no-daemon
+RUN for i in 1 2 3; do ./gradlew copyOtelAgent bootJar --no-daemon && break || sleep 5; done
 
 FROM eclipse-temurin:24-jre-noble
 
