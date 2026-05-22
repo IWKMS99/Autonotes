@@ -1,0 +1,77 @@
+views {
+
+  view c3_backend of autonotes.backend {
+    title 'C3 — Backend Components'
+    description '''
+    Spring Boot: REST, security, notes (outbox + consumer), filestorage, user, RabbitMQ config.
+    '''
+    include
+      *,
+      autonotes.postgres,
+      autonotes.minio,
+      autonotes.rabbitmq
+
+    style autonotes.postgres {
+      color muted
+      opacity 25%
+    }
+    style autonotes.minio {
+      color muted
+      opacity 25%
+    }
+    style autonotes.rabbitmq {
+      color muted
+      opacity 25%
+    }
+  }
+
+  view c3_frontend of autonotes.frontend {
+    title 'C3 — Frontend Components'
+    description '''
+    React SPA: router, services, UI pages, Axios client.
+    '''
+    include
+      *,
+      autonotes.backend
+
+    style autonotes.backend {
+      color muted
+      opacity 20%
+    }
+  }
+
+  view c3_ml of autonotes.mlWorker {
+    title 'C3 — ML Service Components'
+    description '''
+    Планируемый pipeline: consume → S3 → OCR → summary → publish result.
+    '''
+    include
+      *,
+      autonotes.rabbitmq,
+      autonotes.minio
+
+    style autonotes.rabbitmq {
+      color muted
+      opacity 25%
+    }
+    style autonotes.minio {
+      color muted
+      opacity 25%
+    }
+    style processConsumer {
+      color muted
+    }
+    style s3Reader {
+      color muted
+    }
+    style ocrPipeline {
+      color muted
+    }
+    style summarizer {
+      color muted
+    }
+    style resultPublisher {
+      color muted
+    }
+  }
+}

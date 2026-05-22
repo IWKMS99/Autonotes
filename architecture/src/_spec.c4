@@ -1,0 +1,63 @@
+specification {
+
+  element actor {
+    style {
+      shape person
+      color green
+    }
+  }
+
+  element system {
+    notation 'Software System'
+    style {
+      opacity 20%
+    }
+  }
+
+  element webapp {
+    notation 'Web Application'
+    style {
+      shape browser
+    }
+  }
+
+  element service {
+    notation 'Service'
+  }
+
+  element component {
+    notation 'Component'
+    style {
+      opacity 15%
+    }
+  }
+
+  element database {
+    notation 'Database'
+    style {
+      shape storage
+      icon tech:postgresql
+      opacity 30%
+    }
+  }
+
+  element storage {
+    notation 'Object Storage'
+    style {
+      shape storage
+      opacity 30%
+    }
+  }
+
+  element queue {
+    notation 'Message Broker'
+    style {
+      shape queue
+      opacity 30%
+    }
+  }
+
+  tag planned {
+    color rgb(140 140 140)
+  }
+}
