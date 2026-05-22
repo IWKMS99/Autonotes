@@ -233,6 +233,29 @@ const noteDetailMarkdownComponents = {
   )
 };
 
+const NoteDetailProcessingState = () => (
+  <div className="note-detail-status-state note-detail-status-state--processing">
+    <div className="note-detail-status-state__icon note-detail-status-state__icon--processing">
+      ⏳
+    </div>
+
+    <h3 className="note-detail-status-state__title note-detail-status-state__title--processing">
+      Идет анализ...
+    </h3>
+
+    <p className="note-detail-status-state__description note-detail-status-state__description--processing">
+      ИИ обрабатывает ваши фотографии. Результат появится здесь автоматически.
+    </p>
+
+    <div className="note-detail-processing-hint">
+      <div className="loading-spinner"></div>
+      <span className="note-detail-processing-hint__text">
+        Обработка может занять несколько минут
+      </span>
+    </div>
+  </div>
+);
+
 const NoteDetail = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -354,47 +377,7 @@ const NoteDetail = () => {
         )}
 
         {note.status === 'PROCESSING' && (
-          <div style={{
-            backgroundColor: '#fefce8',
-            border: '1px solid var(--warning-color)',
-            borderRadius: 'var(--radius-lg)',
-            padding: 'var(--spacing-8)',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '3rem',
-              marginBottom: 'var(--spacing-4)',
-              animation: 'pulse 2s ease-in-out infinite'
-            }}>
-              ⏳
-            </div>
-            <h3 style={{
-              fontSize: 'var(--font-size-xl)',
-              fontWeight: '600',
-              color: '#92400e',
-              margin: '0 0 var(--spacing-3) 0'
-            }}>
-              Идет анализ...
-            </h3>
-            <p style={{
-              color: '#b45309',
-              margin: 0,
-              fontSize: 'var(--font-size-base)'
-            }}>
-              ИИ обрабатывает ваши фотографии. Результат появится здесь автоматически.
-            </p>
-            <div style={{
-              marginTop: 'var(--spacing-4)',
-              display: 'flex',
-              justifyContent: 'center',
-              gap: 'var(--spacing-2)'
-            }}>
-              <div className="loading-spinner"></div>
-              <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--font-size-sm)' }}>
-                Обработка может занять несколько минут
-              </span>
-            </div>
-          </div>
+          <NoteDetailProcessingState />
         )}
 
         {note.status === 'FAILED' && (
