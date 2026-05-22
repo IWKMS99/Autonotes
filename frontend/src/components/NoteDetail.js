@@ -149,6 +149,21 @@ const NoteDetailFilesSection = ({ images }) => (
   </div>
 );
 
+const NoteDetailSummarySection = ({ children }) => (
+  <div className="card note-detail-summary-card">
+    <div className="note-detail-summary-heading">
+      <span className="note-detail-summary-heading__icon">📝</span>
+      <h3 className="note-detail-summary-heading__title">
+        Конспект
+      </h3>
+    </div>
+
+    <div className="markdown-container note-detail-markdown">
+      {children}
+    </div>
+  </div>
+);
+
 const NoteDetail = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -238,178 +253,168 @@ const NoteDetail = () => {
   }
 
   return (
-  <div className="slide-up">
-    <NoteDetailBackLink />
+    <div className="slide-up">
+      <NoteDetailBackLink />
 
-    <div className="note-detail-header">
-      <NoteDetailHeaderInfo
-        note={note}
-        formatDate={formatDate}
-      />
+      <div className="note-detail-header">
+        <NoteDetailHeaderInfo
+          note={note}
+          formatDate={formatDate}
+        />
 
-      <NoteDetailActions
-        note={note}
-        deleteLoading={deleteLoading}
-        onDelete={handleDelete}
-      />
-    </div>
+        <NoteDetailActions
+          note={note}
+          deleteLoading={deleteLoading}
+          onDelete={handleDelete}
+        />
+      </div>
 
       <div className="note-detail-content-grid">
         <NoteDetailFilesSection images={note.images} />
 
         {note.summaryText && (
-          <div className="card note-detail-summary-card">
-            <div className="note-detail-summary-heading">
-              <span className="note-detail-summary-heading__icon">📝</span>
-              <h3 className="note-detail-summary-heading__title">
-                Конспект
-              </h3>
-            </div>
-
-            <div className="markdown-container note-detail-markdown">
-              
-              <ReactMarkdown
-                remarkPlugins={[remarkMath]}
-                rehypePlugins={[rehypeKatex]}
-                components={{
-                  h1: ({ children }) => (
-                    <h1 style={{
-                      fontSize: 'var(--font-size-2xl)',
-                      fontWeight: '700',
-                      color: 'var(--text-primary)',
-                      margin: '0 0 var(--spacing-4) 0',
-                      borderBottom: '1px solid var(--border-color)',
-                      paddingBottom: '0.5rem'
+          <NoteDetailSummarySection>
+            <ReactMarkdown
+              remarkPlugins={[remarkMath]}
+              rehypePlugins={[rehypeKatex]}
+              components={{
+                h1: ({ children }) => (
+                  <h1 style={{
+                    fontSize: 'var(--font-size-2xl)',
+                    fontWeight: '700',
+                    color: 'var(--text-primary)',
+                    margin: '0 0 var(--spacing-4) 0',
+                    borderBottom: '1px solid var(--border-color)',
+                    paddingBottom: '0.5rem'
+                  }}>
+                    {children}
+                  </h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 style={{
+                    fontSize: 'var(--font-size-xl)',
+                    fontWeight: '600',
+                    color: 'var(--text-primary)',
+                    margin: 'var(--spacing-6) 0 var(--spacing-3) 0'
+                  }}>
+                    {children}
+                  </h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 style={{
+                    fontSize: 'var(--font-size-lg)',
+                    fontWeight: '600',
+                    color: 'var(--text-primary)',
+                    margin: 'var(--spacing-5) 0 var(--spacing-3) 0'
+                  }}>
+                    {children}
+                  </h3>
+                ),
+                p: ({ children }) => (
+                  <p style={{
+                    margin: '0 0 var(--spacing-4) 0',
+                    lineHeight: 1.7
+                  }}>
+                    {children}
+                  </p>
+                ),
+                ul: ({ children }) => (
+                  <ul style={{
+                    margin: 'var(--spacing-3) 0',
+                    paddingLeft: 'var(--spacing-6)'
+                  }}>
+                    {children}
+                  </ul>
+                ),
+                ol: ({ children }) => (
+                  <ol style={{
+                    margin: 'var(--spacing-3) 0',
+                    paddingLeft: 'var(--spacing-6)'
+                  }}>
+                    {children}
+                  </ol>
+                ),
+                li: ({ children }) => (
+                  <li style={{
+                    marginBottom: 'var(--spacing-2)',
+                    lineHeight: 1.6
+                  }}>
+                    {children}
+                  </li>
+                ),
+                strong: ({ children }) => (
+                  <strong style={{
+                    fontWeight: '600',
+                    color: 'var(--text-primary)'
+                  }}>
+                    {children}
+                  </strong>
+                ),
+                em: ({ children }) => (
+                  <em style={{
+                    fontStyle: 'italic',
+                    color: 'var(--text-secondary)'
+                  }}>
+                    {children}
+                  </em>
+                ),
+                blockquote: ({ children }) => (
+                  <blockquote style={{
+                    borderLeft: '4px solid var(--primary-color)',
+                    padding: 'var(--spacing-3) var(--spacing-4)',
+                    margin: 'var(--spacing-4) 0',
+                    backgroundColor: 'var(--surface-color)',
+                    borderRadius: 'var(--radius-md)',
+                    fontStyle: 'italic',
+                    color: 'var(--text-secondary)'
+                  }}>
+                    {children}
+                  </blockquote>
+                ),
+                code: ({ inline, children }) => (
+                  inline ? (
+                    <code style={{
+                      backgroundColor: 'var(--background-color)',
+                      padding: '0.125rem var(--spacing-1)',
+                      borderRadius: 'var(--radius-sm)',
+                      fontSize: '0.9em',
+                      fontFamily: 'monospace',
+                      color: 'var(--error-color)',
+                      border: '1px solid var(--border-color)'
                     }}>
                       {children}
-                    </h1>
-                  ),
-                  h2: ({ children }) => (
-                    <h2 style={{
-                      fontSize: 'var(--font-size-xl)',
-                      fontWeight: '600',
-                      color: 'var(--text-primary)',
-                      margin: 'var(--spacing-6) 0 var(--spacing-3) 0'
-                    }}>
-                      {children}
-                    </h2>
-                  ),
-                  h3: ({ children }) => (
-                    <h3 style={{
-                      fontSize: 'var(--font-size-lg)',
-                      fontWeight: '600',
-                      color: 'var(--text-primary)',
-                      margin: 'var(--spacing-5) 0 var(--spacing-3) 0'
-                    }}>
-                      {children}
-                    </h3>
-                  ),
-                  p: ({ children }) => (
-                    <p style={{
-                      margin: '0 0 var(--spacing-4) 0',
-                      lineHeight: 1.7
-                    }}>
-                      {children}
-                    </p>
-                  ),
-                  ul: ({ children }) => (
-                    <ul style={{
-                      margin: 'var(--spacing-3) 0',
-                      paddingLeft: 'var(--spacing-6)'
-                    }}>
-                      {children}
-                    </ul>
-                  ),
-                  ol: ({ children }) => (
-                    <ol style={{
-                      margin: 'var(--spacing-3) 0',
-                      paddingLeft: 'var(--spacing-6)'
-                    }}>
-                      {children}
-                    </ol>
-                  ),
-                  li: ({ children }) => (
-                    <li style={{
-                      marginBottom: 'var(--spacing-2)',
-                      lineHeight: 1.6
-                    }}>
-                      {children}
-                    </li>
-                  ),
-                  strong: ({ children }) => (
-                    <strong style={{
-                      fontWeight: '600',
-                      color: 'var(--text-primary)'
-                    }}>
-                      {children}
-                    </strong>
-                  ),
-                  em: ({ children }) => (
-                    <em style={{
-                      fontStyle: 'italic',
-                      color: 'var(--text-secondary)'
-                    }}>
-                      {children}
-                    </em>
-                  ),
-                  blockquote: ({ children }) => (
-                    <blockquote style={{
-                      borderLeft: '4px solid var(--primary-color)',
-                      padding: 'var(--spacing-3) var(--spacing-4)',
-                      margin: 'var(--spacing-4) 0',
-                      backgroundColor: 'var(--surface-color)',
+                    </code>
+                  ) : (
+                    <pre style={{
+                      backgroundColor: 'var(--background-color)',
+                      padding: 'var(--spacing-4)',
                       borderRadius: 'var(--radius-md)',
-                      fontStyle: 'italic',
-                      color: 'var(--text-secondary)'
+                      overflow: 'auto',
+                      border: '1px solid var(--border-color)',
+                      margin: 'var(--spacing-4) 0'
                     }}>
-                      {children}
-                    </blockquote>
-                  ),
-                  code: ({ inline, children }) => (
-                    inline ? (
                       <code style={{
-                        backgroundColor: 'var(--background-color)',
-                        padding: '0.125rem var(--spacing-1)',
-                        borderRadius: 'var(--radius-sm)',
-                        fontSize: '0.9em',
+                        fontSize: 'var(--font-size-sm)',
                         fontFamily: 'monospace',
-                        color: 'var(--error-color)',
-                        border: '1px solid var(--border-color)'
+                        color: 'var(--text-primary)'
                       }}>
                         {children}
                       </code>
-                    ) : (
-                      <pre style={{
-                        backgroundColor: 'var(--background-color)',
-                        padding: 'var(--spacing-4)',
-                        borderRadius: 'var(--radius-md)',
-                        overflow: 'auto',
-                        border: '1px solid var(--border-color)',
-                        margin: 'var(--spacing-4) 0'
-                      }}>
-                        <code style={{
-                          fontSize: 'var(--font-size-sm)',
-                          fontFamily: 'monospace',
-                          color: 'var(--text-primary)'
-                        }}>
-                          {children}
-                        </code>
-                      </pre>
-                    )
-                  ),
-                  hr: () => (
-                    <hr style={{
-                      border: 'none',
-                      borderTop: '2px solid var(--border-color)',
-                      margin: 'var(--spacing-6) 0'
-                    }} />
+                    </pre>
                   )
-                }}
-              >
-                {note.summaryText}
-              </ReactMarkdown>
-            </div>
-          </div>
+                ),
+                hr: () => (
+                  <hr style={{
+                    border: 'none',
+                    borderTop: '2px solid var(--border-color)',
+                    margin: 'var(--spacing-6) 0'
+                  }} />
+                )
+              }}
+            >
+              {note.summaryText}
+            </ReactMarkdown>
+          </NoteDetailSummarySection>
         )}
 
         {note.status === 'PROCESSING' && (
