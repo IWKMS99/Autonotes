@@ -1,0 +1,8 @@
+.note-detail-state-title {
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.note-detail-state-icon--muted {
+  color: var(--text-secondary);
+}

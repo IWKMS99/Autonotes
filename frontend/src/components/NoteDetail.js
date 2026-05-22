@@ -6,6 +6,7 @@ import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
 import { getNoteById, deleteNote } from '../services/noteService';
 import { STATUS_TEXTS } from '../utils/constants';
+import './NoteDetail.css';
 
 const NoteDetail = () => {
   const { noteId } = useParams();
