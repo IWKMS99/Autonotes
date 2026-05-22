@@ -102,6 +102,17 @@ const ProfileStats = ({ stats }) => (
   </div>
 );
 
+const ProfileActions = ({ onLogout }) => (
+  <div className="ui-actions-row profile-actions">
+    <button
+      onClick={onLogout}
+      className="btn btn-danger profile-logout-button"
+    >
+      🚪 Выйти из аккаунта
+    </button>
+  </div>
+);
+
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -207,14 +218,7 @@ const Profile = () => {
           </div>
         )}
 
-        <div className="ui-actions-row profile-actions">
-          <button
-            onClick={handleLogout}
-            className="btn btn-danger profile-logout-button"
-          >
-            🚪 Выйти из аккаунта
-          </button>
-        </div>
+        <ProfileActions onLogout={handleLogout} />
       </div>
     </div>
   );
