@@ -16,6 +16,8 @@ views {
     title 'C2 — Containers'
     description '''
     Все контейнеры платформы. ML Service — в разработке (#planned).
+    На практике: по умолчанию deploy в single-режиме (1 backend),
+    а показанный здесь multi-backend сценарий соответствует profile=cluster.
     Async-поток без UI: view c2_async_processing.
     '''
     include *
