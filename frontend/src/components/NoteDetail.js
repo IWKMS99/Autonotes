@@ -133,7 +133,7 @@ const NoteDetailFilesSection = ({ images }) => (
 
     {images && images.length > 0 ? (
       <div className="note-detail-files-grid">
-        {images
+        {[...images]
           .sort((a, b) => a.orderIndex - b.orderIndex)
           .map((image, idx) => (
             <NoteDetailFileItem
