@@ -3,6 +3,20 @@ import { useNavigate, Link } from 'react-router-dom';
 import { createNote } from '../services/noteService';
 import './NoteUploadForm.css';
 
+const NoteUploadHeader = () => (
+  <div className="ui-page-header">
+    <div className="ui-page-header__icon">
+      📷
+    </div>
+    <h1 className="ui-page-header__title">
+      Новый конспект
+    </h1>
+    <p className="ui-page-header__description note-upload-header-description">
+      Загрузите фотографии доски, и ИИ создаст для вас подробный конспект
+    </p>
+  </div>
+);
+
 const NoteUploadForm = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -29,7 +43,6 @@ const NoteUploadForm = () => {
 
     if (selectedFiles.length === 0) return;
 
-    // Проверяем каждый файл
     for (const file of selectedFiles) {
       if (!file.type.startsWith('image/')) {
         setError('Все файлы должны быть изображениями (JPG, PNG, GIF)');
@@ -47,7 +60,6 @@ const NoteUploadForm = () => {
       files: selectedFiles
     }));
 
-    // Создаем превью для каждого файла
     const newPreviews = [];
     selectedFiles.forEach((file, index) => {
       const reader = new FileReader();
@@ -114,7 +126,6 @@ const NoteUploadForm = () => {
     setUploadProgress(0);
 
     try {
-      // Имитация прогресса загрузки
       const progressInterval = setInterval(() => {
         setUploadProgress(prev => {
           if (prev >= 90) {
@@ -129,7 +140,6 @@ const NoteUploadForm = () => {
       setUploadProgress(100);
       clearInterval(progressInterval);
 
-      // Небольшая задержка для отображения 100%
       setTimeout(() => {
         navigate('/dashboard');
       }, 500);
@@ -147,43 +157,7 @@ const NoteUploadForm = () => {
 
   return (
     <div className="slide-up">
-      <div style={{
-        textAlign: 'center',
-        marginBottom: 'var(--spacing-8)',
-        maxWidth: 600,
-        margin: '0 auto var(--spacing-8) auto'
-      }}>
-        <div style={{
-          width: 80,
-          height: 80,
-          backgroundColor: 'var(--primary-light)',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          margin: '0 auto var(--spacing-6)',
-          fontSize: '2.5rem'
-        }}>
-          📷
-        </div>
-        <h1 style={{
-          fontSize: 'var(--font-size-3xl)',
-          fontWeight: '700',
-          color: 'var(--text-primary)',
-          margin: '0 0 var(--spacing-3) 0'
-        }}>
-          Новый конспект
-        </h1>
-        <p style={{
-          color: 'var(--text-secondary)',
-          fontSize: 'var(--font-size-lg)',
-          margin: 0,
-          maxWidth: 400,
-          margin: '0 auto'
-        }}>
-          Загрузите фотографии доски, и ИИ создаст для вас подробный конспект
-        </p>
-      </div>
+      <NoteUploadHeader />
 
       <div style={{ maxWidth: 600, margin: '0 auto' }}>
         <form onSubmit={handleSubmit}>
