@@ -3,7 +3,7 @@
 <div align="center">
 
 ![React](https://img.shields.io/badge/React-19.2.0-blue?logo=react)
-![React Router](https://img.shields.io/badge/React_Router-6.0+-orange?logo=reactrouter)
+![React Router](https://img.shields.io/badge/React_Router-7.9+-orange?logo=reactrouter)
 ![Axios](https://img.shields.io/badge/Axios-HTTP_client-green)
 
 Клиентское приложение для сервиса Autonotes.
@@ -14,7 +14,7 @@
 
 *   **Аутентификация**: Полная поддержка JWT (хранение в LocalStorage, интерцепторы Axios для добавления заголовка `Authorization`, авто-логаут при 401 ошибке).
 *   **Real-time UX**: Дэшборд автоматически опрашивает сервер (Polling) каждые 10 секунд, если в списке есть конспекты со статусом `PROCESSING`, чтобы пользователь увидел результат без перезагрузки страницы.
-*   **Валидация**: Проверка типов файлов (изображения) и размера (до 10 МБ) на клиенте перед отправкой.
+*   **Валидация**: Проверка типов файлов (изображения/PDF) и размера (до 50 МБ) на клиенте перед отправкой.
 *   **Защищенные маршруты**: Компонент `ProtectedRoute` не позволяет неавторизованным пользователям попасть на внутренние страницы.
 
 ## 🚀 Запуск в составе Docker Compose (Рекомендуемый способ)
@@ -22,7 +22,7 @@
 Фронтенд является частью общего `docker-compose.yml` проекта. Для запуска всего приложения (включая бэкенд и базу данных) выполните команду в корневой директории проекта:
 
 ```bash
-docker-compose up --build -d
+docker compose up --build -d
 ```
 После этого приложение будет доступно по адресу **http://localhost:3000**.
 
@@ -38,7 +38,7 @@ npm install
 ### 2. Настройка окружения
 Создайте файл `.env` в этой папке (`frontend/.env`):
 ```properties
-REACT_APP_API_BASE_URL=http://localhost:8080/api/v1
+REACT_APP_API_BASE_URL=/api/v1
 ```
 
 ### 3. Запуск dev-сервера

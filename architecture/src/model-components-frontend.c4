@@ -1,0 +1,54 @@
+model {
+  extend autonotes.frontend {
+    router = component 'Router' {
+      description 'App.js routes'
+      technology 'react-router-dom'
+    }
+
+    apiClient = component 'API Client' {
+      description 'axios.js — JWT interceptors'
+      technology 'Axios'
+    }
+
+    authService = component 'Auth Service' {
+      description 'authService.js'
+    }
+
+    noteService = component 'Note Service' {
+      description 'noteService.js'
+    }
+
+    shell = component 'App Shell' {
+      description 'Layout, ProtectedRoute'
+    }
+
+    uiAuth = component 'Auth UI' {
+      description 'AuthForm'
+    }
+
+    uiDashboard = component 'Dashboard UI' {
+      description 'NotesDashboard, polling'
+    }
+
+    uiUpload = component 'Upload UI' {
+      description 'NoteUploadForm'
+    }
+
+    uiDetail = component 'Note Detail UI' {
+      description 'NoteDetail, markdown'
+    }
+
+    router -> shell
+    router -> uiAuth
+    shell -> uiDashboard
+    shell -> uiUpload
+    shell -> uiDetail
+    uiAuth -> authService
+    uiDashboard -> noteService
+    uiUpload -> noteService
+    uiDetail -> noteService
+    authService -> apiClient
+    noteService -> apiClient
+    apiClient -> autonotes.backend 'REST /api/v1'
+  }
+}

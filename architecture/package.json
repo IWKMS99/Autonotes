@@ -1,0 +1,16 @@
+{
+  "name": "autonotes-architecture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LikeC4 architecture diagrams for Autonotes (C1–C2)",
+  "type": "module",
+  "scripts": {
+    "start": "likec4 start",
+    "dev": "likec4 start",
+    "build": "likec4 build",
+    "export:png": "likec4 export png -o ./dist"
+  },
+  "devDependencies": {
+    "likec4": "latest"
+  }
+}

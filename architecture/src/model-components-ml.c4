@@ -1,0 +1,36 @@
+model {
+  extend autonotes.mlWorker {
+    processConsumer = component 'Process Consumer' {
+      #planned
+      description 'notes.process.queue'
+    }
+
+    s3Reader = component 'S3 Reader' {
+      #planned
+      description 'S3 GET by filePaths'
+    }
+
+    ocrPipeline = component 'OCR Pipeline' {
+      #planned
+      description 'recognizedText'
+    }
+
+    summarizer = component 'Summarizer' {
+      #planned
+      description 'summaryText'
+    }
+
+    resultPublisher = component 'Result Publisher' {
+      #planned
+      description 'notes.completed'
+    }
+
+    processConsumer -> s3Reader
+    s3Reader -> autonotes.minio
+    processConsumer -> ocrPipeline
+    ocrPipeline -> summarizer
+    summarizer -> resultPublisher
+    resultPublisher -> autonotes.rabbitmq
+    autonotes.rabbitmq -> processConsumer
+  }
+}
