@@ -258,33 +258,16 @@ const NoteDetail = () => {
         <NoteDetailFilesSection images={note.images} />
 
         {note.summaryText && (
-          <div className="card" style={{ padding: 'var(--spacing-8)' }}>
-            <div style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 'var(--spacing-2)',
-              marginBottom: 'var(--spacing-6)'
-            }}>
-              <span style={{ fontSize: '1.25rem' }}>📝</span>
-              <h3 style={{
-                fontSize: 'var(--font-size-xl)',
-                fontWeight: '600',
-                color: 'var(--text-primary)',
-                margin: 0
-              }}>
+          <div className="card note-detail-summary-card">
+            <div className="note-detail-summary-heading">
+              <span className="note-detail-summary-heading__icon">📝</span>
+              <h3 className="note-detail-summary-heading__title">
                 Конспект
               </h3>
             </div>
-            <div className="markdown-container" style={{
-              backgroundColor: 'var(--primary-light)',
-              padding: 'var(--spacing-6)',
-              borderRadius: 'var(--radius-lg)',
-              borderLeft: '4px solid var(--primary-color)',
-              lineHeight: 1.7,
-              fontSize: 'var(--font-size-base)',
-              color: 'var(--text-primary)',
-              textAlign: 'left'
-            }}>
+
+            <div className="markdown-container note-detail-markdown">
+              
               <ReactMarkdown
                 remarkPlugins={[remarkMath]}
                 rehypePlugins={[rehypeKatex]}
