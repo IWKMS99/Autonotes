@@ -98,6 +98,35 @@ const NoteUploadError = ({ message }) => (
   </div>
 );
 
+const NoteUploadActions = ({ loading, isSubmitDisabled }) => (
+  <div className="note-upload-actions">
+    <Link
+      to="/dashboard"
+      className="btn btn-secondary note-upload-cancel-link"
+    >
+      Отмена
+    </Link>
+
+    <button
+      type="submit"
+      disabled={isSubmitDisabled}
+      className="btn btn-primary note-upload-submit-button"
+    >
+      {loading ? (
+        <>
+          <span className="loading-spinner note-upload-submit-spinner"></span>
+          Создание конспекта...
+        </>
+      ) : (
+        <>
+          <span>🚀</span>
+          Создать конспект
+        </>
+      )}
+    </button>
+  </div>
+);
+
 const NoteUploadForm = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -232,9 +261,7 @@ const NoteUploadForm = () => {
     }
   };
 
-  const handleCancel = () => {
-    navigate('/dashboard');
-  };
+  const isSubmitDisabled = loading || !formData.title.trim() || formData.files.length === 0;
 
   return (
     <div className="slide-up">
@@ -319,46 +346,10 @@ const NoteUploadForm = () => {
             <NoteUploadError message={error} />
           )}
 
-          <div style={{
-            display: 'flex',
-            gap: 'var(--spacing-3)',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap'
-          }}>
-            <Link
-              to="/dashboard"
-              className="btn btn-secondary"
-              style={{
-                flex: '1 1 auto',
-                textAlign: 'center',
-                textDecoration: 'none'
-              }}
-            >
-              Отмена
-            </Link>
-            <button
-              type="submit"
-              disabled={loading || !formData.title.trim() || formData.files.length === 0}
-              className="btn btn-primary"
-              style={{
-                flex: '2 1 auto',
-                fontSize: 'var(--font-size-base)',
-                padding: 'var(--spacing-4) var(--spacing-6)'
-              }}
-            >
-              {loading ? (
-                <>
-                  <span className="loading-spinner" style={{ marginRight: 'var(--spacing-2)' }}></span>
-                  Создание конспекта...
-                </>
-              ) : (
-                <>
-                  <span>🚀</span>
-                  Создать конспект
-                </>
-              )}
-            </button>
-          </div>
+          <NoteUploadActions
+            loading={loading}
+            isSubmitDisabled={isSubmitDisabled}
+          />
         </form>
       </div >
     </div >
