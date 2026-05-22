@@ -327,24 +327,6 @@ const NoteDetail = () => {
     }
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'COMPLETED': return '#10b981';
-      case 'PROCESSING': return '#f59e0b';
-      case 'FAILED': return '#ef4444';
-      default: return '#6b7280';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'COMPLETED': return 'Готов';
-      case 'PROCESSING': return 'В обработке';
-      case 'FAILED': return 'Ошибка обработки';
-      default: return status;
-    }
-  };
-
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('ru-RU', {
       year: 'numeric', month: 'long', day: 'numeric',
