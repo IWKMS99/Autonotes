@@ -159,7 +159,7 @@ const NoteUploadForm = () => {
     <div className="slide-up">
       <NoteUploadHeader />
 
-      <div style={{ maxWidth: 600, margin: '0 auto' }}>
+      <div className="note-upload-form">
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 'var(--spacing-6)' }}>
             <label className="form-label">
