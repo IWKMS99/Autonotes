@@ -1,0 +1,17 @@
+.note-upload-header-description {
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.note-upload-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.note-upload-form-group {
+  margin-bottom: var(--spacing-6);
+}
+
+.note-upload-title-input {
+  font-size: var(--font-size-lg);
+}

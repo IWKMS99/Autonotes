@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { createNote } from '../services/noteService';
+import './NoteUploadForm.css';
 
 const NoteUploadForm = () => {
   const [formData, setFormData] = useState({
