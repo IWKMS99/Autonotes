@@ -45,6 +45,15 @@ const NoteDetailEmptyState = () => (
   </div>
 );
 
+const NoteDetailBackLink = () => (
+  <nav className="note-detail-nav">
+    <Link to="/dashboard" className="note-detail-back-link">
+      <span>←</span>
+      Назад к списку конспектов
+    </Link>
+  </nav>
+);
+
 const NoteDetail = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -135,24 +144,7 @@ const NoteDetail = () => {
 
   return (
     <div className="slide-up">
-      <nav style={{
-        marginBottom: 'var(--spacing-6)',
-        fontSize: 'var(--font-size-sm)'
-      }}>
-        <Link
-          to="/dashboard"
-          style={{
-            color: 'var(--text-secondary)',
-            textDecoration: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 'var(--spacing-1)'
-          }}
-        >
-          <span>←</span>
-          Назад к списку конспектов
-        </Link>
-      </nav>
+      <NoteDetailBackLink />
 
       <div style={{
         display: 'flex',
