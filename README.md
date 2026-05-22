@@ -71,6 +71,7 @@ COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_S
 - **Grafana**: `http://localhost:3001` (`admin/admin`)
 - **Jaeger UI**: `http://localhost:16686`
 - **Kibana**: `http://localhost:5601`
+- - trace-контекст и MDC-контракт в логах (`requestId`, `correlationId`, `traceId`, `spanId`, `instance_id`);
 
 Provisioning выполняется автоматически:
 - Grafana datasource + dashboards из `monitoring/grafana/provisioning`.
