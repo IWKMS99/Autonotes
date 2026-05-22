@@ -122,6 +122,33 @@ const NoteDetailFilesEmptyState = () => (
   </div>
 );
 
+const NoteDetailFilesSection = ({ images }) => (
+  <div className="card note-detail-card">
+    <div className="note-detail-section-heading">
+      <span className="note-detail-section-heading__icon">📎</span>
+      <h3 className="note-detail-section-heading__title">
+        Прикрепленные файлы
+      </h3>
+    </div>
+
+    {images && images.length > 0 ? (
+      <div className="note-detail-files-grid">
+        {images
+          .sort((a, b) => a.orderIndex - b.orderIndex)
+          .map((image, idx) => (
+            <NoteDetailFileItem
+              key={image.id || idx}
+              image={image}
+              index={idx}
+            />
+          ))}
+      </div>
+    ) : (
+      <NoteDetailFilesEmptyState />
+    )}
+  </div>
+);
+
 const NoteDetail = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -228,29 +255,7 @@ const NoteDetail = () => {
     </div>
 
       <div className="note-detail-content-grid">
-        <div className="card note-detail-card">
-          <div className="note-detail-section-heading">
-          <span className="note-detail-section-heading__icon">📎</span>
-          <h3 className="note-detail-section-heading__title">
-            Прикрепленные файлы
-          </h3>
-        </div>
-          {note.images && note.images.length > 0 ? (
-            <div className="note-detail-files-grid">
-              {note.images
-                .sort((a, b) => a.orderIndex - b.orderIndex)
-                .map((image, idx) => (
-                  <NoteDetailFileItem
-                    key={image.id || idx}
-                    image={image}
-                    index={idx}
-                  />
-                ))}
-            </div>
-          ) : (
-            <NoteDetailFilesEmptyState />
-          )}
-        </div>
+        <NoteDetailFilesSection images={note.images} />
 
         {note.summaryText && (
           <div className="card" style={{ padding: 'var(--spacing-8)' }}>
