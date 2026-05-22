@@ -41,6 +41,37 @@ const NoteUploadEmptyDropzone = ({ dragActive }) => (
   </div>
 );
 
+const NoteUploadPreviewCard = ({ preview, index, onRemove }) => (
+  <div className="note-upload-preview-card">
+    <img
+      src={preview.data}
+      alt={`Превью файла ${index + 1}`}
+      className="note-upload-preview-card__image"
+    />
+
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation();
+        onRemove(index);
+      }}
+      className="note-upload-preview-card__remove"
+      aria-label={`Удалить файл ${preview.name}`}
+    >
+      ✕
+    </button>
+
+    <div className="note-upload-preview-card__meta">
+      <div className="note-upload-preview-card__name">
+        {preview.name}
+      </div>
+      <div className="note-upload-preview-card__size">
+        {preview.size} MB
+      </div>
+    </div>
+  </div>
+);
+
 const NoteUploadForm = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -230,92 +261,20 @@ const NoteUploadForm = () => {
 
               {previews.length > 0 ? (
                 <div>
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-                    gap: 'var(--spacing-4)',
-                    marginBottom: 'var(--spacing-4)'
-                  }}>
+                  <div className="note-upload-preview-grid">
                     {previews.map((preview, index) => (
-                      <div
+                      <NoteUploadPreviewCard
                         key={index}
-                        style={{
-                          position: 'relative',
-                          backgroundColor: 'var(--surface-color)',
-                          borderRadius: 'var(--radius-lg)',
-                          overflow: 'hidden',
-                          border: '1px solid var(--border-color)'
-                        }}
-                      >
-                        <img
-                          src={preview.data}
-                          alt={`Preview ${index + 1}`}
-                          style={{
-                            width: '100%',
-                            height: 120,
-                            objectFit: 'cover'
-                          }}
-                        />
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeFile(index);
-                          }}
-                          style={{
-                            position: 'absolute',
-                            top: 'var(--spacing-2)',
-                            right: 'var(--spacing-2)',
-                            width: 24,
-                            height: 24,
-                            borderRadius: '50%',
-                            backgroundColor: 'rgba(0,0,0,0.7)',
-                            color: 'white',
-                            border: 'none',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: 'var(--font-size-sm)'
-                          }}
-                        >
-                          ✕
-                        </button>
-                        <div style={{
-                          position: 'absolute',
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
-                          padding: 'var(--spacing-3) var(--spacing-2)',
-                          color: 'white'
-                        }}>
-                          <div style={{
-                            fontSize: 'var(--font-size-xs)',
-                            fontWeight: '500',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {preview.name}
-                          </div>
-                          <div style={{
-                            fontSize: 'var(--font-size-xs)',
-                            opacity: 0.8
-                          }}>
-                            {preview.size} MB
-                          </div>
-                        </div>
-                      </div>
+                        preview={preview}
+                        index={index}
+                        onRemove={removeFile}
+                      />
                     ))}
                   </div>
-                  <p style={{
-                    color: 'var(--text-secondary)',
-                    margin: 0,
-                    fontSize: 'var(--font-size-sm)'
-                  }}>
+
+                  <p className="note-upload-selected-files-text">
                     📎 Выбрано файлов: {previews.length}.
-                    <span style={{ color: 'var(--primary-color)', fontWeight: '500' }}>
+                    <span className="note-upload-selected-files-action">
                       {' '}Нажмите для добавления еще файлов
                     </span>
                   </p>
