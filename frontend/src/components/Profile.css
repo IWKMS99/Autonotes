@@ -89,11 +89,6 @@
   padding: var(--spacing-3) var(--spacing-6);
 }
 
-.loading-spinner--lg {
-  width: 2rem;
-  height: 2rem;
-}
-
 .profile-error-title {
   color: var(--text-primary);
   margin: 0;

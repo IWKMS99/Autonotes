@@ -17,6 +17,7 @@ const Profile = () => {
     const fetchProfileAndStats = async () => {
       try {
         const username = getUsernameFromToken();
+
         if (!username) {
           throw new Error('Не удалось получить имя пользователя из токена.');
         }
@@ -42,7 +43,6 @@ const Profile = () => {
           processedNotes,
           totalSize: Math.round(totalSize / (1024 * 1024))
         });
-
       } catch (err) {
         setError(err.message || 'Ошибка загрузки профиля');
       } finally {
@@ -59,9 +59,9 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="center-state">
-        <div className="loading-spinner loading-spinner--lg"></div>
-        <p className="center-state__text">
+      <div className="ui-center-state">
+        <div className="loading-spinner ui-loading-spinner--lg"></div>
+        <p className="ui-center-state__text">
           Загрузка профиля...
         </p>
       </div>
@@ -70,33 +70,33 @@ const Profile = () => {
 
   if (error) {
     return (
-      <div className="center-state">
-        <div className="center-state__icon">
+      <div className="ui-center-state">
+        <div className="ui-center-state__icon">
           ⚠️
         </div>
         <h2 className="profile-error-title">Ошибка загрузки</h2>
-        <p className="center-state__text">{error}</p>
+        <p className="ui-center-state__text">{error}</p>
       </div>
     );
   }
 
   return (
     <div className="slide-up">
-      <div className="page-header">
-        <div className="page-header__icon">
+      <div className="ui-page-header">
+        <div className="ui-page-header__icon">
           👤
         </div>
-        <h1 className="page-header__title">
+        <h1 className="ui-page-header__title">
           Профиль
         </h1>
-        <p className="page-header__description">
+        <p className="ui-page-header__description">
           Информация о вашем аккаунте
         </p>
       </div>
 
-      <div className="page-narrow">
+      <div className="ui-page-narrow">
         {profile && (
-          <div className="card card-padded">
+          <div className="card ui-card-padded">
             <div className="profile-grid">
               <div>
                 <div className="profile-field__header">
@@ -151,10 +151,10 @@ const Profile = () => {
               </div>
             </div>
 
-            <div className="section-divider">
-              <div className="section-title">
-                <span className="section-title__icon">📊</span>
-                <h3 className="section-title__text">
+            <div className="ui-section-divider">
+              <div className="ui-section-title">
+                <span className="ui-section-title__icon">📊</span>
+                <h3 className="ui-section-title__text">
                   Статистика
                 </h3>
               </div>
@@ -191,7 +191,7 @@ const Profile = () => {
           </div>
         )}
 
-        <div className="actions-row profile-actions">
+        <div className="ui-actions-row profile-actions">
           <button
             onClick={handleLogout}
             className="btn btn-danger profile-logout-button"
