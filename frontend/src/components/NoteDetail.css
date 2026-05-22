@@ -24,3 +24,74 @@
 .note-detail-back-link:hover {
   color: var(--text-primary);
 }
+
+.note-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-8);
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+}
+
+.note-detail-header__content {
+  flex: 1;
+  min-width: 300px;
+}
+
+.note-detail-header__title {
+  font-size: var(--font-size-3xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-2);
+  line-height: 1.2;
+}
+
+.note-detail-header__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  flex-wrap: wrap;
+}
+
+.note-detail-header__meta-item {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
+.note-detail-header__meta-item--muted {
+  color: var(--text-muted);
+}
+
+.note-detail-actions {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.note-detail-status-badge {
+  font-size: var(--font-size-sm);
+  padding: var(--spacing-2) var(--spacing-4);
+}
+
+.note-detail-delete-button {
+  padding: var(--spacing-2) var(--spacing-4);
+  font-size: var(--font-size-sm);
+}
+
+.note-detail-delete-spinner {
+  margin-right: var(--spacing-2);
+}
+
+@media (max-width: 640px) {
+  .note-detail-header {
+    flex-direction: column;
+  }
+
+  .note-detail-actions,
+  .note-detail-delete-button {
+    width: 100%;
+  }
+}
