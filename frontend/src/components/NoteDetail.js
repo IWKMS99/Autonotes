@@ -256,6 +256,26 @@ const NoteDetailProcessingState = () => (
   </div>
 );
 
+const NoteDetailFailedState = () => (
+  <div className="note-detail-status-state note-detail-status-state--failed">
+    <div className="note-detail-status-state__icon note-detail-status-state__icon--failed">
+      ❌
+    </div>
+
+    <h3 className="note-detail-status-state__title note-detail-status-state__title--failed">
+      Ошибка обработки
+    </h3>
+
+    <p className="note-detail-status-state__description note-detail-status-state__description--failed">
+      Не удалось обработать фотографии. Попробуйте загрузить их снова с лучшим качеством.
+    </p>
+
+    <Link to="/upload" className="btn btn-primary">
+      Загрузить заново
+    </Link>
+  </div>
+);
+
 const NoteDetail = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -381,39 +401,7 @@ const NoteDetail = () => {
         )}
 
         {note.status === 'FAILED' && (
-          <div style={{
-            backgroundColor: '#fef2f2',
-            border: '1px solid var(--error-color)',
-            borderRadius: 'var(--radius-lg)',
-            padding: 'var(--spacing-8)',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: '3rem',
-              marginBottom: 'var(--spacing-4)',
-              color: 'var(--error-color)'
-            }}>
-              ❌
-            </div>
-            <h3 style={{
-              fontSize: 'var(--font-size-xl)',
-              fontWeight: '600',
-              color: 'var(--error-color)',
-              margin: '0 0 var(--spacing-3) 0'
-            }}>
-              Ошибка обработки
-            </h3>
-            <p style={{
-              color: '#dc2626',
-              margin: '0 0 var(--spacing-6) 0',
-              fontSize: 'var(--font-size-base)'
-            }}>
-              Не удалось обработать фотографии. Попробуйте загрузить их снова с лучшим качеством.
-            </p>
-            <Link to="/upload" className="btn btn-primary">
-              Загрузить заново
-            </Link>
-          </div>
+          <NoteDetailFailedState />
         )}
       </div>
     </div>
