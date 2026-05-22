@@ -164,6 +164,75 @@ const NoteDetailSummarySection = ({ children }) => (
   </div>
 );
 
+const noteDetailMarkdownComponents = {
+  h1: ({ children }) => (
+    <h1 className="note-detail-markdown-heading-1">
+      {children}
+    </h1>
+  ),
+  h2: ({ children }) => (
+    <h2 className="note-detail-markdown-heading-2">
+      {children}
+    </h2>
+  ),
+  h3: ({ children }) => (
+    <h3 className="note-detail-markdown-heading-3">
+      {children}
+    </h3>
+  ),
+  p: ({ children }) => (
+    <p className="note-detail-markdown-paragraph">
+      {children}
+    </p>
+  ),
+  ul: ({ children }) => (
+    <ul className="note-detail-markdown-list">
+      {children}
+    </ul>
+  ),
+  ol: ({ children }) => (
+    <ol className="note-detail-markdown-list">
+      {children}
+    </ol>
+  ),
+  li: ({ children }) => (
+    <li className="note-detail-markdown-list-item">
+      {children}
+    </li>
+  ),
+  strong: ({ children }) => (
+    <strong className="note-detail-markdown-strong">
+      {children}
+    </strong>
+  ),
+  em: ({ children }) => (
+    <em className="note-detail-markdown-emphasis">
+      {children}
+    </em>
+  ),
+  blockquote: ({ children }) => (
+    <blockquote className="note-detail-markdown-blockquote">
+      {children}
+    </blockquote>
+  ),
+  code: ({ inline, children }) => (
+    inline ? (
+      <code className="note-detail-markdown-inline-code">
+        {children}
+      </code>
+    ) : (
+      <pre className="note-detail-markdown-code-block">
+        <code className="note-detail-markdown-code-block__code">
+          {children}
+        </code>
+      </pre>
+    )
+  ),
+  hr: () => (
+    <hr className="note-detail-markdown-divider" />
+  )
+};
+
 const NoteDetail = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -277,140 +346,7 @@ const NoteDetail = () => {
             <ReactMarkdown
               remarkPlugins={[remarkMath]}
               rehypePlugins={[rehypeKatex]}
-              components={{
-                h1: ({ children }) => (
-                  <h1 style={{
-                    fontSize: 'var(--font-size-2xl)',
-                    fontWeight: '700',
-                    color: 'var(--text-primary)',
-                    margin: '0 0 var(--spacing-4) 0',
-                    borderBottom: '1px solid var(--border-color)',
-                    paddingBottom: '0.5rem'
-                  }}>
-                    {children}
-                  </h1>
-                ),
-                h2: ({ children }) => (
-                  <h2 style={{
-                    fontSize: 'var(--font-size-xl)',
-                    fontWeight: '600',
-                    color: 'var(--text-primary)',
-                    margin: 'var(--spacing-6) 0 var(--spacing-3) 0'
-                  }}>
-                    {children}
-                  </h2>
-                ),
-                h3: ({ children }) => (
-                  <h3 style={{
-                    fontSize: 'var(--font-size-lg)',
-                    fontWeight: '600',
-                    color: 'var(--text-primary)',
-                    margin: 'var(--spacing-5) 0 var(--spacing-3) 0'
-                  }}>
-                    {children}
-                  </h3>
-                ),
-                p: ({ children }) => (
-                  <p style={{
-                    margin: '0 0 var(--spacing-4) 0',
-                    lineHeight: 1.7
-                  }}>
-                    {children}
-                  </p>
-                ),
-                ul: ({ children }) => (
-                  <ul style={{
-                    margin: 'var(--spacing-3) 0',
-                    paddingLeft: 'var(--spacing-6)'
-                  }}>
-                    {children}
-                  </ul>
-                ),
-                ol: ({ children }) => (
-                  <ol style={{
-                    margin: 'var(--spacing-3) 0',
-                    paddingLeft: 'var(--spacing-6)'
-                  }}>
-                    {children}
-                  </ol>
-                ),
-                li: ({ children }) => (
-                  <li style={{
-                    marginBottom: 'var(--spacing-2)',
-                    lineHeight: 1.6
-                  }}>
-                    {children}
-                  </li>
-                ),
-                strong: ({ children }) => (
-                  <strong style={{
-                    fontWeight: '600',
-                    color: 'var(--text-primary)'
-                  }}>
-                    {children}
-                  </strong>
-                ),
-                em: ({ children }) => (
-                  <em style={{
-                    fontStyle: 'italic',
-                    color: 'var(--text-secondary)'
-                  }}>
-                    {children}
-                  </em>
-                ),
-                blockquote: ({ children }) => (
-                  <blockquote style={{
-                    borderLeft: '4px solid var(--primary-color)',
-                    padding: 'var(--spacing-3) var(--spacing-4)',
-                    margin: 'var(--spacing-4) 0',
-                    backgroundColor: 'var(--surface-color)',
-                    borderRadius: 'var(--radius-md)',
-                    fontStyle: 'italic',
-                    color: 'var(--text-secondary)'
-                  }}>
-                    {children}
-                  </blockquote>
-                ),
-                code: ({ inline, children }) => (
-                  inline ? (
-                    <code style={{
-                      backgroundColor: 'var(--background-color)',
-                      padding: '0.125rem var(--spacing-1)',
-                      borderRadius: 'var(--radius-sm)',
-                      fontSize: '0.9em',
-                      fontFamily: 'monospace',
-                      color: 'var(--error-color)',
-                      border: '1px solid var(--border-color)'
-                    }}>
-                      {children}
-                    </code>
-                  ) : (
-                    <pre style={{
-                      backgroundColor: 'var(--background-color)',
-                      padding: 'var(--spacing-4)',
-                      borderRadius: 'var(--radius-md)',
-                      overflow: 'auto',
-                      border: '1px solid var(--border-color)',
-                      margin: 'var(--spacing-4) 0'
-                    }}>
-                      <code style={{
-                        fontSize: 'var(--font-size-sm)',
-                        fontFamily: 'monospace',
-                        color: 'var(--text-primary)'
-                      }}>
-                        {children}
-                      </code>
-                    </pre>
-                  )
-                ),
-                hr: () => (
-                  <hr style={{
-                    border: 'none',
-                    borderTop: '2px solid var(--border-color)',
-                    margin: 'var(--spacing-6) 0'
-                  }} />
-                )
-              }}
+              components={noteDetailMarkdownComponents}
             >
               {note.summaryText}
             </ReactMarkdown>
