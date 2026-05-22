@@ -172,11 +172,20 @@ const NoteUploadDropzone = ({
     </label>
 
     <div
+      role="button"
+      tabIndex={loading ? -1 : 0}
+      aria-label="Выбрать фотографии доски для загрузки"
       onDragEnter={onDrag}
       onDragLeave={onDrag}
       onDragOver={onDrag}
       onDrop={onDrop}
       onClick={() => !loading && fileInputRef.current?.click()}
+      onKeyDown={(event) => {
+        if (!loading && (event.key === 'Enter' || event.key === ' ')) {
+          event.preventDefault();
+          fileInputRef.current?.click();
+        }
+      }}
       className={getDropzoneClassName({
         dragActive,
         hasPreviews: previews.length > 0,
