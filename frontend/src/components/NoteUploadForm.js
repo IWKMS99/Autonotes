@@ -72,6 +72,26 @@ const NoteUploadPreviewCard = ({ preview, index, onRemove }) => (
   </div>
 );
 
+const NoteUploadProgress = ({ progress }) => (
+  <div className="note-upload-progress">
+    <div className="note-upload-progress__header">
+      <span className="note-upload-progress__label">
+        Загрузка файлов...
+      </span>
+      <span className="note-upload-progress__value">
+        {progress}%
+      </span>
+    </div>
+
+    <div className="note-upload-progress__track">
+      <div
+        className="note-upload-progress__bar"
+        style={{ width: `${progress}%` }}
+      ></div>
+    </div>
+  </div>
+);
+
 const NoteUploadForm = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -286,43 +306,7 @@ const NoteUploadForm = () => {
           </div>
 
           {loading && (
-            <div style={{ marginBottom: 'var(--spacing-6)' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 'var(--spacing-2)'
-              }}>
-                <span style={{
-                  fontSize: 'var(--font-size-sm)',
-                  fontWeight: '500',
-                  color: 'var(--text-secondary)'
-                }}>
-                  Загрузка файлов...
-                </span>
-                <span style={{
-                  fontSize: 'var(--font-size-sm)',
-                  color: 'var(--text-secondary)'
-                }}>
-                  {uploadProgress}%
-                </span>
-              </div>
-              <div style={{
-                width: '100%',
-                height: 8,
-                backgroundColor: 'var(--background-color)',
-                borderRadius: 'var(--radius-xl)',
-                overflow: 'hidden'
-              }}>
-                <div style={{
-                  width: `${uploadProgress}%`,
-                  height: '100%',
-                  background: 'linear-gradient(90deg, var(--primary-color), var(--primary-hover))',
-                  borderRadius: 'var(--radius-xl)',
-                  transition: 'width var(--transition-normal)'
-                }}></div>
-              </div>
-            </div>
+            <NoteUploadProgress progress={uploadProgress} />
           )}
 
           {error && (
