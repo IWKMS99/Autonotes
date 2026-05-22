@@ -158,22 +158,21 @@ const NoteUploadForm = () => {
   return (
     <div className="slide-up">
       <NoteUploadHeader />
-
       <div className="note-upload-form">
         <form onSubmit={handleSubmit}>
-          <div style={{ marginBottom: 'var(--spacing-6)' }}>
-            <label className="form-label">
+          <div className="note-upload-form-group">
+            <label className="form-label" htmlFor="note-title">
               Название конспекта *
             </label>
             <input
+              id="note-title"
               type="text"
               name="title"
               value={formData.title}
               onChange={handleInputChange}
               placeholder="Например: Лекция по дифференциальным уравнениям"
-              className="form-input"
+              className="form-input note-upload-title-input"
               disabled={loading}
-              style={{ fontSize: 'var(--font-size-lg)' }}
             />
           </div>
 
@@ -436,8 +435,8 @@ const NoteUploadForm = () => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 
