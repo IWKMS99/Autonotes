@@ -36,6 +36,30 @@ const ProfileHeader = () => (
   </div>
 );
 
+const getProfileFieldValueClassName = (variant) => {
+  const baseClassName = 'profile-field__value';
+
+  if (!variant) {
+    return baseClassName;
+  }
+
+  return `${baseClassName} ${baseClassName}--${variant}`;
+};
+
+const ProfileField = ({ icon, title, value, variant }) => (
+  <div>
+    <div className="profile-field__header">
+      <span className="profile-field__icon">{icon}</span>
+      <h3 className="profile-field__title">
+        {title}
+      </h3>
+    </div>
+    <p className={getProfileFieldValueClassName(variant)}>
+      {value}
+    </p>
+  </div>
+);
+
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -101,62 +125,40 @@ const Profile = () => {
   return (
     <div className="slide-up">
       <ProfileHeader />
-      
+
       <div className="ui-page-narrow">
         {profile && (
           <div className="card ui-card-padded">
             <div className="profile-grid">
-              <div>
-                <div className="profile-field__header">
-                  <span className="profile-field__icon">🆔</span>
-                  <h3 className="profile-field__title">
-                    ID пользователя
-                  </h3>
-                </div>
-                <p className="profile-field__value profile-field__value--code">
-                  {profile.id}
-                </p>
-              </div>
+              <ProfileField
+                icon="🆔"
+                title="ID пользователя"
+                value={profile.id}
+                variant="code"
+              />
 
-              <div>
-                <div className="profile-field__header">
-                  <span className="profile-field__icon">👤</span>
-                  <h3 className="profile-field__title">
-                    Имя пользователя
-                  </h3>
-                </div>
-                <p className="profile-field__value profile-field__value--primary">
-                  {profile.username}
-                </p>
-              </div>
+              <ProfileField
+                icon="👤"
+                title="Имя пользователя"
+                value={profile.username}
+                variant="primary"
+              />
 
-              <div>
-                <div className="profile-field__header">
-                  <span className="profile-field__icon">📧</span>
-                  <h3 className="profile-field__title">
-                    Email адрес
-                  </h3>
-                </div>
-                <p className="profile-field__value">
-                  {profile.email}
-                </p>
-              </div>
+              <ProfileField
+                icon="📧"
+                title="Email адрес"
+                value={profile.email}
+              />
 
-              <div>
-                <div className="profile-field__header">
-                  <span className="profile-field__icon">📅</span>
-                  <h3 className="profile-field__title">
-                    Дата регистрации
-                  </h3>
-                </div>
-                <p className="profile-field__value">
-                  {new Date(profile.createdAt).toLocaleDateString('ru-RU', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
-                </p>
-              </div>
+              <ProfileField
+                icon="📅"
+                title="Дата регистрации"
+                value={new Date(profile.createdAt).toLocaleDateString('ru-RU', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              />
             </div>
 
             <div className="ui-section-divider">
@@ -168,32 +170,23 @@ const Profile = () => {
               </div>
 
               <div className="profile-stats-grid">
-                <div className="profile-stat-card">
-                  <div className="profile-stat-card__value profile-stat-card__value--primary">
-                    {stats.totalNotes}
-                  </div>
-                  <div className="profile-stat-card__label">
-                    Конспектов
-                  </div>
-                </div>
+                <ProfileStatCard
+                  value={stats.totalNotes}
+                  label="Конспектов"
+                  variant="primary"
+                />
 
-                <div className="profile-stat-card">
-                  <div className="profile-stat-card__value profile-stat-card__value--success">
-                    {stats.processedNotes}
-                  </div>
-                  <div className="profile-stat-card__label">
-                    Обработано
-                  </div>
-                </div>
+                <ProfileStatCard
+                  value={stats.processedNotes}
+                  label="Обработано"
+                  variant="success"
+                />
 
-                <div className="profile-stat-card">
-                  <div className="profile-stat-card__value profile-stat-card__value--neutral">
-                    {stats.totalSize} MB
-                  </div>
-                  <div className="profile-stat-card__label">
-                    Загружено
-                  </div>
-                </div>
+                  <ProfileStatCard
+                    value={`${stats.totalSize} MB`}
+                    label="Загружено"
+                    variant="neutral"
+                  />
               </div>
             </div>
           </div>
