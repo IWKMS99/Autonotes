@@ -74,6 +74,32 @@ const NoteDetailHeaderInfo = ({ note, formatDate }) => (
   </div>
 );
 
+const NoteDetailActions = ({ note, deleteLoading, onDelete }) => (
+  <div className="note-detail-actions">
+    <div className={`status-badge status-${note.status.toLowerCase()} note-detail-status-badge`}>
+      {STATUS_TEXTS[note.status] || note.status}
+    </div>
+
+    <button
+      onClick={onDelete}
+      disabled={deleteLoading}
+      className="btn btn-danger note-detail-delete-button"
+    >
+      {deleteLoading ? (
+        <>
+          <span className="loading-spinner note-detail-delete-spinner"></span>
+          Удаление...
+        </>
+      ) : (
+        <>
+          <span>🗑️</span>
+          Удалить
+        </>
+      )}
+    </button>
+  </div>
+);
+
 const NoteDetail = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -172,40 +198,11 @@ const NoteDetail = () => {
         formatDate={formatDate}
       />
 
-      <div style={{
-        display: 'flex',
-        gap: 'var(--spacing-3)',
-        alignItems: 'center',
-        flexWrap: 'wrap'
-      }}>
-        <div className={`status-badge status-${note.status.toLowerCase()}`} style={{
-          fontSize: 'var(--font-size-sm)',
-          padding: 'var(--spacing-2) var(--spacing-4)'
-        }}>
-          {STATUS_TEXTS[note.status] || note.status}
-        </div>
-        <button
-          onClick={handleDelete}
-          disabled={deleteLoading}
-          className="btn btn-danger"
-          style={{
-            padding: 'var(--spacing-2) var(--spacing-4)',
-            fontSize: 'var(--font-size-sm)'
-          }}
-        >
-          {deleteLoading ? (
-            <>
-              <span className="loading-spinner" style={{ marginRight: 'var(--spacing-2)' }}></span>
-              Удаление...
-            </>
-          ) : (
-            <>
-              <span>🗑️</span>
-              Удалить
-            </>
-          )}
-        </button>
-      </div>
+      <NoteDetailActions
+        note={note}
+        deleteLoading={deleteLoading}
+        onDelete={handleDelete}
+      />
     </div>
 
       <div style={{ display: 'grid', gap: 'var(--spacing-6)' }}>
