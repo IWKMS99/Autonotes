@@ -2,16 +2,12 @@
 
 ## Запуск локально
 
-Из папки `ml`:
-```bash
-cd ml
-python -m uvicorn app:app --reload --port 8000
-```
-
-Или из корня репозитория:
+Из корня репозитория:
 ```bash
 python -m uvicorn ml.app:app --reload --port 8000
 ```
+
+> Важно: `ml/app.py` использует относительные импорты (`from .model ...`, `from .schemas ...`), поэтому запуск `python -m uvicorn app:app` из каталога `ml` не будет работать.
 
 ## Запуск в Docker
 ```bash
