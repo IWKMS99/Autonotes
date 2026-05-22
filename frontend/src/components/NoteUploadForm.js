@@ -17,6 +17,30 @@ const NoteUploadHeader = () => (
   </div>
 );
 
+const NoteUploadEmptyDropzone = ({ dragActive }) => (
+  <div>
+    <div className={[
+      'note-upload-empty-state__icon',
+      dragActive ? 'note-upload-empty-state__icon--active' : ''
+    ].filter(Boolean).join(' ')}>
+      {dragActive ? '📥' : '📸'}
+    </div>
+
+    <h3 className="note-upload-empty-state__title">
+      {dragActive ? 'Отпустите файлы здесь' : 'Выберите фотографии'}
+    </h3>
+
+    <p className="note-upload-empty-state__description">
+      {dragActive ? 'Файлы будут загружены' : 'Перетащите файлы сюда или нажмите для выбора'}
+    </p>
+
+    <div className="note-upload-empty-state__hint">
+      <span>📷</span>
+      <span>JPG, PNG, GIF до 50MB каждый</span>
+    </div>
+  </div>
+);
+
 const NoteUploadForm = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -297,41 +321,7 @@ const NoteUploadForm = () => {
                   </p>
                 </div>
               ) : (
-                <div>
-                  <div style={{
-                    fontSize: '4rem',
-                    marginBottom: 'var(--spacing-4)',
-                    color: dragActive ? 'var(--primary-color)' : 'var(--text-muted)'
-                  }}>
-                    {dragActive ? '📥' : '📸'}
-                  </div>
-                  <h3 style={{
-                    fontSize: 'var(--font-size-lg)',
-                    fontWeight: '600',
-                    color: 'var(--text-primary)',
-                    margin: '0 0 var(--spacing-2) 0'
-                  }}>
-                    {dragActive ? 'Отпустите файлы здесь' : 'Выберите фотографии'}
-                  </h3>
-                  <p style={{
-                    color: 'var(--text-secondary)',
-                    margin: '0 0 var(--spacing-4) 0',
-                    fontSize: 'var(--font-size-base)'
-                  }}>
-                    {dragActive ? 'Файлы будут загружены' : 'Перетащите файлы сюда или нажмите для выбора'}
-                  </p>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: 'var(--spacing-2)',
-                    color: 'var(--text-muted)',
-                    fontSize: 'var(--font-size-sm)'
-                  }}>
-                    <span>📷</span>
-                    <span>JPG, PNG, GIF до 50MB каждый</span>
-                  </div>
-                </div>
+                <NoteUploadEmptyDropzone dragActive={dragActive} />
               )}
             </div>
           </div>
