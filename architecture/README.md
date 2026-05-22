@@ -27,6 +27,16 @@ npm start
 
 Расширение VS Code: [LikeC4](https://marketplace.visualstudio.com/items?itemName=likec4.likec4-vscode).
 
+## Deployment-моды (Compose)
+
+- **Single (по умолчанию):** 1 backend-инстанс (`backend-1`) для демо и слабого железа.
+- **Cluster:** 3 backend-инстанса (`backend-1..3`) за `nginx-lb`.
+
+Запуск cluster-режима:
+```bash
+COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_SCRAPE_CONFIG=./monitoring/prometheus.cluster.yml docker compose up --build -d
+```
+
 ## Экспорт PNG
 
 ```bash
