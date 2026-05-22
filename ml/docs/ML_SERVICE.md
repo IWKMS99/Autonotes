@@ -1,9 +1,15 @@
 # ML Service
 
 ## Запуск локально
+
+Из папки `ml`:
 ```bash
 cd ml
-pip install -r requirements.txt
+python -m uvicorn app:app --reload --port 8000
+```
+
+Или из корня репозитория:
+```bash
 python -m uvicorn ml.app:app --reload --port 8000
 ```
 
