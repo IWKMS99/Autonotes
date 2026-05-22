@@ -47,7 +47,11 @@ const NoteDetailEmptyState = () => (
 
 const NoteDetailBackLink = () => (
   <nav className="note-detail-nav">
-    <Link to="/dashboard" className="note-detail-back-link">
+    <Link
+      to="/dashboard"
+      className="note-detail-back-link"
+      aria-label="Вернуться к списку конспектов"
+    >
       <span>←</span>
       Назад к списку конспектов
     </Link>
@@ -84,6 +88,7 @@ const NoteDetailActions = ({ note, deleteLoading, onDelete }) => (
       onClick={onDelete}
       disabled={deleteLoading}
       className="btn btn-danger note-detail-delete-button"
+      aria-label="Удалить конспект"
     >
       {deleteLoading ? (
         <>
@@ -234,7 +239,11 @@ const noteDetailMarkdownComponents = {
 };
 
 const NoteDetailProcessingState = () => (
-  <div className="note-detail-status-state note-detail-status-state--processing">
+  <div
+    className="note-detail-status-state note-detail-status-state--processing"
+    role="status"
+    aria-live="polite"
+  >
     <div className="note-detail-status-state__icon note-detail-status-state__icon--processing">
       ⏳
     </div>
@@ -257,7 +266,10 @@ const NoteDetailProcessingState = () => (
 );
 
 const NoteDetailFailedState = () => (
-  <div className="note-detail-status-state note-detail-status-state--failed">
+  <div
+    className="note-detail-status-state note-detail-status-state--failed"
+    role="alert"
+  >
     <div className="note-detail-status-state__icon note-detail-status-state__icon--failed">
       ❌
     </div>
