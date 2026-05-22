@@ -199,3 +199,34 @@
 .note-upload-error__label {
   font-weight: 500;
 }
+
+.note-upload-actions {
+  display: flex;
+  gap: var(--spacing-3);
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.note-upload-cancel-link {
+  flex: 1 1 auto;
+  text-align: center;
+  text-decoration: none;
+}
+
+.note-upload-submit-button {
+  flex: 2 1 auto;
+  font-size: var(--font-size-base);
+  padding: var(--spacing-4) var(--spacing-6);
+}
+
+.note-upload-submit-spinner {
+  margin-right: var(--spacing-2);
+}
+
+@media (max-width: 640px) {
+  .note-upload-cancel-link,
+  .note-upload-submit-button {
+    width: 100%;
+    flex: 1 1 100%;
+  }
+}
