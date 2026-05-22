@@ -279,6 +279,15 @@ services:
     ports:
       - "3000:80"
 
+  ml:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile
+    ports:
+      - "${ML_PORT}:8000"
+    env_file:
+      - .env
+
 volumes:
   postgres-data:
   minio-data:
