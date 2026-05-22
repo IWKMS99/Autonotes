@@ -22,6 +22,20 @@ const ProfileErrorState = ({ message }) => (
   </div>
 );
 
+const ProfileHeader = () => (
+  <div className="ui-page-header">
+    <div className="ui-page-header__icon">
+      👤
+    </div>
+    <h1 className="ui-page-header__title">
+      Профиль
+    </h1>
+    <p className="ui-page-header__description">
+      Информация о вашем аккаунте
+    </p>
+  </div>
+);
+
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -86,18 +100,8 @@ const Profile = () => {
 
   return (
     <div className="slide-up">
-      <div className="ui-page-header">
-        <div className="ui-page-header__icon">
-          👤
-        </div>
-        <h1 className="ui-page-header__title">
-          Профиль
-        </h1>
-        <p className="ui-page-header__description">
-          Информация о вашем аккаунте
-        </p>
-      </div>
-
+      <ProfileHeader />
+      
       <div className="ui-page-narrow">
         {profile && (
           <div className="card ui-card-padded">
