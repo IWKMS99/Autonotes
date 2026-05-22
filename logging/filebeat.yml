@@ -1,24 +1,19 @@
-filebeat.autodiscover:
-  providers:
-    - type: docker
-      hints.enabled: true
-      templates:
-        - condition:
-            not:
-              or:
-                - contains:
-                    container.image: "elasticsearch"
-                - contains:
-                    container.image: "kibana"
-                - contains:
-                    container.image: "logstash"
-          config:
-            - type: container
-              paths:
-                - /var/lib/docker/containers/${data.docker.container.id}/*.log
+filebeat.inputs:
+  - type: container
+    paths:
+      - /var/lib/docker/containers/*/*.log
 
 processors:
   - add_docker_metadata: ~
+  - drop_event:
+      when:
+        not:
+          regexp:
+            container.name: ".*(backend-1|backend-2|backend-3|nginx-lb|frontend).*"
+  - drop_event:
+      when:
+        regexp:
+          container.name: ".*(prometheus|grafana|kibana|elasticsearch|logstash|filebeat|jaeger|kibana-init).*"
 
 output.logstash:
   hosts: ["logstash:5044"]
