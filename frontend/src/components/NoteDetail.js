@@ -205,24 +205,14 @@ const NoteDetail = () => {
       />
     </div>
 
-      <div style={{ display: 'grid', gap: 'var(--spacing-6)' }}>
-        <div className="card" style={{ padding: 'var(--spacing-6)' }}>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--spacing-2)',
-            marginBottom: 'var(--spacing-4)'
-          }}>
-            <span style={{ fontSize: '1.25rem' }}>📎</span>
-            <h3 style={{
-              fontSize: 'var(--font-size-lg)',
-              fontWeight: '600',
-              color: 'var(--text-primary)',
-              margin: 0
-            }}>
-              Прикрепленные файлы
-            </h3>
-          </div>
+      <div className="note-detail-content-grid">
+        <div className="card note-detail-card">
+          <div className="note-detail-section-heading">
+          <span className="note-detail-section-heading__icon">📎</span>
+          <h3 className="note-detail-section-heading__title">
+            Прикрепленные файлы
+          </h3>
+        </div>
           {note.images && note.images.length > 0 ? (
             <div style={{
               display: 'grid',
