@@ -262,6 +262,17 @@ services:
       - "3000:80"
     restart: always
 
+  ml:
+    build:
+      context: ./ml
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./ml:/app/ml
+
 volumes:
   postgres-data:
   minio-data:

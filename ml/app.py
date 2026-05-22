@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from ml.model import load_model, predict
-from ml.schemas import PredictionRequest, PredictionResponse
+from .model import load_model, predict
+from .schemas import PredictionRequest, PredictionResponse
 
 app = FastAPI(title="Autonotes ML Service")
 
