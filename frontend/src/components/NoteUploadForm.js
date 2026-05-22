@@ -149,6 +149,63 @@ const NoteUploadPreviewList = ({ previews, onRemove }) => (
   </div>
 );
 
+const getDropzoneClassName = ({ dragActive, hasPreviews, loading }) => [
+  'note-upload-dropzone',
+  dragActive ? 'note-upload-dropzone--active' : '',
+  hasPreviews ? 'note-upload-dropzone--filled' : '',
+  loading ? 'note-upload-dropzone--loading' : ''
+].filter(Boolean).join(' ');
+
+const NoteUploadDropzone = ({
+  dragActive,
+  previews,
+  loading,
+  fileInputRef,
+  onDrag,
+  onDrop,
+  onFileChange,
+  onRemove
+}) => (
+  <div className="note-upload-form-group">
+    <label className="form-label" htmlFor="note-files">
+      Фотографии доски *
+    </label>
+
+    <div
+      onDragEnter={onDrag}
+      onDragLeave={onDrag}
+      onDragOver={onDrag}
+      onDrop={onDrop}
+      onClick={() => !loading && fileInputRef.current?.click()}
+      className={getDropzoneClassName({
+        dragActive,
+        hasPreviews: previews.length > 0,
+        loading
+      })}
+    >
+      <input
+        id="note-files"
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={onFileChange}
+        className="note-upload-file-input"
+        disabled={loading}
+      />
+
+      {previews.length > 0 ? (
+        <NoteUploadPreviewList
+          previews={previews}
+          onRemove={onRemove}
+        />
+      ) : (
+        <NoteUploadEmptyDropzone dragActive={dragActive} />
+      )}
+    </div>
+  </div>
+);
+
 const NoteUploadForm = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -288,6 +345,7 @@ const NoteUploadForm = () => {
   return (
     <div className="slide-up">
       <NoteUploadHeader />
+
       <div className="note-upload-form">
         <form onSubmit={handleSubmit}>
           <div className="note-upload-form-group">
@@ -306,44 +364,16 @@ const NoteUploadForm = () => {
             />
           </div>
 
-          <div className="note-upload-form-group">
-            <label className="form-label" htmlFor="note-files">
-              Фотографии доски *
-            </label>
-            <div
-              onDragEnter={handleDrag}
-              onDragLeave={handleDrag}
-              onDragOver={handleDrag}
-              onDrop={handleDrop}
-              onClick={() => !loading && fileInputRef.current?.click()}
-              className={[
-                'note-upload-dropzone',
-                dragActive ? 'note-upload-dropzone--active' : '',
-                previews.length > 0 ? 'note-upload-dropzone--filled' : '',
-                loading ? 'note-upload-dropzone--loading' : ''
-              ].filter(Boolean).join(' ')}
-            >
-              <input
-                id="note-files"
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleFileChange}
-                className="note-upload-file-input"
-                disabled={loading}
-              />
-
-              {previews.length > 0 ? (
-                <NoteUploadPreviewList
-                  previews={previews}
-                  onRemove={removeFile}
-                />
-              ) : (
-                <NoteUploadEmptyDropzone dragActive={dragActive} />
-              )}
-            </div>
-          </div>
+          <NoteUploadDropzone
+            dragActive={dragActive}
+            previews={previews}
+            loading={loading}
+            fileInputRef={fileInputRef}
+            onDrag={handleDrag}
+            onDrop={handleDrop}
+            onFileChange={handleFileChange}
+            onRemove={removeFile}
+          />
 
           {loading && (
             <NoteUploadProgress progress={uploadProgress} />
@@ -358,8 +388,8 @@ const NoteUploadForm = () => {
             isSubmitDisabled={isSubmitDisabled}
           />
         </form>
-      </div >
-    </div >
+      </div>
+    </div>
   );
 };
 
