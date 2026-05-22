@@ -54,6 +54,26 @@ const NoteDetailBackLink = () => (
   </nav>
 );
 
+const NoteDetailHeaderInfo = ({ note, formatDate }) => (
+  <div className="note-detail-header__content">
+    <h1 className="note-detail-header__title">
+      {note.title}
+    </h1>
+
+    <div className="note-detail-header__meta">
+      <p className="note-detail-header__meta-item">
+        📅 {formatDate(note.createdAt)}
+      </p>
+
+      {note.updatedAt && note.updatedAt !== note.createdAt && (
+        <p className="note-detail-header__meta-item note-detail-header__meta-item--muted">
+          ✏️ Обновлено {formatDate(note.updatedAt)}
+        </p>
+      )}
+    </div>
+  </div>
+);
+
 const NoteDetail = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -143,87 +163,50 @@ const NoteDetail = () => {
   }
 
   return (
-    <div className="slide-up">
-      <NoteDetailBackLink />
+  <div className="slide-up">
+    <NoteDetailBackLink />
+
+    <div className="note-detail-header">
+      <NoteDetailHeaderInfo
+        note={note}
+        formatDate={formatDate}
+      />
 
       <div style={{
         display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'flex-start',
-        marginBottom: 'var(--spacing-8)',
-        flexWrap: 'wrap',
-        gap: 'var(--spacing-4)'
+        gap: 'var(--spacing-3)',
+        alignItems: 'center',
+        flexWrap: 'wrap'
       }}>
-        <div style={{ flex: 1, minWidth: 300 }}>
-          <h1 style={{
-            fontSize: 'var(--font-size-3xl)',
-            fontWeight: '700',
-            color: 'var(--text-primary)',
-            margin: '0 0 var(--spacing-2) 0',
-            lineHeight: 1.2
-          }}>
-            {note.title}
-          </h1>
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: 'var(--spacing-4)',
-            flexWrap: 'wrap'
-          }}>
-            <p style={{
-              color: 'var(--text-secondary)',
-              margin: 0,
-              fontSize: 'var(--font-size-sm)'
-            }}>
-              📅 {formatDate(note.createdAt)}
-            </p>
-            {note.updatedAt && note.updatedAt !== note.createdAt && (
-              <p style={{
-                color: 'var(--text-muted)',
-                margin: 0,
-                fontSize: 'var(--font-size-sm)'
-              }}>
-                ✏️ Обновлено {formatDate(note.updatedAt)}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div style={{
-          display: 'flex',
-          gap: 'var(--spacing-3)',
-          alignItems: 'center',
-          flexWrap: 'wrap'
+        <div className={`status-badge status-${note.status.toLowerCase()}`} style={{
+          fontSize: 'var(--font-size-sm)',
+          padding: 'var(--spacing-2) var(--spacing-4)'
         }}>
-          <div className={`status-badge status-${note.status.toLowerCase()}`} style={{
-            fontSize: 'var(--font-size-sm)',
-            padding: 'var(--spacing-2) var(--spacing-4)'
-          }}>
-            {STATUS_TEXTS[note.status] || note.status}
-          </div>
-          <button
-            onClick={handleDelete}
-            disabled={deleteLoading}
-            className="btn btn-danger"
-            style={{
-              padding: 'var(--spacing-2) var(--spacing-4)',
-              fontSize: 'var(--font-size-sm)'
-            }}
-          >
-            {deleteLoading ? (
-              <>
-                <span className="loading-spinner" style={{ marginRight: 'var(--spacing-2)' }}></span>
-                Удаление...
-              </>
-            ) : (
-              <>
-                <span>🗑️</span>
-                Удалить
-              </>
-            )}
-          </button>
+          {STATUS_TEXTS[note.status] || note.status}
         </div>
+        <button
+          onClick={handleDelete}
+          disabled={deleteLoading}
+          className="btn btn-danger"
+          style={{
+            padding: 'var(--spacing-2) var(--spacing-4)',
+            fontSize: 'var(--font-size-sm)'
+          }}
+        >
+          {deleteLoading ? (
+            <>
+              <span className="loading-spinner" style={{ marginRight: 'var(--spacing-2)' }}></span>
+              Удаление...
+            </>
+          ) : (
+            <>
+              <span>🗑️</span>
+              Удалить
+            </>
+          )}
+        </button>
       </div>
+    </div>
 
       <div style={{ display: 'grid', gap: 'var(--spacing-6)' }}>
         <div className="card" style={{ padding: 'var(--spacing-6)' }}>
@@ -333,7 +316,6 @@ const NoteDetail = () => {
                 remarkPlugins={[remarkMath]}
                 rehypePlugins={[rehypeKatex]}
                 components={{
-                  // Кастомные стили для элементов markdown
                   h1: ({ children }) => (
                     <h1 style={{
                       fontSize: 'var(--font-size-2xl)',
