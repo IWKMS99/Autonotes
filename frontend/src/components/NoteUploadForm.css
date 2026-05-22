@@ -44,3 +44,35 @@
 .note-upload-file-input {
   display: none;
 }
+
+.note-upload-empty-state__icon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-4);
+  color: var(--text-muted);
+}
+
+.note-upload-empty-state__icon--active {
+  color: var(--primary-color);
+}
+
+.note-upload-empty-state__title {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-2);
+}
+
+.note-upload-empty-state__description {
+  color: var(--text-secondary);
+  margin: 0 0 var(--spacing-4);
+  font-size: var(--font-size-base);
+}
+
+.note-upload-empty-state__hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
