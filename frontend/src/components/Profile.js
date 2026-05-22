@@ -60,6 +60,17 @@ const ProfileField = ({ icon, title, value, variant }) => (
   </div>
 );
 
+const ProfileStatCard = ({ value, label, variant }) => (
+  <div className="profile-stat-card">
+    <div className={`profile-stat-card__value profile-stat-card__value--${variant}`}>
+      {value}
+    </div>
+    <div className="profile-stat-card__label">
+      {label}
+    </div>
+  </div>
+);
+
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -182,11 +193,11 @@ const Profile = () => {
                   variant="success"
                 />
 
-                  <ProfileStatCard
-                    value={`${stats.totalSize} MB`}
-                    label="Загружено"
-                    variant="neutral"
-                  />
+                <ProfileStatCard
+                  value={`${stats.totalSize} MB`}
+                  label="Загружено"
+                  variant="neutral"
+                />
               </div>
             </div>
           </div>
