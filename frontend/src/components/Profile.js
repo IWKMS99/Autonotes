@@ -71,6 +71,37 @@ const ProfileStatCard = ({ value, label, variant }) => (
   </div>
 );
 
+const ProfileStats = ({ stats }) => (
+  <div className="ui-section-divider">
+    <div className="ui-section-title">
+      <span className="ui-section-title__icon">📊</span>
+      <h3 className="ui-section-title__text">
+        Статистика
+      </h3>
+    </div>
+
+    <div className="profile-stats-grid">
+      <ProfileStatCard
+        value={stats.totalNotes}
+        label="Конспектов"
+        variant="primary"
+      />
+
+      <ProfileStatCard
+        value={stats.processedNotes}
+        label="Обработано"
+        variant="success"
+      />
+
+      <ProfileStatCard
+        value={`${stats.totalSize} MB`}
+        label="Загружено"
+        variant="neutral"
+      />
+    </div>
+  </div>
+);
+
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -172,34 +203,7 @@ const Profile = () => {
               />
             </div>
 
-            <div className="ui-section-divider">
-              <div className="ui-section-title">
-                <span className="ui-section-title__icon">📊</span>
-                <h3 className="ui-section-title__text">
-                  Статистика
-                </h3>
-              </div>
-
-              <div className="profile-stats-grid">
-                <ProfileStatCard
-                  value={stats.totalNotes}
-                  label="Конспектов"
-                  variant="primary"
-                />
-
-                <ProfileStatCard
-                  value={stats.processedNotes}
-                  label="Обработано"
-                  variant="success"
-                />
-
-                <ProfileStatCard
-                  value={`${stats.totalSize} MB`}
-                  label="Загружено"
-                  variant="neutral"
-                />
-              </div>
-            </div>
+            <ProfileStats stats={stats} />
           </div>
         )}
 
