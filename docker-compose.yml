@@ -267,11 +267,9 @@ services:
       context: ./ml
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
-    environment:
-      - PYTHONUNBUFFERED=1
-    volumes:
-      - ./ml:/app/ml
+      - "${ML_PORT}:${ML_PORT}"
+    env_file:
+      - .env
 
 volumes:
   postgres-data:

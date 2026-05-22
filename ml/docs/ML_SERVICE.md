@@ -1,5 +1,13 @@
 # ML Service
 
+## Конфигурация
+
+Скопируйте `.env.example` в `.env` и при необходимости измените значения:
+
+```bash
+cp .env.example .env
+```
+
 ## Запуск локально
 
 Из корня репозитория:
@@ -7,15 +15,13 @@
 python -m uvicorn ml.app:app --reload --port 8000
 ```
 
-> Важно: `ml/app.py` использует относительные импорты (`from .model ...`, `from .schemas ...`), поэтому запуск `python -m uvicorn app:app` из каталога `ml` не будет работать.
-
 ## Запуск в Docker
 ```bash
 docker-compose up ml
 ```
 
 ## API
-- `POST /predict` — предсказание текста
+- `POST /predict`
   - Request: `{"text": "string"}`
   - Response: `{"prediction": "string"}`
 
