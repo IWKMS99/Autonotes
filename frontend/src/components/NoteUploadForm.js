@@ -176,8 +176,8 @@ const NoteUploadForm = () => {
             />
           </div>
 
-          <div style={{ marginBottom: 'var(--spacing-6)' }}>
-            <label className="form-label">
+          <div className="note-upload-form-group">
+            <label className="form-label" htmlFor="note-files">
               Фотографии доски *
             </label>
             <div
@@ -186,25 +186,21 @@ const NoteUploadForm = () => {
               onDragOver={handleDrag}
               onDrop={handleDrop}
               onClick={() => !loading && fileInputRef.current?.click()}
-              style={{
-                border: `2px dashed ${dragActive ? 'var(--primary-color)' : 'var(--border-color)'}`,
-                borderRadius: 'var(--radius-xl)',
-                padding: 'var(--spacing-8)',
-                textAlign: 'center',
-                backgroundColor: dragActive ? 'var(--primary-light)' : previews.length > 0 ? 'var(--background-color)' : 'var(--surface-color)',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                transition: 'all var(--transition-fast)',
-                position: 'relative',
-                opacity: loading ? 0.7 : 1
-              }}
+              className={[
+                'note-upload-dropzone',
+                dragActive ? 'note-upload-dropzone--active' : '',
+                previews.length > 0 ? 'note-upload-dropzone--filled' : '',
+                loading ? 'note-upload-dropzone--loading' : ''
+              ].filter(Boolean).join(' ')}
             >
               <input
+                id="note-files"
                 ref={fileInputRef}
                 type="file"
                 accept="image/*"
                 multiple
                 onChange={handleFileChange}
-                style={{ display: 'none' }}
+                className="note-upload-file-input"
                 disabled={loading}
               />
 
