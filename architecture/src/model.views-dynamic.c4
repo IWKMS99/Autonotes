@@ -1,0 +1,87 @@
+views {
+
+  dynamic view dynamic_auth {
+    variant sequence
+    title 'Dynamic — Auth (login / register)'
+    description '''
+    Регистрация или логин: форма → authService → API → JWT в localStorage.
+    '''
+
+    student -> autonotes.frontend.uiAuth 'submit login or register'
+    autonotes.frontend.uiAuth -> autonotes.frontend.authService
+    autonotes.frontend.authService -> autonotes.frontend.apiClient
+    autonotes.frontend.apiClient -> autonotes.backend.apiControllers 'POST /api/v1/auth/login or register'
+    autonotes.backend.apiControllers -> autonotes.backend.userAuth 'validate / persist user'
+    autonotes.backend.userAuth -> autonotes.postgres 'JPA users table'
+    autonotes.backend.apiControllers -> autonotes.frontend.apiClient 'AuthResponseDto + JWT'
+    autonotes.frontend.apiClient -> autonotes.frontend.authService 'store token'
+    autonotes.frontend.authService -> autonotes.frontend.apiClient 'Authorization Bearer on next requests'
+
+    include
+      student,
+      autonotes.frontend.uiAuth,
+      autonotes.frontend.authService,
+      autonotes.frontend.apiClient,
+      autonotes.backend.apiControllers,
+      autonotes.backend.userAuth,
+      autonotes.postgres
+  }
+
+  dynamic view dynamic_create_note {
+    variant sequence
+    title 'Dynamic — Create Note (upload → ML → polling)'
+    description '''
+    Happy path: multipart upload, transactional outbox, async ML (#planned), polling until COMPLETED.
+    '''
+
+    student -> autonotes.frontend.uiUpload 'select title and images'
+    autonotes.frontend.uiUpload -> autonotes.frontend.noteService
+    autonotes.frontend.noteService -> autonotes.frontend.apiClient
+    autonotes.frontend.apiClient -> autonotes.backend.apiControllers 'POST /api/v1/notes multipart'
+    autonotes.backend.apiControllers -> autonotes.backend.notesCore
+    autonotes.backend.notesCore -> autonotes.backend.filestorage 'save each image'
+    autonotes.backend.filestorage -> autonotes.minio 'S3 PUT'
+    autonotes.backend.notesCore -> autonotes.postgres 'note PROCESSING + OutboxEvent'
+    autonotes.backend.notesCore -> autonotes.backend.outboxPublisher 'outbox row in same tx'
+    autonotes.backend.outboxPublisher -> autonotes.rabbitmq 'NoteProcessingEvent, routing notes.created'
+    autonotes.rabbitmq -> autonotes.mlWorker.processConsumer 'notes.process.queue'
+    autonotes.mlWorker.processConsumer -> autonotes.mlWorker.s3Reader
+    autonotes.mlWorker.s3Reader -> autonotes.minio 'S3 GET by filePaths'
+    autonotes.mlWorker.processConsumer -> autonotes.mlWorker.ocrPipeline
+    autonotes.mlWorker.ocrPipeline -> autonotes.mlWorker.summarizer
+    autonotes.mlWorker.summarizer -> autonotes.mlWorker.resultPublisher
+    autonotes.mlWorker.resultPublisher -> autonotes.rabbitmq 'NoteResultDto, routing notes.completed'
+    autonotes.rabbitmq -> autonotes.backend.resultConsumer 'notes.results.queue'
+    autonotes.backend.resultConsumer -> autonotes.backend.notesCore 'processCompletion'
+    autonotes.backend.notesCore -> autonotes.postgres 'status COMPLETED, recognizedText, summaryText'
+    autonotes.frontend.uiDashboard -> autonotes.frontend.noteService 'poll GET /api/v1/notes while PROCESSING'
+    autonotes.frontend.noteService -> autonotes.frontend.apiClient
+    autonotes.frontend.apiClient -> autonotes.backend.apiControllers 'GET /api/v1/notes/by-id'
+    autonotes.backend.apiControllers -> autonotes.backend.notesCore
+    autonotes.backend.notesCore -> autonotes.postgres
+    autonotes.backend.apiControllers -> autonotes.frontend.apiClient 'NoteDetailDto'
+    autonotes.frontend.apiClient -> autonotes.frontend.noteService
+    autonotes.frontend.noteService -> autonotes.frontend.uiDetail 'render markdown'
+
+    include
+      student,
+      autonotes.frontend.uiUpload,
+      autonotes.frontend.uiDashboard,
+      autonotes.frontend.uiDetail,
+      autonotes.frontend.noteService,
+      autonotes.frontend.apiClient,
+      autonotes.backend.apiControllers,
+      autonotes.backend.notesCore,
+      autonotes.backend.filestorage,
+      autonotes.backend.outboxPublisher,
+      autonotes.backend.resultConsumer,
+      autonotes.mlWorker.processConsumer,
+      autonotes.mlWorker.s3Reader,
+      autonotes.mlWorker.ocrPipeline,
+      autonotes.mlWorker.summarizer,
+      autonotes.mlWorker.resultPublisher,
+      autonotes.postgres,
+      autonotes.minio,
+      autonotes.rabbitmq
+  }
+}
