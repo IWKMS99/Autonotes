@@ -127,6 +127,28 @@ const NoteUploadActions = ({ loading, isSubmitDisabled }) => (
   </div>
 );
 
+const NoteUploadPreviewList = ({ previews, onRemove }) => (
+  <div>
+    <div className="note-upload-preview-grid">
+      {previews.map((preview, index) => (
+        <NoteUploadPreviewCard
+          key={index}
+          preview={preview}
+          index={index}
+          onRemove={onRemove}
+        />
+      ))}
+    </div>
+
+    <p className="note-upload-selected-files-text">
+      📎 Выбрано файлов: {previews.length}.
+      <span className="note-upload-selected-files-action">
+        {' '}Нажмите для добавления еще файлов
+      </span>
+    </p>
+  </div>
+);
+
 const NoteUploadForm = () => {
   const [formData, setFormData] = useState({
     title: '',
@@ -313,25 +335,10 @@ const NoteUploadForm = () => {
               />
 
               {previews.length > 0 ? (
-                <div>
-                  <div className="note-upload-preview-grid">
-                    {previews.map((preview, index) => (
-                      <NoteUploadPreviewCard
-                        key={index}
-                        preview={preview}
-                        index={index}
-                        onRemove={removeFile}
-                      />
-                    ))}
-                  </div>
-
-                  <p className="note-upload-selected-files-text">
-                    📎 Выбрано файлов: {previews.length}.
-                    <span className="note-upload-selected-files-action">
-                      {' '}Нажмите для добавления еще файлов
-                    </span>
-                  </p>
-                </div>
+                <NoteUploadPreviewList
+                  previews={previews}
+                  onRemove={removeFile}
+                />
               ) : (
                 <NoteUploadEmptyDropzone dragActive={dragActive} />
               )}
