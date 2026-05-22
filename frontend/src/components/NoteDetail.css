@@ -209,3 +209,92 @@
   color: var(--text-primary);
   text-align: left;
 }
+
+.note-detail-markdown-heading-1 {
+  font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--spacing-4);
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.5rem;
+}
+
+.note-detail-markdown-heading-2 {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: var(--spacing-6) 0 var(--spacing-3);
+}
+
+.note-detail-markdown-heading-3 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: var(--spacing-5) 0 var(--spacing-3);
+}
+
+.note-detail-markdown-paragraph {
+  margin: 0 0 var(--spacing-4);
+  line-height: 1.7;
+}
+
+.note-detail-markdown-list {
+  margin: var(--spacing-3) 0;
+  padding-left: var(--spacing-6);
+}
+
+.note-detail-markdown-list-item {
+  margin-bottom: var(--spacing-2);
+  line-height: 1.6;
+}
+
+.note-detail-markdown-strong {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.note-detail-markdown-emphasis {
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.note-detail-markdown-blockquote {
+  border-left: 4px solid var(--primary-color);
+  padding: var(--spacing-3) var(--spacing-4);
+  margin: var(--spacing-4) 0;
+  background-color: var(--surface-color);
+  border-radius: var(--radius-md);
+  font-style: italic;
+  color: var(--text-secondary);
+}
+
+.note-detail-markdown-inline-code {
+  background-color: var(--background-color);
+  padding: 0.125rem var(--spacing-1);
+  border-radius: var(--radius-sm);
+  font-size: 0.9em;
+  font-family: monospace;
+  color: var(--error-color);
+  border: 1px solid var(--border-color);
+}
+
+.note-detail-markdown-code-block {
+  background-color: var(--background-color);
+  padding: var(--spacing-4);
+  border-radius: var(--radius-md);
+  overflow: auto;
+  border: 1px solid var(--border-color);
+  margin: var(--spacing-4) 0;
+}
+
+.note-detail-markdown-code-block__code {
+  font-size: var(--font-size-sm);
+  font-family: monospace;
+  color: var(--text-primary);
+}
+
+.note-detail-markdown-divider {
+  border: none;
+  border-top: 2px solid var(--border-color);
+  margin: var(--spacing-6) 0;
+}
