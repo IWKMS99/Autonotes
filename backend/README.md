@@ -104,9 +104,49 @@ Swagger UI доступен по адресу: **http://localhost:8080/swagger-u
 
 ## 📊 Observability
 
+*   **Observability:**
+    *   Сквозное логирование через MDC-контракт:
+        *   `requestId`
+        *   `correlationId`
+        *   `user`
+        *   `traceId`
+        *   `spanId`
+    *   HTTP-контракт для логов:
+        *   `X-Request-Id`
+        *   `X-Correlation-Id`
+    *   Мониторинг медленных запросов через AOP.
+
 В docker-профиле backend публикует:
 - метрики в `/actuator/prometheus`;
 - trace-контекст в логах (`traceId`, `spanId`, `instance_id`);
 - tracing через OTLP endpoint (`OTEL_EXPORTER_OTLP_ENDPOINT`, по умолчанию `http://jaeger:4317`).
 
 Проверка локально через общий compose-стек из корня репозитория.
+
+## 📊 Observability
+
+В backend используются три уровня идентификации запросов:
+
+- `requestId` — ID конкретного HTTP-запроса;
+- `correlationId` — ID сквозного бизнес-потока;
+- `traceId/spanId` — tracing-контекст Micrometer / OpenTelemetry.
+
+### Правила логирования
+
+- Все идентификаторы должны попадать в MDC.
+- Все идентификаторы должны попадать в JSON-логи.
+- Все идентификаторы должны быть видны в Logstash/Kibana.
+- `traceId/spanId` остаются частью tracing.
+- `requestId/correlationId` используются как отдельные бизнес-идентификаторы.
+
+### HTTP headers
+
+Backend принимает:
+
+- `X-Request-Id`
+- `X-Correlation-Id`
+
+### Документ-контракт
+
+Единые правила описаны в:
+-`docs/logging-contract.md`
