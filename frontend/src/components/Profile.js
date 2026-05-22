@@ -168,12 +168,12 @@ const Profile = () => {
   };
 
   if (loading) {
-  return <ProfileLoadingState />;
-}
+    return <ProfileLoadingState />;
+  }
 
   if (error) {
-  return <ProfileErrorState message={error} />;
-}
+    return <ProfileErrorState message={error} />;
+  }
 
   return (
     <div className="slide-up">
