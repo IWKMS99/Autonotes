@@ -17,6 +17,34 @@ const NoteDetailLoadingState = () => (
   </div>
 );
 
+const NoteDetailErrorState = ({ message }) => (
+  <div className="ui-center-state">
+    <div className="ui-center-state__icon">
+      ⚠️
+    </div>
+    <h2 className="note-detail-state-title">Ошибка загрузки</h2>
+    <p className="ui-center-state__text">{message}</p>
+    <Link to="/dashboard" className="btn btn-primary">
+      Вернуться к списку
+    </Link>
+  </div>
+);
+
+const NoteDetailEmptyState = () => (
+  <div className="ui-center-state">
+    <div className="ui-center-state__icon note-detail-state-icon--muted">
+      📄
+    </div>
+    <h2 className="note-detail-state-title">Конспект не найден</h2>
+    <p className="ui-center-state__text">
+      Возможно, он был удален или у вас нет доступа к нему
+    </p>
+    <Link to="/dashboard" className="btn btn-primary">
+      Вернуться к списку
+    </Link>
+  </div>
+);
+
 const NoteDetail = () => {
   const { noteId } = useParams();
   const navigate = useNavigate();
@@ -98,57 +126,11 @@ const NoteDetail = () => {
   }
 
   if (error) {
-    return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '50vh',
-        gap: 'var(--spacing-4)'
-      }}>
-        <div style={{
-          fontSize: '3rem',
-          color: 'var(--error-color)',
-          marginBottom: 'var(--spacing-4)'
-        }}>
-          ⚠️
-        </div>
-        <h2 style={{ color: 'var(--text-primary)', margin: 0 }}>Ошибка загрузки</h2>
-        <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>{error}</p>
-        <Link to="/dashboard" className="btn btn-primary">
-          Вернуться к списку
-        </Link>
-      </div>
-    );
+    return <NoteDetailErrorState message={error} />;
   }
 
   if (!note) {
-    return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '50vh',
-        gap: 'var(--spacing-4)'
-      }}>
-        <div style={{
-          fontSize: '3rem',
-          color: 'var(--text-secondary)',
-          marginBottom: 'var(--spacing-4)'
-        }}>
-          📄
-        </div>
-        <h2 style={{ color: 'var(--text-primary)', margin: 0 }}>Конспект не найден</h2>
-        <p style={{ color: 'var(--text-secondary)', textAlign: 'center' }}>
-          Возможно, он был удален или у вас нет доступа к нему
-        </p>
-        <Link to="/dashboard" className="btn btn-primary">
-          Вернуться к списку
-        </Link>
-      </div>
-    );
+    return <NoteDetailEmptyState />;
   }
 
   return (
