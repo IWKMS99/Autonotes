@@ -129,10 +129,15 @@ class NoteControllerTest extends BaseIntegrationTest {
         createNoteInDb(user, "Note 1");
         createNoteInDb(user, "Note 2");
 
-        mockMvc.perform(get("/api/v1/notes").header("Authorization", "Bearer " + token))
+        mockMvc.perform(get("/api/v1/notes?page=0&size=1&sort=createdAt,desc")
+                        .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].title").exists());
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.page").value(0))
+                .andExpect(jsonPath("$.size").value(1))
+                .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.content[0].title").exists())
+                .andExpect(jsonPath("$.content[0].imageCount").value(0));
     }
 
     @Test
