@@ -34,6 +34,12 @@ async def run_consumer() -> None:
     connection = await aio_pika.connect_robust(settings.rabbitmq_url)
     async with connection:
         channel = await connection.channel()
+        exchange = await channel.declare_exchange(
+            settings.ml_request_exchange,
+            aio_pika.ExchangeType.TOPIC,
+            durable=True,
+        )
         queue = await channel.declare_queue(settings.ml_request_queue, durable=True)
+        await queue.bind(exchange, routing_key=settings.ml_request_routing_key)
         await queue.consume(handle_message)
         await asyncio.Future()
