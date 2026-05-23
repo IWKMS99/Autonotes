@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatRuDate } from 'shared';
+import { formatRuDate, Icon } from 'shared';
 import './ProfileView.css';
 
 const getInitial = (username) => username?.charAt(0)?.toUpperCase() || 'U';
@@ -15,7 +15,7 @@ const getProcessedPercent = (stats) => {
 const ProfileInfoField = ({ icon, title, value, variant }) => (
   <div className="profile-info-field">
     <span className="profile-info-field__icon" aria-hidden="true">
-      {icon}
+      <Icon name={icon} size={20} />
     </span>
 
     <div className="profile-info-field__content">
@@ -32,7 +32,7 @@ const ProfileInfoField = ({ icon, title, value, variant }) => (
 const ProfileStatCard = ({ icon, label, value, description, variant }) => (
   <article className={`profile-stat-card profile-stat-card--${variant || 'default'}`}>
     <span className="profile-stat-card__icon" aria-hidden="true">
-      {icon}
+      <Icon name={icon} size={24} />
     </span>
 
     <div>
@@ -63,7 +63,9 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
   if (!profile) {
     return (
       <section className="ui-empty-card" role="status">
-        <div className="ui-empty-card__icon" aria-hidden="true">👤</div>
+        <div className="ui-empty-card__icon" aria-hidden="true">
+          <Icon name="user" size={48} />
+        </div>
         <h1 className="ui-empty-card__title">Профиль не найден</h1>
         <p className="ui-empty-card__description">
           Не удалось получить данные пользователя. Попробуйте обновить страницу или войти снова.
@@ -92,12 +94,12 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
 
           <div className="profile-hero__meta" aria-label="Краткая информация о профиле">
             <span className="profile-hero__meta-item">
-              <span aria-hidden="true">✉️</span>
+              <Icon name="fileText" size={16} />
               <span>{profile.email || 'Email не указан'}</span>
             </span>
 
             <span className="profile-hero__meta-item">
-              <span aria-hidden="true">📅</span>
+              <Icon name="calendar" size={16} />
               <span>С нами с {formatRuDate(profile.createdAt)}</span>
             </span>
           </div>
@@ -107,7 +109,9 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
       <div className="profile-content-grid">
         <section className="profile-panel card" aria-labelledby="profile-info-title">
           <div className="profile-section-heading">
-            <span className="profile-section-heading__icon" aria-hidden="true">🧾</span>
+            <span className="profile-section-heading__icon" aria-hidden="true">
+              <Icon name="document" size={22} />
+            </span>
             <div>
               <h2 id="profile-info-title" className="profile-section-heading__title">
                 Данные профиля
@@ -120,27 +124,27 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
 
           <div className="profile-info-grid">
             <ProfileInfoField
-              icon="🆔"
+              icon="dashboard"
               title="ID пользователя"
               value={profile.id}
               variant="code"
             />
 
             <ProfileInfoField
-              icon="👤"
+              icon="user"
               title="Имя пользователя"
               value={profile.username}
               variant="primary"
             />
 
             <ProfileInfoField
-              icon="✉️"
+              icon="fileText"
               title="Email"
               value={profile.email}
             />
 
             <ProfileInfoField
-              icon="📅"
+              icon="calendar"
               title="Дата регистрации"
               value={formatRuDate(profile.createdAt)}
             />
@@ -149,7 +153,9 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
 
         <section className="profile-panel card" aria-labelledby="profile-stats-title">
           <div className="profile-section-heading">
-            <span className="profile-section-heading__icon" aria-hidden="true">📊</span>
+            <span className="profile-section-heading__icon" aria-hidden="true">
+              <Icon name="dashboard" size={22} />
+            </span>
             <div>
               <h2 id="profile-stats-title" className="profile-section-heading__title">
                 Статистика
@@ -162,7 +168,7 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
 
           <div className="profile-stats-grid" aria-label="Статистика конспектов">
             <ProfileStatCard
-              icon="📚"
+              icon="books"
               label="Конспектов"
               value={safeStats.totalNotes}
               description="Всего создано"
@@ -170,7 +176,7 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
             />
 
             <ProfileStatCard
-              icon="✅"
+              icon="check"
               label="Обработано"
               value={safeStats.processedNotes}
               description={`${processedPercent}% от общего числа`}
@@ -178,7 +184,7 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
             />
 
             <ProfileStatCard
-              icon="💾"
+              icon="file"
               label="Загружено"
               value={`${safeStats.totalSize} MB`}
               description="Общий размер файлов"
@@ -202,7 +208,7 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
             onClick={onLogout}
             className="btn btn-danger profile-logout-button"
           >
-            <span aria-hidden="true">🚪</span>
+            <Icon name="logout" size={18} />
             <span>Выйти из аккаунта</span>
           </button>
         </aside>
