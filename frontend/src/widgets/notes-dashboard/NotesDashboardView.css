@@ -159,3 +159,12 @@
   display: inline-flex;
   align-items: center;
 }
+
+.dashboard-note-card-shell {
+  min-width: 0;
+  height: 100%;
+}
+
+.dashboard-note-card {
+  height: 100%;
+}

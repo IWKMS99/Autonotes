@@ -1,6 +1,16 @@
 import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
-import { formatDate as defaultFormatDate, getTimeAgo as defaultGetTimeAgo, Icon } from 'shared';
+import { motion, useReducedMotion } from 'motion/react';
+import {
+  cardHoverMotion,
+  cardTapMotion,
+  formatDate as defaultFormatDate,
+  getTimeAgo as defaultGetTimeAgo,
+  Icon,
+  listItemMotion,
+  listMotion,
+  reducedListItemMotion,
+} from 'shared';
 import './NotesDashboardView.css';
 
 const statusLabels = {
@@ -55,6 +65,11 @@ export const NotesDashboardView = ({
   const searchId = useId();
   const sortById = useId();
   const sortOrderId = useId();
+  const shouldReduceMotion = useReducedMotion();
+
+  const itemMotion = shouldReduceMotion ? reducedListItemMotion : listItemMotion;
+  const hoverMotion = shouldReduceMotion ? undefined : cardHoverMotion;
+  const tapMotion = shouldReduceMotion ? undefined : cardTapMotion;
 
   const formatNoteDate = typeof formatDate === 'function'
     ? formatDate
@@ -94,7 +109,13 @@ export const NotesDashboardView = ({
 
   if (error) {
     return (
-      <section className="ui-center-state" role="alert">
+      <motion.section
+        className="ui-center-state"
+        role="alert"
+        initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+        animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.18 }}
+      >
         <div className="ui-center-state__icon" aria-hidden="true">
           <Icon name="warning" size={44} />
         </div>
@@ -103,7 +124,7 @@ export const NotesDashboardView = ({
         <button type="button" onClick={handleRetry} className="btn btn-primary">
           Попробовать снова
         </button>
-      </section>
+      </motion.section>
     );
   }
 
@@ -114,7 +135,12 @@ export const NotesDashboardView = ({
 
   return (
     <section className="dashboard-page ui-page-shell">
-      <header className="ui-page-header ui-page-header--split">
+      <motion.header
+        className="ui-page-header ui-page-header--split"
+        initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
+        animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
         <div className="ui-page-header__content">
           <p className="ui-page-header__eyebrow">Рабочее пространство</p>
           <h1 className="ui-page-header__title">Мои конспекты</h1>
@@ -129,10 +155,16 @@ export const NotesDashboardView = ({
             <span>Новый конспект</span>
           </Link>
         </div>
-      </header>
+      </motion.header>
 
-      <div className="dashboard-stats" aria-label="Статистика конспектов">
-        <article className="dashboard-stat-card card">
+      <motion.div
+        className="dashboard-stats"
+        aria-label="Статистика конспектов"
+        initial="initial"
+        animate="animate"
+        variants={listMotion}
+      >
+        <motion.article className="dashboard-stat-card card" variants={itemMotion}>
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="books" size={24} />
           </span>
@@ -140,9 +172,9 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">Всего</p>
             <p className="dashboard-stat-card__value">{totalNotes}</p>
           </div>
-        </article>
+        </motion.article>
 
-        <article className="dashboard-stat-card card">
+        <motion.article className="dashboard-stat-card card" variants={itemMotion}>
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="check" size={24} />
           </span>
@@ -150,9 +182,9 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">Готово</p>
             <p className="dashboard-stat-card__value">{completedNotes}</p>
           </div>
-        </article>
+        </motion.article>
 
-        <article className="dashboard-stat-card card">
+        <motion.article className="dashboard-stat-card card" variants={itemMotion}>
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="clock" size={24} />
           </span>
@@ -160,9 +192,9 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">В обработке</p>
             <p className="dashboard-stat-card__value">{processingNotes}</p>
           </div>
-        </article>
+        </motion.article>
 
-        <article className="dashboard-stat-card card">
+        <motion.article className="dashboard-stat-card card" variants={itemMotion}>
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="warning" size={24} />
           </span>
@@ -170,11 +202,17 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">С ошибкой</p>
             <p className="dashboard-stat-card__value">{failedNotes}</p>
           </div>
-        </article>
-      </div>
+        </motion.article>
+      </motion.div>
 
       {totalNotes > 0 && (
-        <div className="ui-toolbar dashboard-toolbar" aria-label="Фильтры и сортировка">
+        <motion.div
+          className="ui-toolbar dashboard-toolbar"
+          aria-label="Фильтры и сортировка"
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.18, delay: 0.04 }}
+        >
           <div className="ui-field">
             <label className="ui-field__label" htmlFor={searchId}>
               Поиск
@@ -221,11 +259,16 @@ export const NotesDashboardView = ({
               <option value="asc">Сначала старые</option>
             </select>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {totalNotes === 0 ? (
-        <div className="ui-empty-card">
+        <motion.div
+          className="ui-empty-card"
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
           <div className="ui-empty-card__icon" aria-hidden="true">
             <Icon name="books" size={48} />
           </div>
@@ -236,9 +279,14 @@ export const NotesDashboardView = ({
           <Link to="/upload" className="btn btn-primary">
             Создать первый конспект
           </Link>
-        </div>
+        </motion.div>
       ) : safeFilteredNotes.length === 0 ? (
-        <div className="ui-empty-card">
+        <motion.div
+          className="ui-empty-card"
+          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
+          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
           <div className="ui-empty-card__icon" aria-hidden="true">
             <Icon name="search" size={48} />
           </div>
@@ -249,54 +297,67 @@ export const NotesDashboardView = ({
           <button type="button" className="btn btn-secondary" onClick={() => handleSearchChange('')}>
             Очистить поиск
           </button>
-        </div>
+        </motion.div>
       ) : (
-        <div className="dashboard-grid" aria-label="Список конспектов">
+        <motion.div
+          className="dashboard-grid"
+          aria-label="Список конспектов"
+          initial="initial"
+          animate="animate"
+          variants={listMotion}
+        >
           {safeFilteredNotes.map((note) => {
             const fileCount = note.images?.length || note.files?.length || 0;
             const timeAgoText = getNoteTimeAgo(note.createdAt);
 
             return (
-              <Link
+              <motion.div
                 key={note.id}
-                to={`/notes/${note.id}`}
-                className="dashboard-note-card card interactive-card"
-                aria-label={`Открыть конспект ${note.title}`}
+                className="dashboard-note-card-shell"
+                variants={itemMotion}
+                whileHover={hoverMotion}
+                whileTap={tapMotion}
               >
-                <div className="dashboard-note-card__header">
-                  <div className="dashboard-note-card__title-wrap">
-                    <h2 className="dashboard-note-card__title">{note.title}</h2>
-                    <p className="dashboard-note-card__date">
-                      {formatNoteDate(note.createdAt)}
-                      {timeAgoText && <span> · {timeAgoText}</span>}
-                    </p>
+                <Link
+                  to={`/notes/${note.id}`}
+                  className="dashboard-note-card card interactive-card"
+                  aria-label={`Открыть конспект ${note.title}`}
+                >
+                  <div className="dashboard-note-card__header">
+                    <div className="dashboard-note-card__title-wrap">
+                      <h2 className="dashboard-note-card__title">{note.title}</h2>
+                      <p className="dashboard-note-card__date">
+                        {formatNoteDate(note.createdAt)}
+                        {timeAgoText && <span> · {timeAgoText}</span>}
+                      </p>
+                    </div>
+
+                    <span className={`status-badge ${getStatusClassName(note.status)}`}>
+                      <Icon name={statusIcons[note.status] || 'clock'} size={14} />
+                      <span>{statusLabels[note.status] || note.status}</span>
+                    </span>
                   </div>
 
-                  <span className={`status-badge ${getStatusClassName(note.status)}`}>
-                    <Icon name={statusIcons[note.status] || 'clock'} size={14} />
-                    <span>{statusLabels[note.status] || note.status}</span>
-                  </span>
-                </div>
+                  <p className="dashboard-note-card__preview">
+                    {getNotePreview(note)}
+                  </p>
 
-                <p className="dashboard-note-card__preview">
-                  {getNotePreview(note)}
-                </p>
+                  <div className="dashboard-note-card__footer">
+                    <span className="dashboard-note-card__meta">
+                      <Icon name="image" size={16} />
+                      {fileCount} {fileCount === 1 ? 'файл' : 'файлов'}
+                    </span>
 
-                <div className="dashboard-note-card__footer">
-                  <span className="dashboard-note-card__meta">
-                    <Icon name="image" size={16} />
-                    {fileCount} {fileCount === 1 ? 'файл' : 'файлов'}
-                  </span>
-
-                  <span className="dashboard-note-card__open">
-                    Открыть
-                    <Icon name="arrowRight" size={16} />
-                  </span>
-                </div>
-              </Link>
+                    <span className="dashboard-note-card__open">
+                      Открыть
+                      <Icon name="arrowRight" size={16} />
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
       )}
     </section>
   );
