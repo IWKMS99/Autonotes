@@ -1,6 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { createNoteRequest } from 'entities/note';
 
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+
+const getFileSizeMb = (file) => (file.size / 1024 / 1024).toFixed(1);
+
+const getFileKey = (file) => `${file.name}-${file.size}-${file.lastModified}`;
+
+const appendUniqueFiles = (currentFiles, nextFiles) => {
+  const existingKeys = new Set(currentFiles.map(getFileKey));
+  const uniqueNextFiles = nextFiles.filter((file) => !existingKeys.has(getFileKey(file)));
+
+  return [...currentFiles, ...uniqueNextFiles];
+};
+
 export const useNoteUpload = (onSuccess) => {
   const [formData, setFormData] = useState({ title: '', files: [] });
   const [loading, setLoading] = useState(false);
@@ -8,6 +22,7 @@ export const useNoteUpload = (onSuccess) => {
   const [previews, setPreviews] = useState([]);
   const [dragActive, setDragActive] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+
   const fileInputRef = useRef(null);
   const progressIntervalRef = useRef(null);
   const successTimeoutRef = useRef(null);
@@ -16,80 +31,173 @@ export const useNoteUpload = (onSuccess) => {
     if (progressIntervalRef.current) {
       clearInterval(progressIntervalRef.current);
     }
+
     if (successTimeoutRef.current) {
       clearTimeout(successTimeoutRef.current);
     }
   }, []);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const resetFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
-  const validateAndProcessFiles = (files) => {
-    const selectedFiles = Array.from(files);
-    if (selectedFiles.length === 0) return false;
+  const handleInputChange = (event) => {
+    const { name, value } = event.target;
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    if (error) {
+      setError('');
+    }
+  };
+
+  const validateFiles = (selectedFiles) => {
+    if (selectedFiles.length === 0) {
+      return 'Выберите хотя бы один файл для загрузки';
+    }
 
     for (const file of selectedFiles) {
-      if (!file.type.startsWith('image/')) {
-        setError('Все файлы должны быть изображениями (JPG, PNG, GIF)');
-        return false;
+      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+        return 'Все файлы должны быть изображениями JPG, PNG или GIF';
       }
-      if (file.size > 50 * 1024 * 1024) {
-        setError('Размер каждого файла не должен превышать 50MB');
-        return false;
+
+      if (file.size > MAX_FILE_SIZE) {
+        return `Файл "${file.name}" слишком большой. Максимальный размер — 50 MB`;
       }
     }
 
-    setFormData((prev) => ({ ...prev, files: selectedFiles }));
+    return '';
+  };
 
-    const newPreviews = [];
-    selectedFiles.forEach((file, index) => {
+  const createPreviews = (selectedFiles) => {
+    const previewPromises = selectedFiles.map((file) => new Promise((resolve, reject) => {
       const reader = new FileReader();
+
       reader.onload = (event) => {
-        newPreviews[index] = {
+        resolve({
+          id: getFileKey(file),
           name: file.name,
-          size: (file.size / 1024 / 1024).toFixed(1),
+          size: getFileSizeMb(file),
           data: event.target.result,
-        };
-        if (newPreviews.filter(Boolean).length === selectedFiles.length) {
-          setPreviews(newPreviews);
-        }
+        });
       };
+
+      reader.onerror = () => {
+        reject(new Error(`Не удалось прочитать файл "${file.name}"`));
+      };
+
       reader.readAsDataURL(file);
-    });
+    }));
 
-    setError('');
-    return true;
+    return Promise.all(previewPromises);
   };
 
-  const handleFileChange = (e) => validateAndProcessFiles(e.target.files);
+  const validateAndProcessFiles = async (files) => {
+    const selectedFiles = Array.from(files || []);
+    const validationError = validateFiles(selectedFiles);
 
-  const handleDrag = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') setDragActive(true);
-    if (e.type === 'dragleave') setDragActive(false);
+    if (validationError) {
+      setError(validationError);
+      resetFileInput();
+      return false;
+    }
+
+    try {
+      const currentFiles = formData.files;
+      const nextFiles = appendUniqueFiles(currentFiles, selectedFiles);
+
+      const addedFiles = nextFiles.filter((file) => (
+        !currentFiles.some((currentFile) => getFileKey(currentFile) === getFileKey(file))
+      ));
+
+      if (addedFiles.length === 0) {
+        setError('Эти файлы уже добавлены');
+        resetFileInput();
+        return false;
+      }
+
+      const addedPreviews = await createPreviews(addedFiles);
+
+      setFormData((prev) => ({
+        ...prev,
+        files: nextFiles,
+      }));
+
+      setPreviews((prev) => [...prev, ...addedPreviews]);
+      setError('');
+      resetFileInput();
+
+      return true;
+    } catch (previewError) {
+      setError(previewError.message || 'Не удалось подготовить предпросмотр файлов');
+      resetFileInput();
+      return false;
+    }
   };
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const handleFileChange = (event) => {
+    validateAndProcessFiles(event.target.files);
+  };
+
+  const handleDrag = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (loading) {
+      return;
+    }
+
+    if (event.type === 'dragenter' || event.type === 'dragover') {
+      setDragActive(true);
+    }
+
+    if (event.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (loading) {
+      return;
+    }
+
     setDragActive(false);
-    if (e.dataTransfer.files?.[0]) validateAndProcessFiles(e.dataTransfer.files);
+
+    if (event.dataTransfer.files?.length) {
+      validateAndProcessFiles(event.dataTransfer.files);
+    }
   };
 
   const removeFile = (index) => {
-    setFormData((prev) => ({ ...prev, files: prev.files.filter((_, i) => i !== index) }));
-    setPreviews((prev) => prev.filter((_, i) => i !== index));
+    setFormData((prev) => ({
+      ...prev,
+      files: prev.files.filter((_, fileIndex) => fileIndex !== index),
+    }));
+
+    setPreviews((prev) => prev.filter((_, previewIndex) => previewIndex !== index));
+    resetFileInput();
+
+    if (error) {
+      setError('');
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
     if (!formData.title.trim()) {
       setError('Введите название конспекта');
       return;
     }
+
     if (!formData.files.length) {
       setError('Выберите хотя бы один файл для загрузки');
       return;
@@ -107,22 +215,27 @@ export const useNoteUpload = (onSuccess) => {
             progressIntervalRef.current = null;
             return prev;
           }
+
           return prev + 10;
         });
       }, 200);
 
-      await createNoteRequest(formData.title, formData.files);
+      await createNoteRequest(formData.title.trim(), formData.files);
+
       setUploadProgress(100);
+
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = null;
       }
+
       successTimeoutRef.current = setTimeout(onSuccess, 500);
     } catch (err) {
       if (progressIntervalRef.current) {
         clearInterval(progressIntervalRef.current);
         progressIntervalRef.current = null;
       }
+
       setError(err.message || 'Ошибка при загрузке конспекта');
       setUploadProgress(0);
     } finally {

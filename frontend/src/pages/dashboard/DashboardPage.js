@@ -18,12 +18,12 @@ export const DashboardPage = () => {
     <NotesDashboardView
       notes={model.notes}
       filteredNotes={model.filteredAndSortedNotes}
-      searchQuery={model.searchQuery}
-      setSearchQuery={model.setSearchQuery}
+      searchTerm={model.searchQuery}
+      onSearchChange={model.setSearchQuery}
       sortBy={model.sortBy}
-      setSortBy={model.setSortBy}
+      onSortByChange={model.setSortBy}
       sortOrder={model.sortOrder}
-      setSortOrder={model.setSortOrder}
+      onSortOrderChange={model.setSortOrder}
       getTimeAgo={model.getTimeAgo}
     />
   );

@@ -1,15 +1,51 @@
-.note-upload-header-description {
-  max-width: 400px;
-  margin: 0 auto;
+.note-upload-page {
+  width: 100%;
+}
+
+.note-upload-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: var(--spacing-6);
+  align-items: start;
 }
 
 .note-upload-form {
-  max-width: 600px;
-  margin: 0 auto;
+  padding: var(--spacing-6);
 }
 
-.note-upload-form-group {
-  margin-bottom: var(--spacing-6);
+.note-upload-form__section {
+  margin-bottom: var(--spacing-8);
+}
+
+.note-upload-section-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+}
+
+.note-upload-section-heading__icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--primary-light);
+  border-radius: var(--radius-xl);
+  font-size: 1.35rem;
+}
+
+.note-upload-section-heading__title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+}
+
+.note-upload-section-heading__description {
+  margin: var(--spacing-1) 0 0;
+  color: var(--text-secondary);
 }
 
 .note-upload-title-input {
@@ -17,84 +53,143 @@
 }
 
 .note-upload-dropzone {
-  border: 2px dashed var(--border-color);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-8);
-  text-align: center;
-  background-color: var(--surface-color);
-  cursor: pointer;
-  transition: all var(--transition-fast);
   position: relative;
+  min-height: 280px;
+  padding: var(--spacing-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background:
+    linear-gradient(var(--surface-color), var(--surface-color)) padding-box,
+    linear-gradient(135deg, rgb(37 99 235 / 0.35), rgb(124 58 237 / 0.16)) border-box;
+  border: 2px dashed transparent;
+  border-radius: var(--radius-xl);
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    box-shadow var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.note-upload-dropzone:hover:not(.note-upload-dropzone--loading),
+.note-upload-dropzone:focus-visible {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .note-upload-dropzone--active {
-  border-color: var(--primary-color);
-  background-color: var(--primary-light);
+  background:
+    linear-gradient(var(--primary-light), var(--primary-light)) padding-box,
+    linear-gradient(135deg, var(--primary-color), #7c3aed) border-box;
+  box-shadow: 0 0 0 4px rgb(37 99 235 / 0.08);
 }
 
 .note-upload-dropzone--filled {
-  background-color: var(--background-color);
+  align-items: stretch;
+  justify-content: stretch;
+  background:
+    linear-gradient(var(--background-color), var(--background-color)) padding-box,
+    linear-gradient(135deg, rgb(37 99 235 / 0.24), rgb(124 58 237 / 0.12)) border-box;
 }
 
 .note-upload-dropzone--loading {
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 .note-upload-file-input {
   display: none;
 }
 
+.note-upload-empty-state {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
 .note-upload-empty-state__icon {
-  font-size: 4rem;
-  margin-bottom: var(--spacing-4);
-  color: var(--text-muted);
-}
-
-.note-upload-empty-state__icon--active {
-  color: var(--primary-color);
-}
-
-.note-upload-empty-state__title {
-  font-size: var(--font-size-lg);
-  font-weight: 600;
-  color: var(--text-primary);
-  margin: 0 0 var(--spacing-2);
-}
-
-.note-upload-empty-state__description {
-  color: var(--text-secondary);
-  margin: 0 0 var(--spacing-4);
-  font-size: var(--font-size-base);
-}
-
-.note-upload-empty-state__hint {
+  width: 5rem;
+  height: 5rem;
+  margin: 0 auto var(--spacing-4);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-2);
-  color: var(--text-muted);
+  background-color: var(--primary-light);
+  border-radius: 50%;
+  font-size: 2.5rem;
+  transition: transform var(--transition-fast);
+}
+
+.note-upload-empty-state__icon--active {
+  transform: scale(1.06);
+}
+
+.note-upload-empty-state__title {
+  margin: 0 0 var(--spacing-2);
+  color: var(--text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+}
+
+.note-upload-empty-state__description {
+  margin: 0 0 var(--spacing-4);
+  color: var(--text-secondary);
+}
+
+.note-upload-empty-state__button {
+  min-width: 136px;
+}
+
+.note-upload-preview {
+  width: 100%;
+  text-align: left;
+}
+
+.note-upload-preview__header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-4);
+}
+
+.note-upload-preview__title {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+}
+
+.note-upload-preview__description {
+  margin: var(--spacing-1) 0 0;
+  color: var(--text-secondary);
   font-size: var(--font-size-sm);
+}
+
+.note-upload-preview__change-files {
+  align-self: flex-start;
 }
 
 .note-upload-preview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: var(--spacing-4);
-  margin-bottom: var(--spacing-4);
 }
 
 .note-upload-preview-card {
   position: relative;
-  background-color: var(--surface-color);
-  border-radius: var(--radius-lg);
+  min-height: 150px;
   overflow: hidden;
+  background-color: var(--surface-color);
   border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 }
 
 .note-upload-preview-card__image {
   width: 100%;
-  height: 120px;
+  height: 150px;
+  display: block;
   object-fit: cover;
 }
 
@@ -102,131 +197,165 @@
   position: absolute;
   top: var(--spacing-2);
   right: var(--spacing-2);
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.7);
-  color: white;
-  border: none;
-  cursor: pointer;
-  display: flex;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-sm);
+  color: white;
+  background-color: rgb(15 23 42 / 0.78);
+  border-radius: 50%;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast);
+}
+
+.note-upload-preview-card__remove:hover:not(:disabled) {
+  background-color: var(--error-color);
+  transform: scale(1.05);
 }
 
 .note-upload-preview-card__meta {
   position: absolute;
+  right: 0;
   bottom: 0;
   left: 0;
-  right: 0;
-  background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-  padding: var(--spacing-3) var(--spacing-2);
+  padding: var(--spacing-6) var(--spacing-3) var(--spacing-3);
   color: white;
+  background: linear-gradient(transparent, rgb(15 23 42 / 0.86));
 }
 
 .note-upload-preview-card__name {
-  font-size: var(--font-size-xs);
-  font-weight: 500;
+  margin: 0;
   overflow: hidden;
+  font-size: var(--font-size-sm);
+  font-weight: 800;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .note-upload-preview-card__size {
+  margin: var(--spacing-1) 0 0;
   font-size: var(--font-size-xs);
-  opacity: 0.8;
-}
-
-.note-upload-selected-files-text {
-  color: var(--text-secondary);
-  margin: 0;
-  font-size: var(--font-size-sm);
-}
-
-.note-upload-selected-files-action {
-  color: var(--primary-color);
-  font-weight: 500;
+  opacity: 0.82;
 }
 
 .note-upload-progress {
-  margin-bottom: var(--spacing-6);
+  margin-bottom: var(--spacing-5);
 }
 
 .note-upload-progress__header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-3);
   margin-bottom: var(--spacing-2);
 }
 
-.note-upload-progress__label {
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  color: var(--text-secondary);
-}
-
+.note-upload-progress__label,
 .note-upload-progress__value {
-  font-size: var(--font-size-sm);
   color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 800;
 }
 
 .note-upload-progress__track {
   width: 100%;
-  height: 8px;
+  height: 0.65rem;
+  overflow: hidden;
   background-color: var(--background-color);
   border-radius: var(--radius-xl);
-  overflow: hidden;
 }
 
 .note-upload-progress__bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--primary-color), var(--primary-hover));
-  border-radius: var(--radius-xl);
+  background: linear-gradient(90deg, var(--primary-color), #7c3aed);
+  border-radius: inherit;
   transition: width var(--transition-normal);
-}
-
-.note-upload-error {
-  padding: var(--spacing-4);
-  background-color: #fef2f2;
-  border: 1px solid var(--error-color);
-  border-radius: var(--radius-md);
-  color: var(--error-color);
-  font-size: var(--font-size-sm);
-  margin-bottom: var(--spacing-6);
-}
-
-.note-upload-error__label {
-  font-weight: 500;
 }
 
 .note-upload-actions {
   display: flex;
   gap: var(--spacing-3);
-  justify-content: space-between;
+  justify-content: flex-end;
   flex-wrap: wrap;
-}
-
-.note-upload-cancel-link {
-  flex: 1 1 auto;
-  text-align: center;
-  text-decoration: none;
+  margin-top: var(--spacing-6);
 }
 
 .note-upload-submit-button {
-  flex: 2 1 auto;
-  font-size: var(--font-size-base);
-  padding: var(--spacing-4) var(--spacing-6);
+  min-width: 190px;
 }
 
-.note-upload-submit-spinner {
-  margin-right: var(--spacing-2);
+.note-upload-help {
+  padding: var(--spacing-5);
+  position: sticky;
+  top: 96px;
+}
+
+.note-upload-help__title {
+  margin: 0 0 var(--spacing-4);
+  color: var(--text-primary);
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+}
+
+.note-upload-help__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.note-upload-help__list li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-3);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.55;
+}
+
+.note-upload-help__list li span:first-child {
+  flex: 0 0 auto;
+}
+
+@media (max-width: 960px) {
+  .note-upload-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .note-upload-help {
+    position: static;
+  }
 }
 
 @media (max-width: 640px) {
+  .note-upload-form {
+    padding: var(--spacing-4);
+  }
+
+  .note-upload-form__section {
+    margin-bottom: var(--spacing-6);
+  }
+
+  .note-upload-dropzone {
+    min-height: 240px;
+    padding: var(--spacing-4);
+  }
+
+  .note-upload-preview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .note-upload-actions {
+    flex-direction: column-reverse;
+  }
+
   .note-upload-cancel-link,
   .note-upload-submit-button {
     width: 100%;
-    flex: 1 1 100%;
   }
 }

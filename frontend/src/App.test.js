@@ -17,7 +17,7 @@ jest.mock('react-router-dom', () => {
   return {
     BrowserRouter: ({ children }) => <>{children}</>,
     Routes: ({ children }) => {
-      const currentPath = globalThis.location.pathname;
+      const currentPath = global.location.pathname;
       const routes = React.Children.toArray(children).filter(React.isValidElement);
       const matched = routes.find((route) => matchPath(route.props.path, currentPath));
       return matched ? matched.props.element : null;
@@ -25,10 +25,10 @@ jest.mock('react-router-dom', () => {
     Route: () => null,
     Link: ({ children, to }) => <a href={to}>{children}</a>,
     Navigate: ({ to }) => {
-      globalThis.history.replaceState({}, 'Navigate', to);
+      global.history.replaceState({}, 'Navigate', to);
       return <div>auth-login</div>;
     },
-    useLocation: () => ({ pathname: globalThis.location.pathname }),
+    useLocation: () => ({ pathname: global.location.pathname }),
   };
 }, { virtual: true });
 

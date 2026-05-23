@@ -35,6 +35,8 @@ yarn-error.log*
 **/dist/
 **/.next/
 **/coverage/
+.playwright-mcp/
+*-mobile.png
 
 # Python
 **/__pycache__/

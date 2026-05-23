@@ -51,8 +51,10 @@ export const useDashboardNotes = () => {
         aValue = a.status;
         bValue = b.status;
       } else {
-        aValue = new Date(a.createdAt);
-        bValue = new Date(b.createdAt);
+        const leftDateSource = sortBy === 'updatedAt' ? a.updatedAt || a.createdAt : a.createdAt;
+        const rightDateSource = sortBy === 'updatedAt' ? b.updatedAt || b.createdAt : b.createdAt;
+        aValue = new Date(leftDateSource);
+        bValue = new Date(rightDateSource);
       }
 
       return sortOrder === 'asc' ? (aValue > bValue ? 1 : -1) : (aValue < bValue ? 1 : -1);

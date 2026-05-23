@@ -1,28 +1,159 @@
-import React, { useState } from 'react';
+import React, { useEffect, useId, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Icon } from 'shared';
+import './LayoutView.css';
+
+const navItems = [
+  {
+    to: '/dashboard',
+    icon: 'books',
+    label: 'Конспекты',
+    description: 'Все загруженные материалы'
+  },
+  {
+    to: '/upload',
+    icon: 'plus',
+    label: 'Новый конспект',
+    description: 'Загрузить материалы'
+  },
+  {
+    to: '/profile',
+    icon: 'user',
+    label: 'Профиль',
+    description: 'Аккаунт и статистика'
+  }
+];
 
 export const LayoutView = ({ username, onLogout, children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const mobileMenuId = useId();
+
   const isActive = (path) => location.pathname === path;
 
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      return undefined;
+    }
+
+    const handleEscape = (event) => {
+      if (event.key === 'Escape') {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [mobileMenuOpen]);
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: 'var(--background-color)', display: 'flex', flexDirection: 'column' }}>
-      <header style={{ backgroundColor: 'var(--surface-color)', borderBottom: '1px solid var(--border-color)', boxShadow: 'var(--shadow-sm)', position: 'sticky', top: 0, zIndex: 50 }}>
-        <div className="container" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', height: 72, padding: 0 }}>
-          <Link to="/dashboard" style={{ fontSize: 'var(--font-size-xl)', fontWeight: 'bold', color: 'var(--primary-color)', textDecoration: 'none' }}>🎓 Autonotes</Link>
-          <nav className="desktop-nav" style={{ display: 'none', alignItems: 'center', gap: 'var(--spacing-6)' }}>
-            <Link to="/dashboard" className="btn btn-ghost" style={{ color: isActive('/dashboard') ? 'var(--primary-color)' : 'var(--text-secondary)' }}>📚 Конспекты</Link>
-            <Link to="/upload" className="btn btn-primary">➕ Новый конспект</Link>
+    <div className="layout-shell">
+      <header className="layout-header">
+        <div className="container layout-header__inner">
+          <Link to="/dashboard" className="layout-logo" aria-label="Autonotes — перейти к конспектам">
+            <span className="layout-logo__mark" aria-hidden="true">
+              <Icon name="logo" size={24} />
+            </span>
+            <span className="layout-logo__text">Autonotes</span>
+          </Link>
+
+          <nav className="desktop-nav layout-desktop-nav" aria-label="Основная навигация">
+            {navItems.slice(0, 2).map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className={`layout-nav-link ${isActive(item.to) ? 'layout-nav-link--active' : ''}`}
+                aria-current={isActive(item.to) ? 'page' : undefined}
+              >
+                <Icon name={item.icon} size={18} />
+                <span>{item.label}</span>
+              </Link>
+            ))}
           </nav>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-4)' }}>
-            <Link to="/profile" className="btn btn-ghost">👤 {username}</Link>
-            <button onClick={onLogout} className="btn btn-ghost">🚪 Выйти</button>
-            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="mobile-menu-btn" style={{ display: 'none' }}>{mobileMenuOpen ? '✕' : '☰'}</button>
+
+          <div className="layout-header__actions">
+            <Link
+              to="/profile"
+              className={`desktop-username layout-user-link ${isActive('/profile') ? 'layout-user-link--active' : ''}`}
+              aria-current={isActive('/profile') ? 'page' : undefined}
+            >
+              <span className="layout-user-link__avatar" aria-hidden="true">
+                {username?.charAt(0)?.toUpperCase() || 'U'}
+              </span>
+              <span className="layout-user-link__name">{username || 'Профиль'}</span>
+            </Link>
+
+            <button type="button" onClick={onLogout} className="desktop-logout btn btn-ghost">
+              <Icon name="logout" size={18} />
+              <span>Выйти</span>
+            </button>
+
+            <button
+              type="button"
+              className="mobile-menu-btn layout-mobile-toggle"
+              onClick={() => setMobileMenuOpen((value) => !value)}
+              aria-expanded={mobileMenuOpen}
+              aria-controls={mobileMenuId}
+              aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
+            >
+              <Icon name={mobileMenuOpen ? 'close' : 'menu'} size={22} />
+            </button>
           </div>
         </div>
+
+        {mobileMenuOpen && (
+          <nav id={mobileMenuId} className="layout-mobile-nav" aria-label="Мобильная навигация">
+            <div className="container layout-mobile-nav__inner">
+              <div className="layout-mobile-user">
+                <span className="layout-user-link__avatar" aria-hidden="true">
+                  {username?.charAt(0)?.toUpperCase() || 'U'}
+                </span>
+                <div>
+                  <p className="layout-mobile-user__label">Вы вошли как</p>
+                  <p className="layout-mobile-user__name">{username || 'Пользователь'}</p>
+                </div>
+              </div>
+
+              <div className="layout-mobile-nav__links">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    className={`layout-mobile-nav__link ${isActive(item.to) ? 'layout-mobile-nav__link--active' : ''}`}
+                    aria-current={isActive(item.to) ? 'page' : undefined}
+                  >
+                    <span className="layout-mobile-nav__icon" aria-hidden="true">
+                      <Icon name={item.icon} size={20} />
+                    </span>
+                    <span>
+                      <span className="layout-mobile-nav__title">{item.label}</span>
+                      <span className="layout-mobile-nav__description">{item.description}</span>
+                    </span>
+                  </Link>
+                ))}
+              </div>
+
+              <button type="button" onClick={onLogout} className="btn btn-secondary btn-block">
+                <Icon name="logout" size={18} />
+                <span>Выйти из аккаунта</span>
+              </button>
+            </div>
+          </nav>
+        )}
       </header>
-      <main style={{ flex: 1, padding: 'var(--spacing-8) 0' }}><div className="container">{children}</div></main>
+
+      <main className="layout-main">
+        <div className="container">
+          {children}
+        </div>
+      </main>
     </div>
   );
 };

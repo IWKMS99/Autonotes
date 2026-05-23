@@ -23,5 +23,6 @@ export const ALLOWED_FILE_TYPES = [
   'image/jpg',
   'image/png',
   'image/gif',
-  'application/pdf',
 ];
+
+export const ACCEPTED_FILE_EXTENSIONS_TEXT = 'JPG, PNG, GIF';
