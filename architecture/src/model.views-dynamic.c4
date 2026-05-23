@@ -31,7 +31,7 @@ views {
     variant sequence
     title 'Dynamic — Create Note (upload → ML → polling)'
     description '''
-    Happy path: multipart upload, transactional outbox, async ML (#planned), polling until COMPLETED.
+    Happy path: multipart upload, transactional outbox, async ML, polling until COMPLETED.
     '''
 
     student -> autonotes.frontend.uiUpload 'select title and images'
