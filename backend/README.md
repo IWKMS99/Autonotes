@@ -22,7 +22,7 @@
     *   **Garbage Collector**: Фоновая очистка "файлов-сирот" (файлов в S3, на которые нет ссылок в БД), возникающих при сбоях.
 
 *   **Observability:**
-    *   Сквозное логирование с `RequestId` (MDC).
+    *   Сквозное логирование с MDC (`requestId`, `correlationId`, `traceId`, `spanId`).
     *   Мониторинг медленных запросов через AOP.
 
 ## 🛠️ Технологический стек
@@ -43,7 +43,7 @@
     ```
 2.  **Приложение:**
     ```bash
-    ./gradlew bootRun
+    bash ./gradlew bootRun
     ```
 
 ### Docker Compose режимы backend
@@ -106,7 +106,9 @@ Swagger UI доступен по адресу: **http://localhost:8080/swagger-u
 
 В docker-профиле backend публикует:
 - метрики в `/actuator/prometheus`;
-- trace-контекст в логах (`traceId`, `spanId`, `instance_id`);
+- trace-контекст и MDC-поля в логах (`requestId`, `correlationId`, `traceId`, `spanId`, `instance_id`);
 - tracing через OTLP endpoint (`OTEL_EXPORTER_OTLP_ENDPOINT`, по умолчанию `http://jaeger:4317`).
+
+Канонический контракт: [`../docs/logging-contract.md`](../docs/logging-contract.md).
 
 Проверка локально через общий compose-стек из корня репозитория.

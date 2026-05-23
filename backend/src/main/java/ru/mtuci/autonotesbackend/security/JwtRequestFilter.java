@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import ru.mtuci.autonotesbackend.config.logging.LogContextKeys;
 
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -42,8 +43,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        boolean userAddedToMdc = false;
-
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 try {
@@ -59,8 +58,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                             SecurityContextHolder.getContext().setAuthentication(authToken);
 
-                            MDC.put("user", username);
-                            userAddedToMdc = true;
+                            MDC.put(LogContextKeys.MDC_USER, username);
                         }
                     }
                 } catch (JwtException e) {
@@ -72,9 +70,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } finally {
-            if (userAddedToMdc) {
-                MDC.remove("user");
-            }
+            MDC.remove(LogContextKeys.MDC_USER);
         }
     }
 }
