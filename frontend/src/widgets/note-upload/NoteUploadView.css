@@ -138,7 +138,7 @@
 }
 
 .note-upload-empty-state__button {
-  pointer-events: none;
+  min-width: 136px;
 }
 
 .note-upload-preview {
@@ -164,6 +164,10 @@
   margin: var(--spacing-1) 0 0;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
+}
+
+.note-upload-preview__change-files {
+  align-self: flex-start;
 }
 
 .note-upload-preview-grid {

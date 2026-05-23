@@ -37,17 +37,6 @@ export const NoteUploadView = (props) => {
 
   const hasPreviews = previews.length > 0;
 
-  const handleDropzoneKeyDown = (event) => {
-    if (loading) {
-      return;
-    }
-
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      fileInputRef.current?.click();
-    }
-  };
-
   return (
     <section className="note-upload-page ui-page-shell slide-up">
       <header className="ui-page-header ui-page-header--split">
@@ -126,18 +115,11 @@ export const NoteUploadView = (props) => {
             </div>
 
             <div
-              role="button"
-              tabIndex={loading ? -1 : 0}
-              onKeyDown={handleDropzoneKeyDown}
               onDragEnter={handleDrag}
               onDragLeave={handleDrag}
               onDragOver={handleDrag}
               onDrop={handleDrop}
-              onClick={() => !loading && fileInputRef.current?.click()}
               className={getDropzoneClassName({ dragActive, hasPreviews, loading })}
-              aria-label={hasPreviews ? 'Изменить выбранные файлы' : 'Выбрать файлы для загрузки'}
-              aria-describedby={dropzoneHintId}
-              aria-disabled={loading}
             >
               <input
                 id={fileInputId}
@@ -158,9 +140,17 @@ export const NoteUploadView = (props) => {
                         Выбрано файлов: {previews.length}
                       </p>
                       <p className="note-upload-preview__description">
-                        Нажмите на область, чтобы выбрать другие файлы.
+                        Нажмите кнопку ниже, чтобы выбрать другие файлы.
                       </p>
                     </div>
+                    <button
+                      type="button"
+                      className="btn btn-secondary btn-sm note-upload-preview__change-files"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={loading}
+                    >
+                      Изменить файлы
+                    </button>
                   </div>
 
                   <div className="note-upload-preview-grid">
@@ -204,9 +194,14 @@ export const NoteUploadView = (props) => {
                   <p className="note-upload-empty-state__description">
                     или нажмите на область, чтобы выбрать файлы вручную
                   </p>
-                  <span className="btn btn-secondary btn-sm note-upload-empty-state__button" aria-hidden="true">
+                  <button
+                    type="button"
+                    className="btn btn-secondary btn-sm note-upload-empty-state__button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={loading}
+                  >
                     Выбрать файлы
-                  </span>
+                  </button>
                 </div>
               )}
             </div>
