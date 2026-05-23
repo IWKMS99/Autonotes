@@ -19,10 +19,10 @@ public class JwtService {
 
     private final Clock clock;
 
-    @Value("${JWT_SECRET}")
+    @Value("${app.jwt.secret}")
     private String jwtSecret;
 
-    @Value("${JWT_EXPIRATION_MS}")
+    @Value("${app.jwt.expiration-ms}")
     private long jwtExpirationMs;
 
     public JwtService(Clock clock) {
