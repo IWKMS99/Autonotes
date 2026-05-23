@@ -12,7 +12,7 @@
 
 Проект состоит из следующих компонентов:
 
-1.  **Frontend (`/frontend`)**: React 19 (SPA). Пользовательский интерфейс для загрузки фото, просмотра статусов и готовых конспектов. Реализован polling для обновления статусов в реальном времени.
+1.  **Frontend (`/frontend`)**: React 19 (SPA) на Feature-Sliced Design (`app/pages/widgets/features/entities/shared`). Пользовательский интерфейс для загрузки фото, просмотра статусов и готовых конспектов; polling статусов `PROCESSING` реализован на уровне feature-сценариев.
 2.  **Backend (`/backend`)**: Spring Boot 3 (Java 24).
     *   **API Gateway**: REST API для клиента.
     *   **Reliability**: Реализован паттерн **Transactional Outbox** для гарантии доставки событий (At-Least-Once).

@@ -4,24 +4,25 @@ views {
     variant sequence
     title 'Dynamic — Auth (login / register)'
     description '''
-    Регистрация или логин: форма → authService → API → JWT в localStorage.
+    Регистрация или логин: auth page/widget → auth feature → user entity api → backend → JWT.
     '''
 
-    student -> autonotes.frontend.uiAuth 'submit login or register'
-    autonotes.frontend.uiAuth -> autonotes.frontend.authService
-    autonotes.frontend.authService -> autonotes.frontend.apiClient
-    autonotes.frontend.apiClient -> autonotes.backend.apiControllers 'POST /api/v1/auth/login or register'
+    student -> autonotes.frontend.pagesLayer 'submit login or register'
+    autonotes.frontend.pagesLayer -> autonotes.frontend.featuresLayer 'useAuthForm'
+    autonotes.frontend.featuresLayer -> autonotes.frontend.entitiesLayer 'login/register use-case'
+    autonotes.frontend.entitiesLayer -> autonotes.frontend.sharedApiClient
+    autonotes.frontend.sharedApiClient -> autonotes.backend.apiControllers 'POST /api/v1/auth/login or register'
     autonotes.backend.apiControllers -> autonotes.backend.userAuth 'validate / persist user'
     autonotes.backend.userAuth -> autonotes.postgres 'JPA users table'
-    autonotes.backend.apiControllers -> autonotes.frontend.apiClient 'AuthResponseDto + JWT'
-    autonotes.frontend.apiClient -> autonotes.frontend.authService 'store token'
-    autonotes.frontend.authService -> autonotes.frontend.apiClient 'Authorization Bearer on next requests'
+    autonotes.backend.apiControllers -> autonotes.frontend.sharedApiClient 'AuthResponseDto + JWT'
+    autonotes.frontend.sharedApiClient -> autonotes.frontend.featuresLayer 'token for storage'
 
     include
       student,
-      autonotes.frontend.uiAuth,
-      autonotes.frontend.authService,
-      autonotes.frontend.apiClient,
+      autonotes.frontend.pagesLayer,
+      autonotes.frontend.featuresLayer,
+      autonotes.frontend.entitiesLayer,
+      autonotes.frontend.sharedApiClient,
       autonotes.backend.apiControllers,
       autonotes.backend.userAuth,
       autonotes.postgres
@@ -34,10 +35,11 @@ views {
     Happy path: multipart upload, transactional outbox, async ML, polling until COMPLETED.
     '''
 
-    student -> autonotes.frontend.uiUpload 'select title and images'
-    autonotes.frontend.uiUpload -> autonotes.frontend.noteService
-    autonotes.frontend.noteService -> autonotes.frontend.apiClient
-    autonotes.frontend.apiClient -> autonotes.backend.apiControllers 'POST /api/v1/notes multipart'
+    student -> autonotes.frontend.widgetsLayer 'select title and images'
+    autonotes.frontend.pagesLayer -> autonotes.frontend.featuresLayer 'wire upload scenario'
+    autonotes.frontend.featuresLayer -> autonotes.frontend.entitiesLayer 'create note request + polling'
+    autonotes.frontend.entitiesLayer -> autonotes.frontend.sharedApiClient
+    autonotes.frontend.sharedApiClient -> autonotes.backend.apiControllers 'POST /api/v1/notes multipart'
     autonotes.backend.apiControllers -> autonotes.backend.notesCore
     autonotes.backend.notesCore -> autonotes.backend.filestorage 'save each image'
     autonotes.backend.filestorage -> autonotes.minio 'S3 PUT'
@@ -54,22 +56,22 @@ views {
     autonotes.rabbitmq -> autonotes.backend.resultConsumer 'notes.results.queue'
     autonotes.backend.resultConsumer -> autonotes.backend.notesCore 'processCompletion'
     autonotes.backend.notesCore -> autonotes.postgres 'status COMPLETED, recognizedText, summaryText'
-    autonotes.frontend.uiDashboard -> autonotes.frontend.noteService 'poll GET /api/v1/notes while PROCESSING'
-    autonotes.frontend.noteService -> autonotes.frontend.apiClient
-    autonotes.frontend.apiClient -> autonotes.backend.apiControllers 'GET /api/v1/notes/{id}'
+    autonotes.frontend.featuresLayer -> autonotes.frontend.entitiesLayer 'poll GET /api/v1/notes while PROCESSING'
+    autonotes.frontend.entitiesLayer -> autonotes.frontend.sharedApiClient
+    autonotes.frontend.sharedApiClient -> autonotes.backend.apiControllers 'GET /api/v1/notes/{id}'
     autonotes.backend.apiControllers -> autonotes.backend.notesCore
     autonotes.backend.notesCore -> autonotes.postgres
-    autonotes.backend.apiControllers -> autonotes.frontend.apiClient 'NoteDetailDto'
-    autonotes.frontend.apiClient -> autonotes.frontend.noteService
-    autonotes.frontend.noteService -> autonotes.frontend.uiDetail 'render markdown'
+    autonotes.backend.apiControllers -> autonotes.frontend.sharedApiClient 'NoteDetailDto'
+    autonotes.frontend.sharedApiClient -> autonotes.frontend.entitiesLayer
+    autonotes.frontend.entitiesLayer -> autonotes.frontend.widgetsLayer 'render detail markdown'
 
     include
       student,
-      autonotes.frontend.uiUpload,
-      autonotes.frontend.uiDashboard,
-      autonotes.frontend.uiDetail,
-      autonotes.frontend.noteService,
-      autonotes.frontend.apiClient,
+      autonotes.frontend.pagesLayer,
+      autonotes.frontend.widgetsLayer,
+      autonotes.frontend.featuresLayer,
+      autonotes.frontend.entitiesLayer,
+      autonotes.frontend.sharedApiClient,
       autonotes.backend.apiControllers,
       autonotes.backend.notesCore,
       autonotes.backend.filestorage,

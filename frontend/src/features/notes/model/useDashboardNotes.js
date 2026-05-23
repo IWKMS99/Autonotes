@@ -1,0 +1,91 @@
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { fetchNotes } from 'entities/note';
+import { ASYNC_STATUS, createAsyncState, NOTE_STATUS, formatRuDateTime } from 'shared';
+
+export const useDashboardNotes = () => {
+  const [notes, setNotes] = useState([]);
+  const [requestState, setRequestState] = useState(createAsyncState({ status: ASYNC_STATUS.LOADING }));
+  const [searchQuery, setSearchQuery] = useState('');
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
+
+  const loadNotes = useCallback(async (isSilent = false) => {
+    try {
+      if (!isSilent) {
+        setRequestState(createAsyncState({ status: ASYNC_STATUS.LOADING }));
+      }
+      const data = await fetchNotes();
+      setNotes(data);
+      if (!isSilent) {
+        setRequestState(createAsyncState({ status: ASYNC_STATUS.SUCCESS }));
+      }
+    } catch (error) {
+      setRequestState(createAsyncState({ status: ASYNC_STATUS.ERROR, error: error.message || 'Ошибка загрузки конспектов' }));
+    }
+  }, []);
+
+  useEffect(() => {
+    loadNotes();
+  }, [loadNotes]);
+
+  useEffect(() => {
+    const hasProcessing = notes.some((note) => note.status === NOTE_STATUS.PROCESSING);
+    if (!hasProcessing) return undefined;
+
+    const interval = setInterval(() => loadNotes(true), 5000);
+    return () => clearInterval(interval);
+  }, [notes, loadNotes]);
+
+  const filteredAndSortedNotes = useMemo(() => {
+    const filtered = notes.filter((note) => note.title.toLowerCase().includes(searchQuery.toLowerCase())
+      || (note.summaryText && note.summaryText.toLowerCase().includes(searchQuery.toLowerCase())));
+
+    filtered.sort((a, b) => {
+      let aValue;
+      let bValue;
+
+      if (sortBy === 'title') {
+        aValue = a.title.toLowerCase();
+        bValue = b.title.toLowerCase();
+      } else if (sortBy === 'status') {
+        aValue = a.status;
+        bValue = b.status;
+      } else {
+        aValue = new Date(a.createdAt);
+        bValue = new Date(b.createdAt);
+      }
+
+      return sortOrder === 'asc' ? (aValue > bValue ? 1 : -1) : (aValue < bValue ? 1 : -1);
+    });
+
+    return filtered;
+  }, [notes, searchQuery, sortBy, sortOrder]);
+
+  const getTimeAgo = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diffInHours = Math.floor((now - date) / (1000 * 60 * 60));
+
+    if (diffInHours < 1) return 'только что';
+    if (diffInHours < 24) return `${diffInHours} ч назад`;
+
+    const diffInDays = Math.floor(diffInHours / 24);
+    if (diffInDays < 7) return `${diffInDays} д назад`;
+
+    return formatRuDateTime(dateString);
+  };
+
+  return {
+    notes,
+    requestState,
+    filteredAndSortedNotes,
+    searchQuery,
+    setSearchQuery,
+    sortBy,
+    setSortBy,
+    sortOrder,
+    setSortOrder,
+    getTimeAgo,
+    retry: () => loadNotes(false),
+  };
+};

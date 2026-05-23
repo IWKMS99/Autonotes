@@ -28,7 +28,40 @@
     "extends": [
       "react-app",
       "react-app/jest"
-    ]
+    ],
+    "rules": {
+      "no-restricted-imports": [
+        "error",
+        {
+          "patterns": [
+            {
+              "group": [
+                "widgets/*/*/*"
+              ],
+              "message": "Import widgets via widgets public API."
+            },
+            {
+              "group": [
+                "features/*/*/*"
+              ],
+              "message": "Import features via features public API."
+            },
+            {
+              "group": [
+                "entities/*/*/*"
+              ],
+              "message": "Import entities via entities public API."
+            },
+            {
+              "group": [
+                "shared/*/*/*"
+              ],
+              "message": "Import shared via shared public API unless local submodule in same slice."
+            }
+          ]
+        }
+      ]
+    }
   },
   "browserslist": {
     "production": [
