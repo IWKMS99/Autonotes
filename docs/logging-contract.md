@@ -1,49 +1,49 @@
-﻿# Logging and Correlation Contract
+## Контракт логирования и корреляции
 
-## Purpose
+## Назначение
 
-This document defines the backend contract for request correlation, logs, and tracing.
+Этот документ фиксирует backend-контракт для корреляции запросов, логирования и трейсинга.
 
-## IDs and semantics
+## Идентификаторы и семантика
 
-- `requestId`: technical identifier of a single HTTP request.
-- `correlationId`: identifier of a cross-request/cross-service business flow.
-- `traceId` / `spanId`: distributed tracing identifiers from Micrometer/OpenTelemetry.
+- `requestId`: технический идентификатор одного HTTP-запроса.
+- `correlationId`: идентификатор сквозного бизнес-потока между запросами/сервисами.
+- `traceId` / `spanId`: идентификаторы распределенного трейсинга из Micrometer/OpenTelemetry.
 
-## HTTP headers
+## HTTP-заголовки
 
-Inbound headers accepted:
+Входящие заголовки, которые принимаются:
 
-- `X-Request-Id` (accepted but backend still generates a fresh requestId per request)
-- `X-Correlation-Id` (reused when valid)
+- `X-Request-Id` (принимается, но backend всегда генерирует новый `requestId` для каждого запроса)
+- `X-Correlation-Id` (переиспользуется при валидном значении)
 
-Outbound headers always returned:
+Исходящие заголовки, которые backend возвращает всегда:
 
 - `X-Request-Id`
 - `X-Correlation-Id`
 
-## Validation rules
+## Правила валидации
 
-For inbound correlation header values:
+Для входного значения корреляционного заголовка:
 
-- trim whitespace
-- max length: `128`
-- allowed charset: `[A-Za-z0-9._:-]`
-- invalid values are replaced with generated UUIDv4
+- обрезаются внешние пробелы (`trim`)
+- максимальная длина: `128`
+- допустимый набор символов: `[A-Za-z0-9._:-]`
+- невалидные значения заменяются сгенерированным UUIDv4
 
-## MDC keys
+## Ключи MDC
 
-Backend writes these keys to MDC:
+Backend пишет в MDC следующие ключи:
 
 - `requestId`
 - `correlationId`
-- `user` (for authenticated requests)
+- `user` (для аутентифицированных запросов)
 - `traceId`
 - `spanId`
 
-## JSON log schema
+## JSON-схема логов
 
-Expected fields in backend JSON logs:
+Ожидаемые поля в JSON-логах backend:
 
 - `@timestamp`
 - `level`
@@ -57,20 +57,20 @@ Expected fields in backend JSON logs:
 - `spanId`
 - `app_name`
 - `instance_id`
-- `stack_trace` (for errors)
+- `stack_trace` (для ошибок)
 
-## Security and sanitization
+## Безопасность и санитизация
 
-Do not log sensitive values:
+Запрещено логировать чувствительные данные:
 
-- `Authorization` header
-- JWT tokens
-- passwords/secrets
-- binary payloads
+- заголовок `Authorization`
+- JWT-токены
+- пароли/секреты
+- бинарные payload-данные
 
-AOP logging sanitizes suspicious argument values and truncates overly large argument strings.
+AOP-логирование санитизирует подозрительные значения аргументов и обрезает слишком длинные строковые аргументы.
 
-## Example JSON log line
+## Пример JSON-лога
 
 ```json
 {
@@ -87,14 +87,14 @@ AOP logging sanitizes suspicious argument values and truncates overly large argu
 }
 ```
 
-## Actuator exposure policy
+## Политика доступа к Actuator
 
-Public (no auth):
+Публичные endpoints (без аутентификации):
 
 - `/actuator/health`
 - `/actuator/health/**`
 - `/actuator/prometheus`
 
-Protected (auth required):
+Защищенные endpoints (требуется аутентификация):
 
-- all other `/actuator/*`
+- все остальные `/actuator/*`
