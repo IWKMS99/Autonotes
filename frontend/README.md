@@ -13,9 +13,9 @@
 ## ✨ Особенности реализации
 
 *   **Аутентификация**: Полная поддержка JWT (хранение в LocalStorage, интерцепторы Axios для добавления заголовка `Authorization`, авто-логаут при 401 ошибке).
-*   **Real-time UX**: Дэшборд автоматически опрашивает сервер (Polling) каждые 10 секунд, если в списке есть конспекты со статусом `PROCESSING`, чтобы пользователь увидел результат без перезагрузки страницы.
+*   **Real-time UX**: Дэшборд автоматически опрашивает сервер (Polling) каждые 5 секунд, если в списке есть конспекты со статусом `PROCESSING`, чтобы пользователь увидел результат без перезагрузки страницы.
 *   **Валидация**: Проверка типов файлов (изображения/PDF) и размера (до 50 МБ) на клиенте перед отправкой.
-*   **Защищенные маршруты**: Компонент `ProtectedRoute` не позволяет неавторизованным пользователям попасть на внутренние страницы.
+*   **Защищенные маршруты**: Guard в `app/router.js` не позволяет неавторизованным пользователям попасть на внутренние страницы.
 
 ## 🚀 Запуск в составе Docker Compose (Рекомендуемый способ)
 
@@ -49,9 +49,40 @@ npm start
 
 ## 📡 Взаимодействие с API
 
-Приложение использует библиотеку **Axios** для всех HTTP-запросов. Конфигурация находится в `src/api/axios.js`.
+Приложение использует библиотеку **Axios** для всех HTTP-запросов. Конфигурация находится в `src/shared/api/client.js`.
 
 ### 🔐 Глобальная конфигурация (Axios)
 *   **Base URL**: Берется из переменной окружения `REACT_APP_API_BASE_URL`.
 *   **Request Interceptor**: Автоматически добавляет заголовок `Authorization: Bearer <token>`, если токен есть в `localStorage`.
 *   **Response Interceptor**: Если сервер возвращает `401 Unauthorized`, приложение автоматически удаляет токен и перенаправляет пользователя на `/login`.
+
+## 📁 FSD Structure
+
+```text
+src/
+  app/        # bootstrap, providers, router
+  pages/      # page composition (no direct API calls)
+  widgets/    # composed UI blocks
+  features/   # use-cases and orchestration
+  entities/   # domain API + mappers
+  shared/     # shared api client, ui states, utils, constants
+```
+
+## 🧱 FSD Architecture Rules
+
+В проекте используется Feature-Sliced Design со слоями:
+- `app`
+- `pages`
+- `widgets`
+- `features`
+- `entities`
+- `shared`
+
+Правила импорта:
+- Импорты идут только сверху вниз по слоям: `app -> pages -> widgets -> features -> entities -> shared`.
+- Запрещены обратные зависимости (например `entities` не импортирует `features/pages/widgets/app`).
+- Срезы импортируются через public API (`index.js`) слоя/среза.
+- В `pages` запрещены прямые HTTP/API-вызовы и бизнес-логика: только композиция виджетов и wiring feature-сценариев.
+- API, DTO mapping и вычисления домена размещаются в `entities/*` и `features/*/model`.
+
+Проверка границ слоёв выполняется ESLint-правилами в `package.json`.
