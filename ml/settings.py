@@ -9,7 +9,6 @@ class Settings(BaseSettings):
     ml_request_dlq_routing_key: str = Field("notes.dlq", env="ML_REQUEST_DLQ_ROUTING_KEY")
     result_exchange: str = Field("notes.exchange", env="ML_RESULT_EXCHANGE")
     result_routing_key: str = Field("notes.completed", env="ML_RESULT_ROUTING_KEY")
-    result_queue: str = Field("notes.results.queue", env="ML_RESULT_QUEUE")
     ml_port: int = Field(8000, env="ML_PORT")
     python_unbuffered: bool = Field(True, env="PYTHONUNBUFFERED")
 

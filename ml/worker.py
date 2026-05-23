@@ -20,6 +20,15 @@ PROCESS_QUEUE_DLQ_ARGS = {
 }
 
 
+def get_retry_count(headers: dict | None) -> int:
+    value = (headers or {}).get(RETRY_HEADER, 0)
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        logger.warning("Invalid %s header: %r, using 0", RETRY_HEADER, value)
+        return 0
+
+
 def build_success_result(note_id: int | str, prediction: str) -> dict[str, Any]:
     return {
         "noteId": note_id,
@@ -40,19 +49,11 @@ def build_failure_result(note_id: int | str, error_message: str) -> dict[str, An
     }
 
 
-async def send_result_to_queue(result: dict[str, Any]) -> None:
-    connection = await aio_pika.connect_robust(settings.rabbitmq_url)
-    async with connection:
-        channel = await connection.channel()
-        exchange = await channel.declare_exchange(
-            settings.result_exchange,
-            aio_pika.ExchangeType.TOPIC,
-            durable=True,
-        )
-        await exchange.publish(
-            aio_pika.Message(body=json.dumps(result).encode("utf-8")),
-            routing_key=settings.result_routing_key,
-        )
+async def publish_result(exchange: aio_pika.Exchange, result: dict[str, Any]) -> None:
+    await exchange.publish(
+        aio_pika.Message(body=json.dumps(result).encode("utf-8")),
+        routing_key=settings.result_routing_key,
+    )
     logger.info("Result published: noteId=%s status=%s", result.get("noteId"), result.get("status"))
 
 
@@ -102,21 +103,21 @@ async def handle_message(
 
         text = build_text_from_payload(payload)
         prediction = predict(model, text)
-        await send_result_to_queue(build_success_result(note_id, prediction))
+        await publish_result(exchange, build_success_result(note_id, prediction))
         await message.ack()
     except json.JSONDecodeError as exc:
         logger.warning("Reject invalid JSON message: %s", exc)
         await message.reject(requeue=False)
     except Exception as exc:
         logger.exception("Error processing message for noteId=%s", note_id)
-        retry_count = int((message.headers or {}).get(RETRY_HEADER, 0))
+        retry_count = get_retry_count(message.headers)
         if retry_count < MAX_RETRIES:
             await _retry_message(message, exchange, retry_count)
             return
 
         if note_id is not None:
             try:
-                await send_result_to_queue(build_failure_result(note_id, str(exc)))
+                await publish_result(exchange, build_failure_result(note_id, str(exc)))
             except Exception:
                 logger.exception("Failed to publish failure result for noteId=%s", note_id)
 
