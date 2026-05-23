@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createNoteRequest } from 'entities/note';
 
 export const useNoteUpload = (onSuccess) => {
@@ -9,6 +9,17 @@ export const useNoteUpload = (onSuccess) => {
   const [dragActive, setDragActive] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const fileInputRef = useRef(null);
+  const progressIntervalRef = useRef(null);
+  const successTimeoutRef = useRef(null);
+
+  useEffect(() => () => {
+    if (progressIntervalRef.current) {
+      clearInterval(progressIntervalRef.current);
+    }
+    if (successTimeoutRef.current) {
+      clearTimeout(successTimeoutRef.current);
+    }
+  }, []);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -89,10 +100,11 @@ export const useNoteUpload = (onSuccess) => {
     setUploadProgress(0);
 
     try {
-      const progressInterval = setInterval(() => {
+      progressIntervalRef.current = setInterval(() => {
         setUploadProgress((prev) => {
           if (prev >= 90) {
-            clearInterval(progressInterval);
+            clearInterval(progressIntervalRef.current);
+            progressIntervalRef.current = null;
             return prev;
           }
           return prev + 10;
@@ -101,9 +113,16 @@ export const useNoteUpload = (onSuccess) => {
 
       await createNoteRequest(formData.title, formData.files);
       setUploadProgress(100);
-      clearInterval(progressInterval);
-      setTimeout(onSuccess, 500);
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
+      successTimeoutRef.current = setTimeout(onSuccess, 500);
     } catch (err) {
+      if (progressIntervalRef.current) {
+        clearInterval(progressIntervalRef.current);
+        progressIntervalRef.current = null;
+      }
       setError(err.message || 'Ошибка при загрузке конспекта');
       setUploadProgress(0);
     } finally {
