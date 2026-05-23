@@ -1,9 +1,18 @@
 import asyncio
+
 from fastapi import FastAPI
 
+from .model import load_model, predict
+from .schemas import PredictionRequest, PredictionResponse
 from .worker import run_consumer
 
 app = FastAPI(title="Autonotes ML Service")
+model = load_model()
+
+
+@app.post("/predict", response_model=PredictionResponse)
+def predict_endpoint(request: PredictionRequest) -> PredictionResponse:
+    return PredictionResponse(prediction=predict(model, request.text))
 
 
 @app.on_event("startup")

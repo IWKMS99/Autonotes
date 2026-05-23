@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     ml_request_exchange: str = Field("notes.exchange", env="ML_REQUEST_EXCHANGE")
     ml_request_queue: str = Field("notes.process.queue", env="ML_REQUEST_QUEUE")
     ml_request_routing_key: str = Field("notes.created", env="ML_REQUEST_ROUTING_KEY")
+    ml_request_dlq_routing_key: str = Field("notes.dlq", env="ML_REQUEST_DLQ_ROUTING_KEY")
     result_exchange: str = Field("notes.exchange", env="ML_RESULT_EXCHANGE")
     result_routing_key: str = Field("notes.completed", env="ML_RESULT_ROUTING_KEY")
     result_queue: str = Field("notes.results.queue", env="ML_RESULT_QUEUE")
