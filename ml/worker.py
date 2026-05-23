@@ -65,13 +65,13 @@ def build_text_from_payload(payload: dict) -> str:
 
 async def _retry_message(
     message: aio_pika.IncomingMessage,
-    exchange: aio_pika.Exchange,
+    request_exchange: aio_pika.Exchange,
     retry_count: int,
 ) -> None:
     headers = dict(message.headers or {})
     headers[RETRY_HEADER] = retry_count + 1
 
-    await exchange.publish(
+    await request_exchange.publish(
         aio_pika.Message(
             body=message.body,
             headers=headers,
@@ -89,7 +89,8 @@ async def _retry_message(
 
 async def handle_message(
     message: aio_pika.IncomingMessage,
-    exchange: aio_pika.Exchange,
+    request_exchange: aio_pika.Exchange,
+    result_exchange: aio_pika.Exchange,
 ) -> None:
     note_id: int | str | None = None
     try:
@@ -103,7 +104,7 @@ async def handle_message(
 
         text = build_text_from_payload(payload)
         prediction = predict(model, text)
-        await publish_result(exchange, build_success_result(note_id, prediction))
+        await publish_result(result_exchange, build_success_result(note_id, prediction))
         await message.ack()
     except json.JSONDecodeError as exc:
         logger.warning("Reject invalid JSON message: %s", exc)
@@ -112,12 +113,12 @@ async def handle_message(
         logger.exception("Error processing message for noteId=%s", note_id)
         retry_count = get_retry_count(message.headers)
         if retry_count < MAX_RETRIES:
-            await _retry_message(message, exchange, retry_count)
+            await _retry_message(message, request_exchange, retry_count)
             return
 
         if note_id is not None:
             try:
-                await publish_result(exchange, build_failure_result(note_id, str(exc)))
+                await publish_result(result_exchange, build_failure_result(note_id, str(exc)))
             except Exception:
                 logger.exception("Failed to publish failure result for noteId=%s", note_id)
 
@@ -128,8 +129,13 @@ async def run_consumer() -> None:
     connection = await aio_pika.connect_robust(settings.rabbitmq_url)
     async with connection:
         channel = await connection.channel()
-        exchange = await channel.declare_exchange(
+        request_exchange = await channel.declare_exchange(
             settings.ml_request_exchange,
+            aio_pika.ExchangeType.TOPIC,
+            durable=True,
+        )
+        result_exchange = await channel.declare_exchange(
+            settings.result_exchange,
             aio_pika.ExchangeType.TOPIC,
             durable=True,
         )
@@ -138,10 +144,10 @@ async def run_consumer() -> None:
             durable=True,
             arguments=PROCESS_QUEUE_DLQ_ARGS,
         )
-        await queue.bind(exchange, routing_key=settings.ml_request_routing_key)
+        await queue.bind(request_exchange, routing_key=settings.ml_request_routing_key)
 
         async def on_message(message: aio_pika.IncomingMessage) -> None:
-            await handle_message(message, exchange)
+            await handle_message(message, request_exchange, result_exchange)
 
         await queue.consume(on_message)
         await asyncio.Future()
