@@ -20,8 +20,9 @@ model {
       description '''
       **Зона ответственности:**
       - UI: регистрация, логин, загрузка фото, список и детали конспекта
+      - Архитектура Feature-Sliced Design: app/pages/widgets/features/entities/shared
       - Хранение JWT в localStorage, Axios interceptors
-      - Polling статуса PROCESSING (каждые ~10 с)
+      - Polling статуса PROCESSING (каждые ~5 с)
       - В Docker: nginx отдаёт статику и проксирует /api → backend LB
 
       **Не делает:** бизнес-логику, хранение файлов, очереди.

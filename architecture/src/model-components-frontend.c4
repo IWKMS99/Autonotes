@@ -1,54 +1,48 @@
 model {
   extend autonotes.frontend {
-    router = component 'Router' {
-      description 'App.js routes'
+    appEntry = component 'App Entry' {
+      description 'app/App.js + providers.js'
+      technology 'React 19'
+    }
+
+    appRouter = component 'App Router' {
+      description 'app/router.js — routes + protected layout'
       technology 'react-router-dom'
     }
 
-    apiClient = component 'API Client' {
-      description 'axios.js — JWT interceptors'
+    sharedApiClient = component 'Shared API Client' {
+      description 'shared/api/client.js — Axios + JWT interceptors'
       technology 'Axios'
     }
 
-    authService = component 'Auth Service' {
-      description 'authService.js'
+    pagesLayer = component 'Pages Layer' {
+      description 'pages/* — screen composition only (no direct API)'
     }
 
-    noteService = component 'Note Service' {
-      description 'noteService.js'
+    widgetsLayer = component 'Widgets Layer' {
+      description 'widgets/* — reusable composed UI blocks'
     }
 
-    shell = component 'App Shell' {
-      description 'Layout, ProtectedRoute'
+    featuresLayer = component 'Features Layer' {
+      description 'features/*/model — use-cases: auth, dashboard polling, upload, detail, profile stats'
     }
 
-    uiAuth = component 'Auth UI' {
-      description 'AuthForm'
+    entitiesLayer = component 'Entities Layer' {
+      description 'entities/* — domain API + DTO mapping (note, user)'
     }
 
-    uiDashboard = component 'Dashboard UI' {
-      description 'NotesDashboard, polling'
+    sharedLayer = component 'Shared Layer' {
+      description 'shared/* — async-state contract, ui states, utils/constants'
     }
 
-    uiUpload = component 'Upload UI' {
-      description 'NoteUploadForm'
-    }
-
-    uiDetail = component 'Note Detail UI' {
-      description 'NoteDetail, markdown'
-    }
-
-    router -> shell
-    router -> uiAuth
-    shell -> uiDashboard
-    shell -> uiUpload
-    shell -> uiDetail
-    uiAuth -> authService
-    uiDashboard -> noteService
-    uiUpload -> noteService
-    uiDetail -> noteService
-    authService -> apiClient
-    noteService -> apiClient
-    apiClient -> autonotes.backend 'REST /api/v1'
+    appEntry -> appRouter
+    appRouter -> pagesLayer
+    pagesLayer -> widgetsLayer
+    pagesLayer -> featuresLayer
+    widgetsLayer -> sharedLayer
+    featuresLayer -> entitiesLayer
+    featuresLayer -> sharedLayer
+    entitiesLayer -> sharedApiClient
+    sharedApiClient -> autonotes.backend 'REST /api/v1'
   }
 }
