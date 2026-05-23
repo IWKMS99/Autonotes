@@ -489,6 +489,10 @@ code {
 
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
@@ -498,10 +502,33 @@ code {
     transition-duration: 0.01ms !important;
   }
 
+  .fade-in,
+  .slide-up {
+    animation: none !important;
+  }
+
+  .loading-spinner {
+    animation: none !important;
+    border-top-color: var(--border-color);
+  }
+
+  .note-detail-status-state__icon--processing {
+    animation: none !important;
+  }
+
   .card--interactive:hover,
   .interactive-card:hover,
   .btn-primary:hover:not(:disabled),
-  .btn-danger:hover:not(:disabled) {
-    transform: none;
+  .btn-danger:hover:not(:disabled),
+  .note-detail-back-link:hover,
+  .note-upload-dropzone:hover:not(.note-upload-dropzone--loading),
+  .note-upload-dropzone:focus-visible,
+  .note-upload-empty-state__icon--active,
+  .note-upload-preview-card__remove:hover:not(:disabled) {
+    transform: none !important;
+  }
+
+  .note-upload-progress__bar {
+    transition: none !important;
   }
 }
