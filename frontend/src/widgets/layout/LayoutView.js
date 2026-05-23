@@ -1,6 +1,13 @@
 import React, { useEffect, useId, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Icon } from 'shared';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import {
+  Icon,
+  menuMotion,
+  pageMotion,
+  reducedMenuMotion,
+  reducedPageMotion,
+} from 'shared';
 import './LayoutView.css';
 
 const navItems = [
@@ -28,8 +35,12 @@ export const LayoutView = ({ username, onLogout, children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const mobileMenuId = useId();
+  const shouldReduceMotion = useReducedMotion();
 
   const isActive = (path) => location.pathname === path;
+
+  const activePageMotion = shouldReduceMotion ? reducedPageMotion : pageMotion;
+  const activeMenuMotion = shouldReduceMotion ? reducedMenuMotion : menuMotion;
 
   useEffect(() => {
     setMobileMenuOpen(false);
@@ -108,52 +119,68 @@ export const LayoutView = ({ username, onLogout, children }) => {
           </div>
         </div>
 
-        {mobileMenuOpen && (
-          <nav id={mobileMenuId} className="layout-mobile-nav" aria-label="Мобильная навигация">
-            <div className="container layout-mobile-nav__inner">
-              <div className="layout-mobile-user">
-                <span className="layout-user-link__avatar" aria-hidden="true">
-                  {username?.charAt(0)?.toUpperCase() || 'U'}
-                </span>
-                <div>
-                  <p className="layout-mobile-user__label">Вы вошли как</p>
-                  <p className="layout-mobile-user__name">{username || 'Пользователь'}</p>
+        <AnimatePresence initial={false}>
+          {mobileMenuOpen && (
+            <motion.nav
+              id={mobileMenuId}
+              className="layout-mobile-nav"
+              aria-label="Мобильная навигация"
+              initial="initial"
+              animate="animate"
+              exit="exit"
+              variants={activeMenuMotion}
+            >
+              <div className="container layout-mobile-nav__inner">
+                <div className="layout-mobile-user">
+                  <span className="layout-user-link__avatar" aria-hidden="true">
+                    {username?.charAt(0)?.toUpperCase() || 'U'}
+                  </span>
+                  <div>
+                    <p className="layout-mobile-user__label">Вы вошли как</p>
+                    <p className="layout-mobile-user__name">{username || 'Пользователь'}</p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="layout-mobile-nav__links">
-                {navItems.map((item) => (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    className={`layout-mobile-nav__link ${isActive(item.to) ? 'layout-mobile-nav__link--active' : ''}`}
-                    aria-current={isActive(item.to) ? 'page' : undefined}
-                  >
-                    <span className="layout-mobile-nav__icon" aria-hidden="true">
-                      <Icon name={item.icon} size={20} />
-                    </span>
-                    <span>
-                      <span className="layout-mobile-nav__title">{item.label}</span>
-                      <span className="layout-mobile-nav__description">{item.description}</span>
-                    </span>
-                  </Link>
-                ))}
-              </div>
+                <div className="layout-mobile-nav__links">
+                  {navItems.map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      className={`layout-mobile-nav__link ${isActive(item.to) ? 'layout-mobile-nav__link--active' : ''}`}
+                      aria-current={isActive(item.to) ? 'page' : undefined}
+                    >
+                      <span className="layout-mobile-nav__icon" aria-hidden="true">
+                        <Icon name={item.icon} size={20} />
+                      </span>
+                      <span>
+                        <span className="layout-mobile-nav__title">{item.label}</span>
+                        <span className="layout-mobile-nav__description">{item.description}</span>
+                      </span>
+                    </Link>
+                  ))}
+                </div>
 
-              <button type="button" onClick={onLogout} className="btn btn-secondary btn-block">
-                <Icon name="logout" size={18} />
-                <span>Выйти из аккаунта</span>
-              </button>
-            </div>
-          </nav>
-        )}
+                <button type="button" onClick={onLogout} className="btn btn-secondary btn-block">
+                  <Icon name="logout" size={18} />
+                  <span>Выйти из аккаунта</span>
+                </button>
+              </div>
+            </motion.nav>
+          )}
+        </AnimatePresence>
       </header>
 
-      <main className="layout-main">
+      <motion.main
+        key={location.pathname}
+        className="layout-main"
+        initial="initial"
+        animate="animate"
+        variants={activePageMotion}
+      >
         <div className="container">
           {children}
         </div>
-      </main>
+      </motion.main>
     </div>
   );
 };
