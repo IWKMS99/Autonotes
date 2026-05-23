@@ -73,4 +73,19 @@ class JwtRequestFilterTest {
         verify(resolver).resolveException(eq(request), eq(response), eq(null), any(JwtException.class));
         verify(filterChain, never()).doFilter(any(), any());
     }
+
+    @Test
+    void shouldNotLeakUserMdcWhenJwtIsInvalid() throws ServletException, IOException {
+        JwtRequestFilter filter = new JwtRequestFilter(jwtService, userDetailsService, resolver);
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer token");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        MDC.put(LogContextKeys.MDC_USER, "stale-user");
+        when(jwtService.extractUsername("token")).thenThrow(new JwtException("invalid"));
+
+        filter.doFilter(request, response, filterChain);
+
+        assertThat(MDC.get(LogContextKeys.MDC_USER)).isNull();
+    }
 }

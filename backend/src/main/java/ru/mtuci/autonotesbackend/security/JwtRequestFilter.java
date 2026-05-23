@@ -43,8 +43,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         final String authHeader = request.getHeader("Authorization");
-        boolean userAddedToMdc = false;
-
         try {
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
                 try {
@@ -61,7 +59,6 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                             SecurityContextHolder.getContext().setAuthentication(authToken);
 
                             MDC.put(LogContextKeys.MDC_USER, username);
-                            userAddedToMdc = true;
                         }
                     }
                 } catch (JwtException e) {
@@ -73,9 +70,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } finally {
-            if (userAddedToMdc) {
-                MDC.remove(LogContextKeys.MDC_USER);
-            }
+            MDC.remove(LogContextKeys.MDC_USER);
         }
     }
 }

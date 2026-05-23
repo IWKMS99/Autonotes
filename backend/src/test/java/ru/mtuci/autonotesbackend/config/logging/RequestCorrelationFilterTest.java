@@ -39,6 +39,30 @@ class RequestCorrelationFilterTest {
     }
 
     @Test
+    void shouldTrimAndReuseCorrelationIdWhenHeaderHasOuterSpaces() throws ServletException, IOException {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(LogContextKeys.HEADER_CORRELATION_ID, "  corr-123:abc  ");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, new MockFilterChain());
+
+        assertThat(response.getHeader(LogContextKeys.HEADER_CORRELATION_ID)).isEqualTo("corr-123:abc");
+    }
+
+    @Test
+    void shouldIgnoreInboundRequestIdAndGenerateOwnRequestId() throws ServletException, IOException {
+        MockHttpServletRequest request = new MockHttpServletRequest();
+        request.addHeader(LogContextKeys.HEADER_REQUEST_ID, "external-request-id");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilter(request, response, new MockFilterChain());
+
+        assertThat(response.getHeader(LogContextKeys.HEADER_REQUEST_ID))
+                .isNotBlank()
+                .isNotEqualTo("external-request-id");
+    }
+
+    @Test
     void shouldReplaceInvalidOrTooLongCorrelationId() throws ServletException, IOException {
         MockHttpServletRequest request = new MockHttpServletRequest();
         request.addHeader(LogContextKeys.HEADER_CORRELATION_ID, "  bad value with spaces  ");

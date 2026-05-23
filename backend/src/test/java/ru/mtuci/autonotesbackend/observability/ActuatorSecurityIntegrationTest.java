@@ -2,6 +2,7 @@ package ru.mtuci.autonotesbackend.observability;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -19,12 +20,9 @@ class ActuatorSecurityIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void prometheusShouldBePublic() throws Exception {
-        mockMvc.perform(get("/actuator/prometheus")).andExpect(result -> {
-            int responseStatus = result.getResponse().getStatus();
-            if (responseStatus == 401 || responseStatus == 403) {
-                throw new AssertionError("Prometheus endpoint must stay public");
-            }
-        });
+        mockMvc.perform(get("/actuator/prometheus"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("# HELP")));
     }
 
     @Test
