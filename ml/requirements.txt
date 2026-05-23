@@ -3,4 +3,3 @@ uvicorn
 pydantic
 pytest
 aio-pika
-
