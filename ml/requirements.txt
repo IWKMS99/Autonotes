@@ -3,5 +3,4 @@ uvicorn
 pydantic
 pytest
 aio-pika
-httpx
 

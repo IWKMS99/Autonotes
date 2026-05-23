@@ -3,7 +3,6 @@ import json
 import logging
 
 import aio_pika
-import httpx
 
 from .model import load_model, predict
 from .settings import settings
@@ -12,18 +11,26 @@ logger = logging.getLogger(__name__)
 model = load_model()
 
 
-async def send_result_to_backend(note_id: str | None, prediction: str) -> None:
+async def send_result_to_queue(note_id: str | None, prediction: str) -> None:
     payload = {"noteId": note_id, "prediction": prediction}
-    async with httpx.AsyncClient() as client:
-        response = await client.post(settings.backend_url, json=payload, timeout=10.0)
-        response.raise_for_status()
-        logger.info("Result sent to backend: %s", payload)
+    connection = await aio_pika.connect_robust(settings.rabbitmq_url)
+    async with connection:
+        channel = await connection.channel()
+        exchange = await channel.declare_exchange(
+            settings.result_exchange,
+            aio_pika.ExchangeType.TOPIC,
+            durable=True,
+        )
+        await exchange.publish(
+            aio_pika.Message(body=json.dumps(payload).encode("utf-8")),
+            routing_key=settings.result_routing_key,
+        )
+    logger.info("Result published to queue: %s", payload)
 
 
 def build_text_from_payload(payload: dict) -> str:
     file_paths = payload.get("filePaths", [])
     bucket_name = payload.get("bucketName", "")
-    # TODO: здесь можно реализовать загрузку данных из bucketName/filePaths
     return " ".join(file_paths) or bucket_name or payload.get("noteId", "")
 
 
@@ -39,7 +46,7 @@ async def handle_message(message: aio_pika.IncomingMessage) -> None:
 
         text = build_text_from_payload(payload)
         prediction = predict(model, text)
-        await send_result_to_backend(note_id, prediction)
+        await send_result_to_queue(note_id, prediction)
 
 
 async def run_consumer() -> None:

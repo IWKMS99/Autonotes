@@ -1,11 +1,15 @@
-from pydantic import BaseSettings, AnyHttpUrl, Field
+from pydantic import BaseSettings, Field
 
 
 class Settings(BaseSettings):
     rabbitmq_url: str = Field("amqp://guest:guest@rabbitmq:5672/", env="RABBITMQ_URL")
-    ml_request_queue: str = Field("ml_request", env="ML_REQUEST_QUEUE")
-    backend_url: AnyHttpUrl = Field("http://backend:8080/ml/result", env="BACKEND_URL")
-    ml_port: int = Field(8080, env="ML_PORT")
+    ml_request_exchange: str = Field("notes.exchange", env="ML_REQUEST_EXCHANGE")
+    ml_request_queue: str = Field("notes.process.queue", env="ML_REQUEST_QUEUE")
+    ml_request_routing_key: str = Field("notes.created", env="ML_REQUEST_ROUTING_KEY")
+    result_exchange: str = Field("notes.exchange", env="ML_RESULT_EXCHANGE")
+    result_routing_key: str = Field("notes.completed", env="ML_RESULT_ROUTING_KEY")
+    result_queue: str = Field("notes.results.queue", env="ML_RESULT_QUEUE")
+    ml_port: int = Field(8000, env="ML_PORT")
     python_unbuffered: bool = Field(True, env="PYTHONUNBUFFERED")
 
 
