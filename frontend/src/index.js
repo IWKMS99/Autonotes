@@ -4,6 +4,7 @@ import { MotionConfig } from 'motion/react';
 import { ThemeProvider } from 'app/theme';
 import './index.css';
 import './styles/shared-ui.css';
+import './styles/theme-overrides.css';
 import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
