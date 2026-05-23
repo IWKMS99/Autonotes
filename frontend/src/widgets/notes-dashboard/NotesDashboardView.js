@@ -1,5 +1,6 @@
 import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
+import { formatDate as defaultFormatDate, getTimeAgo as defaultGetTimeAgo } from 'shared';
 import './NotesDashboardView.css';
 
 const statusLabels = {
@@ -37,11 +38,11 @@ const getNotePreview = (note) => {
 };
 
 export const NotesDashboardView = ({
-  notes,
-  filteredNotes,
-  searchTerm,
-  sortBy,
-  sortOrder,
+  notes = [],
+  filteredNotes = [],
+  searchTerm = '',
+  sortBy = 'createdAt',
+  sortOrder = 'desc',
   isLoading,
   error,
   onSearchChange,
@@ -54,6 +55,33 @@ export const NotesDashboardView = ({
   const searchId = useId();
   const sortById = useId();
   const sortOrderId = useId();
+
+  const formatNoteDate = typeof formatDate === 'function'
+    ? formatDate
+    : defaultFormatDate;
+
+  const getNoteTimeAgo = typeof getTimeAgo === 'function'
+    ? getTimeAgo
+    : defaultGetTimeAgo;
+
+  const safeNotes = Array.isArray(notes) ? notes : [];
+  const safeFilteredNotes = Array.isArray(filteredNotes) ? filteredNotes : [];
+
+  const handleSearchChange = typeof onSearchChange === 'function'
+    ? onSearchChange
+    : () => {};
+
+  const handleSortByChange = typeof onSortByChange === 'function'
+    ? onSortByChange
+    : () => {};
+
+  const handleSortOrderChange = typeof onSortOrderChange === 'function'
+    ? onSortOrderChange
+    : () => {};
+
+  const handleRetry = typeof onRetry === 'function'
+    ? onRetry
+    : () => window.location.reload();
 
   if (isLoading) {
     return (
@@ -70,17 +98,17 @@ export const NotesDashboardView = ({
         <div className="ui-center-state__icon" aria-hidden="true">⚠️</div>
         <h1 className="ui-page-header__title">Не удалось загрузить конспекты</h1>
         <p className="ui-center-state__text">{error}</p>
-        <button type="button" onClick={onRetry} className="btn btn-primary">
+        <button type="button" onClick={handleRetry} className="btn btn-primary">
           Попробовать снова
         </button>
       </section>
     );
   }
 
-  const totalNotes = notes.length;
-  const completedNotes = notes.filter((note) => note.status === 'COMPLETED').length;
-  const processingNotes = notes.filter((note) => note.status === 'PROCESSING').length;
-  const failedNotes = notes.filter((note) => note.status === 'FAILED').length;
+  const totalNotes = safeNotes.length;
+  const completedNotes = safeNotes.filter((note) => note.status === 'COMPLETED').length;
+  const processingNotes = safeNotes.filter((note) => note.status === 'PROCESSING').length;
+  const failedNotes = safeNotes.filter((note) => note.status === 'FAILED').length;
 
   return (
     <section className="dashboard-page ui-page-shell">
@@ -145,7 +173,7 @@ export const NotesDashboardView = ({
               id={searchId}
               type="search"
               value={searchTerm}
-              onChange={(event) => onSearchChange(event.target.value)}
+              onChange={(event) => handleSearchChange(event.target.value)}
               className="form-input dashboard-toolbar__search"
               placeholder="По названию или содержимому"
               autoComplete="off"
@@ -159,7 +187,7 @@ export const NotesDashboardView = ({
             <select
               id={sortById}
               value={sortBy}
-              onChange={(event) => onSortByChange(event.target.value)}
+              onChange={(event) => handleSortByChange(event.target.value)}
               className="form-input"
             >
               <option value="createdAt">По дате создания</option>
@@ -176,7 +204,7 @@ export const NotesDashboardView = ({
             <select
               id={sortOrderId}
               value={sortOrder}
-              onChange={(event) => onSortOrderChange(event.target.value)}
+              onChange={(event) => handleSortOrderChange(event.target.value)}
               className="form-input"
             >
               <option value="desc">Сначала новые</option>
@@ -197,21 +225,22 @@ export const NotesDashboardView = ({
             Создать первый конспект
           </Link>
         </div>
-      ) : filteredNotes.length === 0 ? (
+      ) : safeFilteredNotes.length === 0 ? (
         <div className="ui-empty-card">
           <div className="ui-empty-card__icon" aria-hidden="true">🔎</div>
           <h2 className="ui-empty-card__title">Ничего не найдено</h2>
           <p className="ui-empty-card__description">
             Попробуйте изменить поисковый запрос или параметры сортировки.
           </p>
-          <button type="button" className="btn btn-secondary" onClick={() => onSearchChange('')}>
+          <button type="button" className="btn btn-secondary" onClick={() => handleSearchChange('')}>
             Очистить поиск
           </button>
         </div>
       ) : (
         <div className="dashboard-grid" aria-label="Список конспектов">
-          {filteredNotes.map((note) => {
+          {safeFilteredNotes.map((note) => {
             const fileCount = note.images?.length || note.files?.length || 0;
+            const timeAgoText = getNoteTimeAgo(note.createdAt);
 
             return (
               <Link
@@ -224,10 +253,8 @@ export const NotesDashboardView = ({
                   <div className="dashboard-note-card__title-wrap">
                     <h2 className="dashboard-note-card__title">{note.title}</h2>
                     <p className="dashboard-note-card__date">
-                      {formatDate(note.createdAt)}
-                      {getTimeAgo && (
-                        <span> · {getTimeAgo(note.createdAt)}</span>
-                      )}
+                      {formatNoteDate(note.createdAt)}
+                      {timeAgoText && <span> · {timeAgoText}</span>}
                     </p>
                   </div>
 
