@@ -6,6 +6,15 @@ const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'
 
 const getFileSizeMb = (file) => (file.size / 1024 / 1024).toFixed(1);
 
+const getFileKey = (file) => `${file.name}-${file.size}-${file.lastModified}`;
+
+const appendUniqueFiles = (currentFiles, nextFiles) => {
+  const existingKeys = new Set(currentFiles.map(getFileKey));
+  const uniqueNextFiles = nextFiles.filter((file) => !existingKeys.has(getFileKey(file)));
+
+  return [...currentFiles, ...uniqueNextFiles];
+};
+
 export const useNoteUpload = (onSuccess) => {
   const [formData, setFormData] = useState({ title: '', files: [] });
   const [loading, setLoading] = useState(false);
@@ -71,6 +80,7 @@ export const useNoteUpload = (onSuccess) => {
 
       reader.onload = (event) => {
         resolve({
+          id: getFileKey(file),
           name: file.name,
           size: getFileSizeMb(file),
           data: event.target.result,
@@ -98,14 +108,29 @@ export const useNoteUpload = (onSuccess) => {
     }
 
     try {
-      const nextPreviews = await createPreviews(selectedFiles);
+      const currentFiles = formData.files;
+      const nextFiles = appendUniqueFiles(currentFiles, selectedFiles);
+
+      const addedFiles = nextFiles.filter((file) => (
+        !currentFiles.some((currentFile) => getFileKey(currentFile) === getFileKey(file))
+      ));
+
+      if (addedFiles.length === 0) {
+        setError('Эти файлы уже добавлены');
+        resetFileInput();
+        return false;
+      }
+
+      const addedPreviews = await createPreviews(addedFiles);
 
       setFormData((prev) => ({
         ...prev,
-        files: selectedFiles,
+        files: nextFiles,
       }));
-      setPreviews(nextPreviews);
+
+      setPreviews((prev) => [...prev, ...addedPreviews]);
       setError('');
+      resetFileInput();
 
       return true;
     } catch (previewError) {
