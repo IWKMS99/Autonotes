@@ -3,6 +3,7 @@ package ru.mtuci.autonotesbackend.modules.notes.impl.repository;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -18,6 +19,8 @@ public interface LectureNoteRepository extends JpaRepository<LectureNote, Long> 
 
     @EntityGraph(attributePaths = "images")
     List<LectureNote> findByUserIdOrderByCreatedAtDesc(Long userId);
+
+    Page<LectureNote> findByUserId(Long userId, Pageable pageable);
 
     @EntityGraph(attributePaths = "images")
     Optional<LectureNote> findByIdAndUserId(Long id, Long userId);
