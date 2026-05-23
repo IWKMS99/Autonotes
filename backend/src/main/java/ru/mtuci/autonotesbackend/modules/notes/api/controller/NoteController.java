@@ -3,6 +3,10 @@ package ru.mtuci.autonotesbackend.modules.notes.api.controller;
 import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.mtuci.autonotesbackend.modules.notes.api.NoteFacade;
 import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteDetailDto;
 import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteDto;
+import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteListItemDto;
+import ru.mtuci.autonotesbackend.modules.notes.api.dto.PagedResponseDto;
 import ru.mtuci.autonotesbackend.security.SecurityUser;
 
 @RestController
@@ -40,11 +46,12 @@ public class NoteController implements NoteResource {
 
     @Override
     @GetMapping
-    public ResponseEntity<List<NoteDto>> getAllNotes(
-            @Parameter(hidden = true) @AuthenticationPrincipal SecurityUser securityUser) {
+    public ResponseEntity<PagedResponseDto<NoteListItemDto>> getAllNotes(
+            @Parameter(hidden = true) @AuthenticationPrincipal SecurityUser securityUser,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        List<NoteDto> notes = noteFacade.findAllUserNotes(securityUser.getId());
-        return ResponseEntity.ok(notes);
+        Page<NoteListItemDto> notesPage = noteFacade.findAllUserNotes(securityUser.getId(), pageable);
+        return ResponseEntity.ok(PagedResponseDto.from(notesPage));
     }
 
     @Override

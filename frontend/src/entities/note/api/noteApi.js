@@ -14,7 +14,8 @@ const validateFile = (file) => {
 export const fetchNotes = async () => {
   try {
     const response = await apiClient.get('/notes');
-    return mapNotesDto(response.data);
+    const payload = Array.isArray(response.data) ? response.data : response.data?.content;
+    return mapNotesDto(payload);
   } catch (error) {
     throwHttpError(error);
   }
