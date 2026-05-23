@@ -43,7 +43,7 @@ views {
   view c3_ml of autonotes.mlWorker {
     title 'C3 — ML Service Components'
     description '''
-    Планируемый pipeline: consume → S3 → OCR → summary → publish result.
+    MVP: consume → publish result. S3/OCR/summary — #planned (stub predict).
     '''
     include
       *,

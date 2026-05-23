@@ -46,19 +46,19 @@ model {
     }
 
     mlWorker = service 'ML Service' {
-      #planned
       description '''
-      **Часть платформы Autonotes** (код сервиса пока не в репозитории).
+      **Часть платформы Autonotes** (код в `/ml`).
 
-      **Зона ответственности:**
-      - Consume notes.process.queue
-      - OCR (recognizedText) и суммаризация (summaryText)
-      - Read файлов из MinIO по filePaths из события
-      - Publish NoteResultDto в notes.results.queue
+      **Зона ответственности (MVP):**
+      - Consume notes.process.queue (NoteProcessingEvent)
+      - Publish NoteResultDto в notes.results.queue (routing: notes.completed)
+      - POST /predict для отладки
+
+      **В разработке:** чтение файлов из MinIO, полноценный OCR и суммаризация.
 
       **Не делает:** аутентификацию пользователей, REST API для клиента.
       '''
-      technology 'RabbitMQ consumer (планируется)'
+      technology 'Python 3.12, FastAPI, aio-pika'
     }
 
     postgres = database 'PostgreSQL' {

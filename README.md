@@ -17,7 +17,7 @@
     *   **API Gateway**: REST API для клиента.
     *   **Reliability**: Реализован паттерн **Transactional Outbox** для гарантии доставки событий (At-Least-Once).
     *   **Storage Management**: Встроенный **Garbage Collector** для очистки S3 от "файлов-сирот".
-3.  **ML Service**: (Планируется, код пока не в репозитории) Консьюмер RabbitMQ: OCR и суммаризация, результат обратно в очередь.
+3.  **ML Service (`/ml`)**: FastAPI + RabbitMQ consumer. Читает `notes.process.queue`, публикует `NoteResultDto` в `notes.completed`. Сейчас stub OCR/суммаризация через `predict()`; полная интеграция с MinIO — следующий этап. Подробнее: [`ml/docs/ML_SERVICE.md`](./ml/docs/ML_SERVICE.md).
 4.  **Инфраструктура**:
     *   **PostgreSQL**: Хранение пользователей, метаданных заметок и таблицы Outbox.
     *   **MinIO**: S3-совместимое хранилище оригиналов изображений.

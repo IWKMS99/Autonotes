@@ -1,8 +1,7 @@
 model {
   extend autonotes.mlWorker {
     processConsumer = component 'Process Consumer' {
-      #planned
-      description 'notes.process.queue'
+      description 'notes.process.queue — ml/worker.py'
     }
 
     s3Reader = component 'S3 Reader' {
@@ -21,8 +20,7 @@ model {
     }
 
     resultPublisher = component 'Result Publisher' {
-      #planned
-      description 'notes.completed'
+      description 'notes.completed — NoteResultDto'
     }
 
     processConsumer -> s3Reader
