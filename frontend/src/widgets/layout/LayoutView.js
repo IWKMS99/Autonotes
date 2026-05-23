@@ -1,6 +1,7 @@
 import React, { useEffect, useId, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { ThemeToggle } from 'features/theme-toggle';
 import {
   Icon,
   menuMotion,
@@ -101,6 +102,8 @@ export const LayoutView = ({ username, onLogout, children }) => {
               <span className="layout-user-link__name">{username || 'Профиль'}</span>
             </Link>
 
+            <ThemeToggle />
+
             <button type="button" onClick={onLogout} className="desktop-logout btn btn-ghost">
               <Icon name="logout" size={18} />
               <span>Выйти</span>
@@ -159,6 +162,8 @@ export const LayoutView = ({ username, onLogout, children }) => {
                     </Link>
                   ))}
                 </div>
+
+                <ThemeToggle />
 
                 <button type="button" onClick={onLogout} className="btn btn-secondary btn-block">
                   <Icon name="logout" size={18} />
