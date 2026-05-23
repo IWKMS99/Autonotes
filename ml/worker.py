@@ -5,11 +5,10 @@ from typing import Any
 
 import aio_pika
 
-from .model import load_model, predict
+from .model import get_model, predict
 from .settings import settings
 
 logger = logging.getLogger(__name__)
-model = load_model()
 
 RETRY_HEADER = "x-retry-count"
 MAX_RETRIES = 3
@@ -103,7 +102,7 @@ async def handle_message(
             return
 
         text = build_text_from_payload(payload)
-        prediction = predict(model, text)
+        prediction = predict(get_model(), text)
         await publish_result(result_exchange, build_success_result(note_id, prediction))
         await message.ack()
     except json.JSONDecodeError as exc:
