@@ -148,3 +148,14 @@
     align-items: flex-start;
   }
 }
+
+.dashboard-stat-card__icon {
+  color: var(--primary-color);
+}
+
+.dashboard-note-card__meta,
+.dashboard-note-card__open,
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+}

@@ -1,23 +1,24 @@
 import React, { useEffect, useId, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { Icon } from 'shared';
 import './LayoutView.css';
 
 const navItems = [
   {
     to: '/dashboard',
-    icon: '📚',
+    icon: 'books',
     label: 'Конспекты',
     description: 'Все загруженные материалы'
   },
   {
     to: '/upload',
-    icon: '➕',
+    icon: 'plus',
     label: 'Новый конспект',
     description: 'Загрузить материалы'
   },
   {
     to: '/profile',
-    icon: '👤',
+    icon: 'user',
     label: 'Профиль',
     description: 'Аккаунт и статистика'
   }
@@ -57,7 +58,9 @@ export const LayoutView = ({ username, onLogout, children }) => {
       <header className="layout-header">
         <div className="container layout-header__inner">
           <Link to="/dashboard" className="layout-logo" aria-label="Autonotes — перейти к конспектам">
-            <span className="layout-logo__mark" aria-hidden="true">🎓</span>
+            <span className="layout-logo__mark" aria-hidden="true">
+              <Icon name="logo" size={24} />
+            </span>
             <span className="layout-logo__text">Autonotes</span>
           </Link>
 
@@ -69,7 +72,7 @@ export const LayoutView = ({ username, onLogout, children }) => {
                 className={`layout-nav-link ${isActive(item.to) ? 'layout-nav-link--active' : ''}`}
                 aria-current={isActive(item.to) ? 'page' : undefined}
               >
-                <span aria-hidden="true">{item.icon}</span>
+                <Icon name={item.icon} size={18} />
                 <span>{item.label}</span>
               </Link>
             ))}
@@ -88,7 +91,7 @@ export const LayoutView = ({ username, onLogout, children }) => {
             </Link>
 
             <button type="button" onClick={onLogout} className="desktop-logout btn btn-ghost">
-              <span aria-hidden="true">🚪</span>
+              <Icon name="logout" size={18} />
               <span>Выйти</span>
             </button>
 
@@ -100,7 +103,7 @@ export const LayoutView = ({ username, onLogout, children }) => {
               aria-controls={mobileMenuId}
               aria-label={mobileMenuOpen ? 'Закрыть меню' : 'Открыть меню'}
             >
-              <span aria-hidden="true">{mobileMenuOpen ? '✕' : '☰'}</span>
+              <Icon name={mobileMenuOpen ? 'close' : 'menu'} size={22} />
             </button>
           </div>
         </div>
@@ -126,7 +129,9 @@ export const LayoutView = ({ username, onLogout, children }) => {
                     className={`layout-mobile-nav__link ${isActive(item.to) ? 'layout-mobile-nav__link--active' : ''}`}
                     aria-current={isActive(item.to) ? 'page' : undefined}
                   >
-                    <span className="layout-mobile-nav__icon" aria-hidden="true">{item.icon}</span>
+                    <span className="layout-mobile-nav__icon" aria-hidden="true">
+                      <Icon name={item.icon} size={20} />
+                    </span>
                     <span>
                       <span className="layout-mobile-nav__title">{item.label}</span>
                       <span className="layout-mobile-nav__description">{item.description}</span>
@@ -136,7 +141,7 @@ export const LayoutView = ({ username, onLogout, children }) => {
               </div>
 
               <button type="button" onClick={onLogout} className="btn btn-secondary btn-block">
-                <span aria-hidden="true">🚪</span>
+                <Icon name="logout" size={18} />
                 <span>Выйти из аккаунта</span>
               </button>
             </div>

@@ -1,5 +1,6 @@
 import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
+import { Icon } from 'shared';
 import './AuthFormView.css';
 
 export const AuthFormView = ({
@@ -26,7 +27,7 @@ export const AuthFormView = ({
       <section className="auth-card card fade-in" aria-labelledby="auth-title">
         <div className="auth-card__header">
           <div className="auth-card__logo" aria-hidden="true">
-            🎓
+            <Icon name="logo" size={34} />
           </div>
 
           <p className="auth-card__eyebrow">

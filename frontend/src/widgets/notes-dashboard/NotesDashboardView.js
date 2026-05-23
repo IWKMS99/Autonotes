@@ -1,6 +1,6 @@
 import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
-import { formatDate as defaultFormatDate, getTimeAgo as defaultGetTimeAgo } from 'shared';
+import { formatDate as defaultFormatDate, getTimeAgo as defaultGetTimeAgo, Icon } from 'shared';
 import './NotesDashboardView.css';
 
 const statusLabels = {
@@ -10,9 +10,9 @@ const statusLabels = {
 };
 
 const statusIcons = {
-  PROCESSING: '⏳',
-  COMPLETED: '✅',
-  FAILED: '⚠️',
+  PROCESSING: 'clock',
+  COMPLETED: 'check',
+  FAILED: 'warning',
 };
 
 const getStatusClassName = (status) => {
@@ -95,7 +95,9 @@ export const NotesDashboardView = ({
   if (error) {
     return (
       <section className="ui-center-state" role="alert">
-        <div className="ui-center-state__icon" aria-hidden="true">⚠️</div>
+        <div className="ui-center-state__icon" aria-hidden="true">
+          <Icon name="warning" size={44} />
+        </div>
         <h1 className="ui-page-header__title">Не удалось загрузить конспекты</h1>
         <p className="ui-center-state__text">{error}</p>
         <button type="button" onClick={handleRetry} className="btn btn-primary">
@@ -123,7 +125,7 @@ export const NotesDashboardView = ({
 
         <div className="ui-page-header__actions">
           <Link to="/upload" className="btn btn-primary">
-            <span aria-hidden="true">➕</span>
+            <Icon name="plus" size={18} />
             <span>Новый конспект</span>
           </Link>
         </div>
@@ -131,7 +133,9 @@ export const NotesDashboardView = ({
 
       <div className="dashboard-stats" aria-label="Статистика конспектов">
         <article className="dashboard-stat-card card">
-          <span className="dashboard-stat-card__icon" aria-hidden="true">📚</span>
+          <span className="dashboard-stat-card__icon" aria-hidden="true">
+            <Icon name="books" size={24} />
+          </span>
           <div>
             <p className="dashboard-stat-card__label">Всего</p>
             <p className="dashboard-stat-card__value">{totalNotes}</p>
@@ -139,7 +143,9 @@ export const NotesDashboardView = ({
         </article>
 
         <article className="dashboard-stat-card card">
-          <span className="dashboard-stat-card__icon" aria-hidden="true">✅</span>
+          <span className="dashboard-stat-card__icon" aria-hidden="true">
+            <Icon name="check" size={24} />
+          </span>
           <div>
             <p className="dashboard-stat-card__label">Готово</p>
             <p className="dashboard-stat-card__value">{completedNotes}</p>
@@ -147,7 +153,9 @@ export const NotesDashboardView = ({
         </article>
 
         <article className="dashboard-stat-card card">
-          <span className="dashboard-stat-card__icon" aria-hidden="true">⏳</span>
+          <span className="dashboard-stat-card__icon" aria-hidden="true">
+            <Icon name="clock" size={24} />
+          </span>
           <div>
             <p className="dashboard-stat-card__label">В обработке</p>
             <p className="dashboard-stat-card__value">{processingNotes}</p>
@@ -155,7 +163,9 @@ export const NotesDashboardView = ({
         </article>
 
         <article className="dashboard-stat-card card">
-          <span className="dashboard-stat-card__icon" aria-hidden="true">⚠️</span>
+          <span className="dashboard-stat-card__icon" aria-hidden="true">
+            <Icon name="warning" size={24} />
+          </span>
           <div>
             <p className="dashboard-stat-card__label">С ошибкой</p>
             <p className="dashboard-stat-card__value">{failedNotes}</p>
@@ -216,7 +226,9 @@ export const NotesDashboardView = ({
 
       {totalNotes === 0 ? (
         <div className="ui-empty-card">
-          <div className="ui-empty-card__icon" aria-hidden="true">📝</div>
+          <div className="ui-empty-card__icon" aria-hidden="true">
+            <Icon name="books" size={48} />
+          </div>
           <h2 className="ui-empty-card__title">Пока нет конспектов</h2>
           <p className="ui-empty-card__description">
             Загрузите изображения учебных материалов, и Autonotes подготовит для вас структурированный конспект.
@@ -227,7 +239,9 @@ export const NotesDashboardView = ({
         </div>
       ) : safeFilteredNotes.length === 0 ? (
         <div className="ui-empty-card">
-          <div className="ui-empty-card__icon" aria-hidden="true">🔎</div>
+          <div className="ui-empty-card__icon" aria-hidden="true">
+            <Icon name="search" size={48} />
+          </div>
           <h2 className="ui-empty-card__title">Ничего не найдено</h2>
           <p className="ui-empty-card__description">
             Попробуйте изменить поисковый запрос или параметры сортировки.
@@ -259,7 +273,7 @@ export const NotesDashboardView = ({
                   </div>
 
                   <span className={`status-badge ${getStatusClassName(note.status)}`}>
-                    <span aria-hidden="true">{statusIcons[note.status] || '⏳'}</span>
+                    <Icon name={statusIcons[note.status] || 'clock'} size={14} />
                     <span>{statusLabels[note.status] || note.status}</span>
                   </span>
                 </div>
@@ -270,13 +284,13 @@ export const NotesDashboardView = ({
 
                 <div className="dashboard-note-card__footer">
                   <span className="dashboard-note-card__meta">
-                    <span aria-hidden="true">🖼️</span>
+                    <Icon name="image" size={16} />
                     {fileCount} {fileCount === 1 ? 'файл' : 'файлов'}
                   </span>
 
                   <span className="dashboard-note-card__open">
                     Открыть
-                    <span aria-hidden="true">→</span>
+                    <Icon name="arrowRight" size={16} />
                   </span>
                 </div>
               </Link>
