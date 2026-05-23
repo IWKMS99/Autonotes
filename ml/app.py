@@ -1,3 +1,4 @@
+import asyncio
 from fastapi import FastAPI
 from .model import load_model, predict
 from .schemas import PredictionRequest, PredictionResponse
@@ -16,7 +17,7 @@ def predict_text(request: PredictionRequest):
 
 @app.on_event("startup")
 async def startup_event() -> None:
-    app.state.consumer_task = app.loop.create_task(run_consumer())
+    app.state.consumer_task = asyncio.create_task(run_consumer())
 
 
 @app.on_event("shutdown")
