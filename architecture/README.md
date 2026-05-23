@@ -12,7 +12,7 @@
 | **C2** | `c2_containers` | Все контейнеры (Frontend, Backend, ML, PG, MinIO, RabbitMQ) |
 | **C2** | `c2_async_processing` | Только async-цепочка: outbox → MQ → ML → result |
 | **C3** | `c3_backend` | Spring: controllers, security, notes, outbox, filestorage |
-| **C3** | `c3_frontend` | React: router, services, UI, Axios |
+| **C3** | `c3_frontend` | React FSD: app/pages/widgets/features/entities/shared + Axios |
 | **C3** | `c3_ml` | Планируемый ML pipeline (#planned) |
 | **Dynamic** | `dynamic_auth` | Sequence: регистрация / логин |
 | **Dynamic** | `dynamic_create_note` | Sequence: upload → ML → polling |
@@ -52,7 +52,7 @@ architecture/src/
   _spec.c4                      # типы: actor, system, webapp, service, component, ...
   model.c4                      # C1/C2: контейнеры и инфраструктура
   model-components-backend.c4   # C3 backend (extend)
-  model-components-frontend.c4  # C3 frontend (extend)
+  model-components-frontend.c4  # C3 frontend FSD layers (extend)
   model-components-ml.c4        # C3 ML (extend, #planned)
   model.views.c4                # C1, C2
   model.views-c3.c4             # C3

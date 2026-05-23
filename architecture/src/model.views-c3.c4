@@ -28,7 +28,7 @@ views {
   view c3_frontend of autonotes.frontend {
     title 'C3 — Frontend Components'
     description '''
-    React SPA: router, services, UI pages, Axios client.
+    React SPA on Feature-Sliced Design: app/pages/widgets/features/entities/shared + Axios client.
     '''
     include
       *,
