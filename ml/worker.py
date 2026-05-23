@@ -12,22 +12,34 @@ logger = logging.getLogger(__name__)
 model = load_model()
 
 
-async def send_result_to_backend(request_id: str | None, prediction: str) -> None:
-    payload = {"id": request_id, "prediction": prediction}
+async def send_result_to_backend(note_id: str | None, prediction: str) -> None:
+    payload = {"noteId": note_id, "prediction": prediction}
     async with httpx.AsyncClient() as client:
         response = await client.post(settings.backend_url, json=payload, timeout=10.0)
         response.raise_for_status()
         logger.info("Result sent to backend: %s", payload)
 
 
+def build_text_from_payload(payload: dict) -> str:
+    file_paths = payload.get("filePaths", [])
+    bucket_name = payload.get("bucketName", "")
+    # TODO: здесь можно реализовать загрузку данных из bucketName/filePaths
+    return " ".join(file_paths) or bucket_name or payload.get("noteId", "")
+
+
 async def handle_message(message: aio_pika.IncomingMessage) -> None:
     async with message.process():
         body = message.body.decode("utf-8")
         payload = json.loads(body)
-        request_id = payload.get("id")
-        text = payload.get("text", "")
+
+        note_id = payload.get("noteId")
+        if note_id is None:
+            logger.warning("Skip message without noteId: %s", payload)
+            return
+
+        text = build_text_from_payload(payload)
         prediction = predict(model, text)
-        await send_result_to_backend(request_id, prediction)
+        await send_result_to_backend(note_id, prediction)
 
 
 async def run_consumer() -> None:
