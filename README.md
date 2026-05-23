@@ -17,7 +17,7 @@
     *   **API Gateway**: REST API для клиента.
     *   **Reliability**: Реализован паттерн **Transactional Outbox** для гарантии доставки событий (At-Least-Once).
     *   **Storage Management**: Встроенный **Garbage Collector** для очистки S3 от "файлов-сирот".
-3.  **ML Service (`/ml`)**: FastAPI + RabbitMQ consumer. Читает `notes.process.queue`, публикует `NoteResultDto` в `notes.completed`. Сейчас stub OCR/суммаризация через `predict()`; полная интеграция с MinIO — следующий этап. Подробнее: [`ml/docs/ML_SERVICE.md`](./ml/docs/ML_SERVICE.md).
+3.  **ML Service (`/ml`)**: RabbitMQ worker — загрузка фото из MinIO, распознавание и суммаризация через **Ollama** (`qwen2.5vl:7b`), результат в `notes.completed`. Подробнее: [`ml/docs/ML_SERVICE.md`](./ml/docs/ML_SERVICE.md).
 4.  **Инфраструктура**:
     *   **PostgreSQL**: Хранение пользователей, метаданных заметок и таблицы Outbox.
     *   **MinIO**: S3-совместимое хранилище оригиналов изображений.
@@ -71,7 +71,6 @@ COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_S
 - **Grafana**: `http://localhost:3001` (`admin/admin`)
 - **Jaeger UI**: `http://localhost:16686`
 - **Kibana**: `http://localhost:5601`
-- trace-контекст и MDC-контракт в логах (`requestId`, `correlationId`, `traceId`, `spanId`, `instance_id`);
 
 Provisioning выполняется автоматически:
 - Grafana datasource + dashboards из `monitoring/grafana/provisioning`.

@@ -1,39 +1,68 @@
 # ML Service
 
+Асинхронный worker: RabbitMQ → MinIO → Ollama (Qwen2.5-VL) → RabbitMQ.
+
+## Предварительные требования
+
+1. **Ollama** на хосте с GPU:
+   ```bash
+   ollama pull qwen2.5vl:7b
+   ollama serve
+   ```
+
+2. Инфраструктура Autonotes (PostgreSQL, RabbitMQ, MinIO, backend) — через `docker-compose`.
+
 ## Конфигурация
 
-Скопируйте `.env.example` в `.env` и измените параметры при необходимости:
+Скопируйте `.env.example` в `.env` в корне репозитория. Ключевые переменные ML:
+
+| Переменная | Описание | По умолчанию |
+|------------|----------|--------------|
+| `OLLAMA_BASE_URL` | URL Ollama API | `http://localhost:11434` |
+| `OLLAMA_MODEL` | Модель | `qwen2.5vl:7b` |
+| `OLLAMA_TIMEOUT_SEC` | Таймаут запроса (сек) | `300` |
+| `OLLAMA_MULTI_IMAGE_MODE` | `batch` или `sequential` | `batch` |
+| `RABBITMQ_HOST` | Хост RabbitMQ | `rabbitmq` (в Docker) |
+| `MINIO_ENDPOINT` | URL MinIO | `http://minio:9000` |
+| `MINIO_BUCKET` | Bucket с изображениями | `lecture-notes` |
+| `ML_PORT` | Порт `/health` | `8000` |
+
+Из Docker worker обращается к Ollama на хосте через `http://host.docker.internal:11434`.
+
+## Запуск
+
+### Docker (рекомендуется)
 
 ```bash
-cp .env.example .env
+docker-compose up -d ml
 ```
 
-## Очереди
-
-Сервис читает `NoteProcessingEvent` из очереди `ML_REQUEST_QUEUE` (`notes.process.queue`), привязанной к exchange `ML_REQUEST_EXCHANGE` с routing key `ML_REQUEST_ROUTING_KEY` (`notes.created`).
-
-Результат публикуется в `ML_RESULT_EXCHANGE` с routing key `ML_RESULT_ROUTING_KEY` (`notes.completed`) в формате `NoteResultDto` (`noteId`, `status`, `recognizedText`, `summaryText`, `errorMessage`). Backend забирает сообщения из `notes.results.queue`.
-
-При ошибках обработки сообщение повторяется до 3 раз, затем уходит в DLQ (`notes.process.dlq`) через `x-dead-letter-exchange` на очереди.
-
-## Запуск локально
+### Локально (разработка)
 
 Из корня репозитория:
+
 ```bash
-python -m uvicorn ml.app:app --reload --port 8000
+pip install -r ml/requirements.txt
+set PYTHONPATH=.   # Windows
+# export PYTHONPATH=.  # Linux/macOS
+python -m ml.worker
 ```
 
-## Запуск в Docker
-```bash
-docker-compose up ml
-```
+## Pipeline
+
+1. Consumer читает `NoteProcessingEvent` из `notes.process.queue`.
+2. S3 client скачивает изображения из MinIO по `filePaths`.
+3. **OCR**: vision-запрос к Ollama → `recognizedText`.
+4. **Summary**: text-запрос к Ollama → `summaryText`.
+5. Publisher отправляет `NoteResultDto` в `notes.exchange` / `notes.completed`.
 
 ## API
-- `POST /predict`
-  - Request: `{"text": "string"}`
-  - Response: `{"prediction": "string"}`
+
+- `GET /health` — проверка живости (порт `ML_PORT`).
 
 ## Тесты
+
 ```bash
+pip install -r ml/requirements.txt
 pytest ml/tests/
 ```
