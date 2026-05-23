@@ -1,5 +1,6 @@
 import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
+import { Icon } from 'shared';
 import './NoteUploadView.css';
 
 const getDropzoneClassName = ({ dragActive, hasPreviews, loading }) => [
@@ -60,7 +61,7 @@ export const NoteUploadView = (props) => {
 
         <div className="ui-page-header__actions">
           <Link to="/dashboard" className="btn btn-secondary">
-            <span aria-hidden="true">←</span>
+            <Icon name="arrowLeft" size={18} />
             <span>К списку конспектов</span>
           </Link>
         </div>
@@ -79,7 +80,9 @@ export const NoteUploadView = (props) => {
         >
           <div className="note-upload-form__section">
             <div className="note-upload-section-heading">
-              <span className="note-upload-section-heading__icon" aria-hidden="true">✏️</span>
+              <span className="note-upload-section-heading__icon" aria-hidden="true">
+                <Icon name="dashboard" size={22} />
+              </span>
               <div>
                 <h2 className="note-upload-section-heading__title">Название</h2>
                 <p className="note-upload-section-heading__description">
@@ -111,7 +114,9 @@ export const NoteUploadView = (props) => {
 
           <div className="note-upload-form__section">
             <div className="note-upload-section-heading">
-              <span className="note-upload-section-heading__icon" aria-hidden="true">🖼️</span>
+              <span className="note-upload-section-heading__icon" aria-hidden="true">
+                <Icon name="image" size={22} />
+              </span>
               <div>
                 <h2 className="note-upload-section-heading__title">Файлы</h2>
                 <p className="note-upload-section-heading__description" id={dropzoneHintId}>
@@ -182,7 +187,7 @@ export const NoteUploadView = (props) => {
                           aria-label={`Удалить файл ${preview.name}`}
                           disabled={loading}
                         >
-                          ✕
+                          <Icon name="close" size={16} />
                         </button>
                       </article>
                     ))}
@@ -191,7 +196,7 @@ export const NoteUploadView = (props) => {
               ) : (
                 <div className="note-upload-empty-state">
                   <div className={`note-upload-empty-state__icon ${dragActive ? 'note-upload-empty-state__icon--active' : ''}`} aria-hidden="true">
-                    {dragActive ? '📥' : '☁️'}
+                    <Icon name={dragActive ? 'plus' : 'image'} size={42} />
                   </div>
                   <p className="note-upload-empty-state__title">
                     {dragActive ? 'Отпустите файлы здесь' : 'Перетащите изображения сюда'}
@@ -255,19 +260,19 @@ export const NoteUploadView = (props) => {
 
           <ul className="note-upload-help__list">
             <li>
-              <span aria-hidden="true">💡</span>
+              <Icon name="check" size={18} />
               <span>Загружайте чёткие фотографии без сильного размытия.</span>
             </li>
             <li>
-              <span aria-hidden="true">📐</span>
+              <Icon name="image" size={18} />
               <span>Старайтесь фотографировать материалы ровно и без больших наклонов.</span>
             </li>
             <li>
-              <span aria-hidden="true">🔤</span>
+              <Icon name="dashboard" size={18} />
               <span>Текст на изображениях должен быть достаточно крупным и читаемым.</span>
             </li>
             <li>
-              <span aria-hidden="true">📚</span>
+              <Icon name="books" size={18} />
               <span>Для одной темы лучше загружать несколько связанных изображений сразу.</span>
             </li>
           </ul>
