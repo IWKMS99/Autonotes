@@ -1,38 +1,38 @@
 model {
   extend autonotes.frontend {
     appEntry = component 'App Entry' {
-      description 'app/App.js + providers.js'
+      description 'Инициализация приложения, providers и bootstrap'
       technology 'React 19'
     }
 
     appRouter = component 'App Router' {
-      description 'app/router.js — routes + protected layout'
+      description 'Маршрутизация и protected routes'
       technology 'react-router-dom'
     }
 
-    sharedApiClient = component 'Shared API Client' {
-      description 'shared/api/client.js — Axios + JWT interceptors'
-      technology 'Axios'
-    }
-
     pagesLayer = component 'Pages Layer' {
-      description 'pages/* — screen composition only (no direct API)'
+      description 'Композиция страниц без прямой бизнес-логики'
     }
 
     widgetsLayer = component 'Widgets Layer' {
-      description 'widgets/* — reusable composed UI blocks'
+      description 'Переиспользуемые UI-блоки'
     }
 
     featuresLayer = component 'Features Layer' {
-      description 'features/*/model — use-cases: auth, dashboard polling, upload, detail, profile stats'
+      description 'Сценарии: auth, upload, polling, notes detail'
     }
 
     entitiesLayer = component 'Entities Layer' {
-      description 'entities/* — domain API + DTO mapping (note, user)'
+      description 'API сущностей и mapper DTO -> model'
+    }
+
+    sharedApiClient = component 'Shared API Client' {
+      description 'Axios client, JWT interceptors, common error handling'
+      technology 'Axios'
     }
 
     sharedLayer = component 'Shared Layer' {
-      description 'shared/* — async-state contract, ui states, utils/constants'
+      description 'Общие UI-state, utils и constants'
     }
 
     appEntry -> appRouter

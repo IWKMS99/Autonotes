@@ -2,102 +2,72 @@ model {
 
   student = actor 'Студент' {
     description '''
-    Пользователь платформы: регистрируется, загружает фото досок,
-    просматривает конспекты и статусы обработки.
+    Пользователь платформы: регистрируется, загружает фото,
+    получает обработанный конспект и управляет заметками.
     '''
   }
 
   autonotes = system 'Autonotes Platform' {
     description '''
-    Платформа автоматического создания конспектов из фотографий лекционных досок.
+    Платформа автоматического создания конспектов из изображений.
 
-    **Сценарий:** upload фото → async ML (OCR + summary) → готовый конспект в UI.
-    **Надёжность:** Transactional Outbox для доставки событий в ML (at-least-once).
+    Поток: upload -> backend -> outbox -> RabbitMQ -> ML -> result -> backend -> UI.
+    Надежность: Transactional Outbox + at-least-once доставка.
     '''
-    summary 'Конспекты из фото досок с асинхронной ML-обработкой'
 
     frontend = webapp 'Frontend (React SPA)' {
       description '''
-      **Зона ответственности:**
-      - UI: регистрация, логин, загрузка фото, список и детали конспекта
-      - Архитектура Feature-Sliced Design: app/pages/widgets/features/entities/shared
-      - Хранение JWT в localStorage, Axios interceptors
-      - Polling статуса PROCESSING (каждые ~5 с)
-      - В Docker: nginx отдаёт статику и проксирует /api → backend LB
-
-      **Не делает:** бизнес-логику, хранение файлов, очереди.
+      UI для auth, списка заметок, загрузки изображений и просмотра результата.
+      Архитектура: Feature-Sliced Design.
       '''
-      technology 'React 19, react-router-dom, Axios'
+      technology 'React 19, Axios'
     }
 
     backend = service 'Backend API (Spring Boot)' {
       description '''
-      **Зона ответственности:**
-      - REST API /api/v1 (auth, notes, users, system)
-      - JWT, Spring Security, JPA → PostgreSQL
-      - Загрузка изображений в MinIO (S3 API)
-      - Transactional Outbox → публикация NoteProcessingEvent
-      - Потребление NoteResultDto из results queue
-      - Фоновые задачи: timeout PROCESSING, S3 GC, soft-delete cleanup
-
-      **Модули:** user, notes, filestorage, system
+      REST API, auth, бизнес-логика notes, интеграция с MinIO и RabbitMQ,
+      обработка результатов ML и фоновые задачи обслуживания данных.
       '''
       technology 'Java 24, Spring Boot 3.5'
     }
 
     mlWorker = service 'ML Service' {
       description '''
-      **Часть платформы Autonotes** (код в `/ml`).
-
-      **Зона ответственности (MVP):**
-      - Consume notes.process.queue (NoteProcessingEvent)
-      - Publish NoteResultDto в notes.results.queue (routing: notes.completed)
-      - POST /predict для отладки
-
-      **В разработке:** чтение файлов из MinIO, полноценный OCR и суммаризация.
-
-      **Не делает:** аутентификацию пользователей, REST API для клиента.
+      Воркер обработки заметок: consume events из process queue,
+      формирование результата и publish completed events.
       '''
       technology 'Python 3.12, FastAPI, aio-pika'
     }
 
     postgres = database 'PostgreSQL' {
-      description '''
-      users, lecture_notes, note_images, outbox_events.
-      Статусы: PROCESSING, COMPLETED, FAILED.
-      '''
+      description 'users, notes, note_images, outbox_events'
       technology 'PostgreSQL 16, Flyway'
     }
 
     minio = storage 'MinIO (S3)' {
-      description '''
-      Бинарные оригиналы изображений (bucket lecture-notes).
-      Backend пишет при upload; ML читает по filePaths из события.
-      '''
+      description 'Хранение исходных изображений заметок'
       technology 'MinIO, AWS S3 SDK'
     }
 
     rabbitmq = queue 'RabbitMQ' {
       description '''
       Exchange: notes.exchange
-      - notes.process.queue (routing: notes.created) → ML
-      - notes.results.queue (routing: notes.completed) ← ML
-      DLQ: notes.process.dlq, notes.results.dlq
+      Queue processing: notes.process.queue
+      Queue results: notes.results.queue
       '''
       technology 'RabbitMQ, Spring AMQP'
     }
 
-    student -> frontend 'HTTPS: загрузка фото, просмотр конспектов'
+    student -> frontend 'использует web-интерфейс'
+    frontend -> backend 'REST /api/v1 (JWT)'
 
-    frontend -> backend 'REST /api/v1, Bearer JWT — auth, notes multipart, profile'
+    backend -> postgres 'JPA/JDBC'
+    backend -> minio 'S3 API upload/delete'
+    backend -> rabbitmq 'publish NoteProcessingEvent, consume NoteResultDto'
 
-    backend -> postgres 'JDBC/JPA: users, notes, outbox_events'
-    backend -> minio 'S3 API: upload/delete lecture-notes bucket'
-    backend -> rabbitmq 'publish NoteProcessingEvent (notes.created); consume NoteResultDto (notes.completed)'
-
-    rabbitmq -> mlWorker 'notes.process.queue'
-    mlWorker -> rabbitmq 'notes.results.queue'
-    mlWorker -> minio 'S3 GET by filePaths from NoteProcessingEvent'
+    rabbitmq -> mlWorker 'consume notes.process.queue'
+    mlWorker -> rabbitmq 'publish notes.results.queue'
+    mlWorker -> minio 'read source images from S3'
   }
 
   student -> autonotes 'использует платформу'

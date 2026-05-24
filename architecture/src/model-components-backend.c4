@@ -1,61 +1,63 @@
 model {
   extend autonotes.backend {
     apiControllers = component 'REST Controllers' {
-      description 'NoteController, AuthController, UserController, SystemController'
+      description 'AuthController, NoteController, UserController, SystemController'
       technology 'Spring Web'
     }
 
     security = component 'Security (JWT)' {
-      description 'JwtRequestFilter, JwtService, SecurityConfig'
+      description 'SecurityConfig, JwtRequestFilter, JwtService'
       technology 'Spring Security'
     }
 
-    notesCore = component 'Notes Module' {
-      description 'NoteService, NoteFacadeImpl'
+    notesCore = component 'Notes Core' {
+      description 'NoteFacade, NoteService, list/detail/create/delete use-cases'
       technology 'Spring Service, JPA'
     }
 
     outboxPublisher = component 'Outbox Publisher' {
-      description 'OutboxPublisherService — scheduled publish'
+      description 'Публикация событий из outbox_events по расписанию'
       technology 'Spring @Scheduled'
     }
 
     resultConsumer = component 'Result Consumer' {
-      description 'NoteResultConsumer — AMQP listener'
+      description 'Получение NoteResultDto из notes.results.queue'
       technology 'Spring AMQP'
-    }
-
-    notesMaintenance = component 'Notes Maintenance' {
-      description 'NoteCleanupService, SoftDeleteCleanupService'
     }
 
     filestorage = component 'File Storage' {
-      description 'FileStorageFacadeImpl, FileStorageService, StorageCleanupService'
-      technology 'S3 SDK, Tika'
+      description 'Upload/delete файлов в MinIO + валидация типа'
+      technology 'S3 SDK, Apache Tika'
     }
 
-    userAuth = component 'User Module' {
-      description 'AuthService, UserService, ProfileService'
+    notesMaintenance = component 'Notes Maintenance' {
+      description 'Cleanup soft-delete, processing timeout, orphaned files'
+      technology 'Scheduled jobs'
+    }
+
+    userAuth = component 'User/Auth Module' {
+      description 'Регистрация, логин, профиль'
+      technology 'Spring Security, JPA'
     }
 
     messagingConfig = component 'RabbitMQ Config' {
-      description 'RabbitMqConfig'
+      description 'Exchange/queues/bindings + templates/listeners'
       technology 'Spring AMQP'
     }
 
-    security -> apiControllers 'JWT filter'
+    security -> apiControllers 'auth filter chain'
     apiControllers -> notesCore 'notes API'
-    apiControllers -> userAuth 'auth API'
+    apiControllers -> userAuth 'auth/profile API'
     notesCore -> filestorage 'images'
-    notesCore -> outboxPublisher 'outbox in tx'
+    notesCore -> outboxPublisher 'event creation'
     outboxPublisher -> messagingConfig 'publish'
-    messagingConfig -> autonotes.rabbitmq 'notes.exchange'
-    autonotes.rabbitmq -> resultConsumer 'results queue'
-    resultConsumer -> notesCore 'NoteResultDto'
-    notesCore -> autonotes.postgres 'JPA notes, outbox'
-    filestorage -> autonotes.minio 'S3'
-    userAuth -> autonotes.postgres 'JPA users'
-    notesMaintenance -> autonotes.postgres 'cleanup'
-    notesMaintenance -> filestorage 'S3 GC'
+    messagingConfig -> autonotes.rabbitmq
+    autonotes.rabbitmq -> resultConsumer 'completed event'
+    resultConsumer -> notesCore 'apply ML result'
+    notesCore -> autonotes.postgres
+    userAuth -> autonotes.postgres
+    filestorage -> autonotes.minio
+    notesMaintenance -> autonotes.postgres
+    notesMaintenance -> filestorage
   }
 }
