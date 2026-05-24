@@ -1,84 +1,86 @@
-# 🎓 Autonotes
+﻿# Autonotes
 
-**Autonotes** — это интеллектуальная платформа для автоматического создания структурированных конспектов из фотографий лекционных досок.
+**Autonotes** — интеллектуальная платформа для автоматического создания структурированных конспектов из фотографий лекционных досок.
 
 Проект построен на микросервисной архитектуре с использованием паттернов надежности данных (Transactional Outbox) и асинхронного взаимодействия.
 
 ---
 
-## 🏗️ Архитектура
+## Архитектура
 
 Диаграммы **C1–C3** и сценарии (dynamic) в [LikeC4](https://likec4.dev/): [`architecture/`](./architecture/README.md) — `cd architecture && npm install && npm start`.
 
 Проект состоит из следующих компонентов:
 
-1.  **Frontend (`/frontend`)**: React 19 (SPA) на Feature-Sliced Design (`app/pages/widgets/features/entities/shared`). Пользовательский интерфейс для загрузки фото, просмотра статусов и готовых конспектов; polling статусов `PROCESSING` реализован на уровне feature-сценариев.
-2.  **Backend (`/backend`)**: Spring Boot 3 (Java 24).
-    *   **API Gateway**: REST API для клиента.
-    *   **Reliability**: Реализован паттерн **Transactional Outbox** для гарантии доставки событий (At-Least-Once).
-    *   **Storage Management**: Встроенный **Garbage Collector** для очистки S3 от "файлов-сирот".
-3.  **ML Service (`/ml`)**: RabbitMQ worker — загрузка фото из MinIO, распознавание и суммаризация через **Ollama** (`qwen2.5vl:7b`), результат в `notes.completed`. Подробнее: [`ml/docs/ML_SERVICE.md`](./ml/docs/ML_SERVICE.md).
-4.  **Инфраструктура**:
-    *   **PostgreSQL**: Хранение пользователей, метаданных заметок и таблицы Outbox.
-    *   **MinIO**: S3-совместимое хранилище оригиналов изображений.
-    *   **RabbitMQ**: Очередь сообщений (`notes.exchange` -> `notes.process.queue`).
+1. **Frontend (`/frontend`)**: React 19 (SPA) на Feature-Sliced Design (`app/pages/widgets/features/entities/shared`).
+2. **Backend (`/backend`)**: Spring Boot 3 (Java 24).
+   - **API Gateway**: REST API для клиента.
+   - **Reliability**: реализован паттерн **Transactional Outbox** для гарантии доставки событий (At-Least-Once).
+   - **Storage Management**: встроенный **Garbage Collector** для очистки S3 от «файлов-сирот».
+3. **ML Service (`/ml`)**: RabbitMQ worker — загрузка фото из MinIO, распознавание и суммаризация через **Ollama** (`qwen2.5vl:7b`), отправка результата в `notes.completed`.
+   - Подробнее: [`ml/docs/ML_SERVICE.md`](./ml/docs/ML_SERVICE.md).
+4. **Инфраструктура**:
+   - **PostgreSQL**: хранение пользователей, метаданных заметок и таблицы Outbox.
+   - **MinIO**: S3-совместимое хранилище оригиналов изображений.
+   - **RabbitMQ**: очередь сообщений (`notes.exchange` -> `notes.process.queue`).
 
-## 🚀 Быстрый старт (Docker Compose)
+## Быстрый старт (Docker Compose)
 
 ### Предварительные требования
-*   Docker и Docker Compose
+- Docker и Docker Compose
 
 ### Запуск
 
-1.  Клонируйте репозиторий:
-    ```bash
-    git clone https://github.com/IWKMS99/Autonotes.git autonotes
-    cd autonotes
-    ```
+1. Клонируйте репозиторий:
+   ```bash
+   git clone https://github.com/IWKMS99/Autonotes.git autonotes
+   cd autonotes
+   ```
 
-2.  Создайте `.env` файл (можно скопировать пример):
-    ```bash
-    cp .env.example .env
-    ```
+2. Создайте `.env` файл (можно скопировать пример):
+   ```bash
+   cp .env.example .env
+   ```
 
-3.  Запустите **весь стек** (фронтенд, бэкенд и инфраструктуру) одной командой:
-    ```bash
-    docker compose up --build -d
-    ```
+3. Запустите весь стек:
+   ```bash
+   docker compose up --build -d
+   ```
 
-По умолчанию запускается **демо-режим** с одним backend-инстансом (`backend-1`).
-Кластерный режим с балансировкой на 3 backend-инстанса включается профилем:
+По умолчанию запускается демо-режим с одним backend-инстансом (`backend-1`).
+
+Кластерный режим с балансировкой на 3 backend-инстанса:
 ```bash
 COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_SCRAPE_CONFIG=./monitoring/prometheus.cluster.yml docker compose up --build -d
 ```
 
 После запуска сервисы доступны по адресам:
-*   **Frontend (Приложение)**: `http://localhost:3000`
-*   **Backend API (через LB)**: `http://localhost:8090`
-*   **Swagger UI (через LB)**: `http://localhost:8090/swagger-ui.html`
-*   **MinIO Console**: `http://localhost:9001`
-*   **RabbitMQ Console**: `http://localhost:15672`
+- **Frontend**: `http://localhost:3000`
+- **Backend API (через LB)**: `http://localhost:8090`
+- **Swagger UI (через LB)**: `http://localhost:8090/swagger-ui.html`
+- **MinIO Console**: `http://localhost:9001`
+- **RabbitMQ Console**: `http://localhost:15672`
 
-## 📂 Структура репозитория
+## Структура репозитория
 
-*   [`backend/`](./backend/README.md) — Исходный код сервера (Java 24, Spring Boot 3).
-*   [`frontend/`](./frontend/README.md) — Исходный код клиента (React 19).
-*   `docker-compose.yml` — Оркестрация сервисов.
+- [`backend/`](./backend/README.md) — исходный код сервера (Java 24, Spring Boot 3).
+- [`frontend/`](./frontend/README.md) — исходный код клиента (React 19).
+- `docker-compose.yml` — оркестрация сервисов.
 
-## Use Remote Ollama via Tailscale
+## Использование удаленной Ollama через Tailscale
 
-If the model is hosted on a separate PC, you can run the project locally and connect ML service to that remote Ollama.
+Если модель запущена на другом ПК, можно поднимать проект локально и подключать ML-сервис к удаленной Ollama.
 
-1. Configure `OLLAMA_BASE_URL` in your `.env`:
-   - `OLLAMA_BASE_URL=http://<OLLAMA_HOST_TAILSCALE_IP>:11434`
-2. Follow setup and security steps in:
+1. В файле `.env` задайте `OLLAMA_BASE_URL`:
+   - `OLLAMA_BASE_URL=http://<TAILSCALE_IP_ХОСТА_OLLAMA>:11434`
+2. Выполните настройку и меры безопасности по инструкции:
    - [`ml/docs/ML_SERVICE.md`](./ml/docs/ML_SERVICE.md) -> `Remote Ollama (Tailscale)`
 
-Note:
-- The model is downloaded and running only on the Ollama host PC.
-- Other PCs only call Ollama API over Tailscale.
+Важно:
+- Модель скачивается и запускается только на ПК-хосте Ollama.
+- Другие ПК только обращаются к Ollama API через Tailscale.
 
-## 📈 Observability (E2E)
+## Observability (E2E)
 
 После `docker compose up --build -d` доступны:
 - **Prometheus**: `http://localhost:9090`
@@ -101,7 +103,7 @@ Provisioning выполняется автоматически:
    - Kibana index/data view `autonotes-logs-*` с полями `traceId/spanId`.
 
 ### Prometheus/Grafana checks
-1. Prometheus query examples:
+1. Примеры запросов Prometheus:
    - `up{job="autonotes-backend"}`
    - `http_server_requests_seconds_count`
    - `http_server_requests_seconds_bucket`
@@ -112,5 +114,5 @@ Provisioning выполняется автоматически:
    - `GET /api/v1/system/info`
    - `POST /api/v1/auth/login`
    - `GET /api/v1/notes`
-4. Для cluster режима используйте:
+4. Для cluster-режима используйте:
    `COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_SCRAPE_CONFIG=./monitoring/prometheus.cluster.yml docker compose up --build -d`
