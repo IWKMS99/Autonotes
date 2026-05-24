@@ -1,5 +1,6 @@
 name: ML CI
 on:
+  workflow_call:
   push:
     paths:
       - 'ml/**'
