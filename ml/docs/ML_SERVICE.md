@@ -66,3 +66,27 @@ python -m ml.worker
 pip install -r ml/requirements.txt
 pytest ml/tests/
 ```
+
+## Remote Ollama (Tailscale)
+
+Use this mode when Ollama model is running on one PC and other developers run Autonotes on different PCs.
+
+1. Install and sign in to Tailscale on the **Ollama host PC** and on each developer PC.
+2. Ensure all devices are in the same tailnet.
+3. On the Ollama host PC, configure Ollama to listen on network interface:
+   - Set `OLLAMA_HOST=0.0.0.0:11434`
+   - Restart Ollama service
+4. Restrict inbound access in firewall to the Tailscale interface/network only.
+5. On developer PC, set in `.env`:
+   - `OLLAMA_BASE_URL=http://<OLLAMA_HOST_TAILSCALE_IP>:11434`
+6. Start ML worker:
+   - `docker-compose up -d --build ml`
+
+Validation:
+
+- On Ollama host PC:
+  - `curl http://127.0.0.1:11434/api/tags`
+  - `curl http://<OLLAMA_HOST_TAILSCALE_IP>:11434/api/tags`
+- On developer PC:
+  - `curl http://<OLLAMA_HOST_TAILSCALE_IP>:11434/api/tags`
+  - `docker-compose logs -f ml` and verify ML uses expected `OLLAMA_BASE_URL`

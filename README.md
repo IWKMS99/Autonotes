@@ -64,6 +64,20 @@ COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_S
 *   [`backend/`](./backend/README.md) — Исходный код сервера (Java 24, Spring Boot 3).
 *   [`frontend/`](./frontend/README.md) — Исходный код клиента (React 19).
 *   `docker-compose.yml` — Оркестрация сервисов.
+
+## Use Remote Ollama via Tailscale
+
+If the model is hosted on a separate PC, you can run the project locally and connect ML service to that remote Ollama.
+
+1. Configure `OLLAMA_BASE_URL` in your `.env`:
+   - `OLLAMA_BASE_URL=http://<OLLAMA_HOST_TAILSCALE_IP>:11434`
+2. Follow setup and security steps in:
+   - [`ml/docs/ML_SERVICE.md`](./ml/docs/ML_SERVICE.md) -> `Remote Ollama (Tailscale)`
+
+Note:
+- The model is downloaded and running only on the Ollama host PC.
+- Other PCs only call Ollama API over Tailscale.
+
 ## 📈 Observability (E2E)
 
 После `docker compose up --build -d` доступны:
