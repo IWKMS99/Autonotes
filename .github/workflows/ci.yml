@@ -1,0 +1,12 @@
+name: Full Pipeline
+on: [pull_request]
+jobs:
+  backend:
+    uses: ./.github/workflows/backend-ci.yml
+  frontend:
+    uses: ./.github/workflows/frontend-ci.yml
+  ml:
+    uses: ./.github/workflows/ml-ci.yml
+  smoke-tests:
+    needs: [backend, frontend, ml]
+    uses: ./.github/workflows/smoke-test.yml
