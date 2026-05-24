@@ -4,6 +4,7 @@ import { App } from 'app/App';
 
 jest.mock('react-router-dom', () => {
   const React = require('react');
+  let outletContent = null;
 
   const matchPath = (routePath, currentPath) => {
     if (!routePath) return false;
@@ -20,9 +21,25 @@ jest.mock('react-router-dom', () => {
       const currentPath = global.location.pathname;
       const routes = React.Children.toArray(children).filter(React.isValidElement);
       const matched = routes.find((route) => matchPath(route.props.path, currentPath));
-      return matched ? matched.props.element : null;
+      if (matched) {
+        outletContent = null;
+        return matched.props.element;
+      }
+
+      const layoutRoute = routes.find((route) => route.props.children);
+      const childRoutes = React.Children.toArray(layoutRoute?.props.children).filter(React.isValidElement);
+      const matchedChild = childRoutes.find((route) => matchPath(route.props.path, currentPath));
+
+      if (!layoutRoute || !matchedChild) {
+        outletContent = null;
+        return null;
+      }
+
+      outletContent = matchedChild.props.element;
+      return layoutRoute.props.element;
     },
     Route: () => null,
+    Outlet: () => outletContent,
     Link: ({ children, to }) => <a href={to}>{children}</a>,
     Navigate: ({ to }) => {
       global.history.replaceState({}, 'Navigate', to);

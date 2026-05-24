@@ -1,10 +1,21 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useReducedMotion } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
-import { STATUS_TEXTS, formatRuDateTime, Icon } from 'shared';
+import {
+  AnimatedItem,
+  AnimatedList,
+  AnimatedPage,
+  STATUS_TEXTS,
+  formatRuDateTime,
+  Icon,
+  presenceMotion,
+  reducedPresenceMotion,
+  sectionMotion,
+} from 'shared';
 import './NoteDetailView.css';
 
 const statusIcons = {
@@ -102,21 +113,22 @@ const markdownComponents = {
 };
 
 export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
+  const shouldReduceMotion = useReducedMotion();
   const images = note.images || [];
   const hasSummary = Boolean(note.summaryText?.trim());
   const statusText = STATUS_TEXTS[note.status] || note.status;
   const statusIcon = statusIcons[note.status] || 'clock';
 
   return (
-    <section className="note-detail-page ui-page-shell slide-up">
-      <nav className="note-detail-breadcrumbs" aria-label="Навигация по конспекту">
+    <section className="note-detail-page ui-page-shell">
+      <AnimatedPage as="nav" className="note-detail-breadcrumbs" aria-label="Навигация по конспекту" variants={presenceMotion} reducedVariants={reducedPresenceMotion}>
         <Link to="/dashboard" className="note-detail-back-link">
           <Icon name="arrowLeft" size={18} />
           <span>К списку конспектов</span>
         </Link>
-      </nav>
+      </AnimatedPage>
 
-      <header className="note-detail-hero card">
+      <AnimatedPage as="header" className="note-detail-hero card" variants={sectionMotion}>
         <div className="note-detail-hero__content">
           <p className="ui-page-header__eyebrow">Конспект</p>
 
@@ -167,11 +179,14 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
             <span>{deleteLoading ? 'Удаляем...' : 'Удалить конспект'}</span>
           </button>
         </div>
-      </header>
+      </AnimatedPage>
 
       {note.status === 'PROCESSING' && (
-        <section className="note-detail-status-state note-detail-status-state--processing" role="status" aria-live="polite">
-          <div className="note-detail-status-state__icon note-detail-status-state__icon--processing" aria-hidden="true">
+        <AnimatedPage as="section" className="note-detail-status-state note-detail-status-state--processing" role="status" aria-live="polite" variants={presenceMotion} reducedVariants={reducedPresenceMotion}>
+          <div
+            className={`note-detail-status-state__icon ${shouldReduceMotion ? '' : 'note-detail-status-state__icon--processing'}`}
+            aria-hidden="true"
+          >
             <Icon name="clock" size={48} />
           </div>
           <h2 className="note-detail-status-state__title note-detail-status-state__title--processing">
@@ -180,11 +195,11 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
           <p className="note-detail-status-state__description note-detail-status-state__description--processing">
             Мы анализируем изображения и подготовим итоговый текст. Страница обновляется автоматически.
           </p>
-        </section>
+        </AnimatedPage>
       )}
 
       {note.status === 'FAILED' && (
-        <section className="note-detail-status-state note-detail-status-state--failed" role="alert">
+        <AnimatedPage as="section" className="note-detail-status-state note-detail-status-state--failed" role="alert" variants={presenceMotion} reducedVariants={reducedPresenceMotion}>
           <div className="note-detail-status-state__icon note-detail-status-state__icon--failed" aria-hidden="true">
             <Icon name="warning" size={48} />
           </div>
@@ -198,11 +213,11 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
             <Icon name="plus" size={18} />
             <span>Создать новый конспект</span>
           </Link>
-        </section>
+        </AnimatedPage>
       )}
 
-      <div className="note-detail-content-grid">
-        <section className="card note-detail-card" aria-labelledby="note-files-title">
+      <AnimatedList className="note-detail-content-grid">
+        <AnimatedItem as="section" className="card note-detail-card" aria-labelledby="note-files-title">
           <div className="note-detail-section-heading">
             <span className="note-detail-section-heading__icon" aria-hidden="true">
               <Icon name="image" size={22} />
@@ -218,9 +233,9 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
           </div>
 
           {images.length > 0 ? (
-            <div className="note-detail-files-grid">
+            <AnimatedList as="div" className="note-detail-files-grid" stagger={0.04} layout>
               {images.map((image, index) => (
-                <article key={image.id || `${getFileName(image, index)}-${index}`} className="note-detail-file-card">
+                <AnimatedItem as="article" key={image.id || `${getFileName(image, index)}-${index}`} className="note-detail-file-card" layout>
                   <span className="note-detail-file-card__icon" aria-hidden="true">
                     <Icon name="file" size={20} />
                   </span>
@@ -233,9 +248,9 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
                       Файл {image.orderIndex !== undefined ? image.orderIndex + 1 : index + 1} · {getFileSize(image)}
                     </p>
                   </div>
-                </article>
+                </AnimatedItem>
               ))}
-            </div>
+            </AnimatedList>
           ) : (
             <div className="note-detail-files-empty">
               <span className="note-detail-files-empty__icon" aria-hidden="true">
@@ -244,9 +259,9 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
               <p>Файлы не найдены</p>
             </div>
           )}
-        </section>
+        </AnimatedItem>
 
-        <section className="card note-detail-summary-card" aria-labelledby="note-summary-title">
+        <AnimatedItem as="section" className="card note-detail-summary-card" aria-labelledby="note-summary-title">
           <div className="note-detail-summary-heading">
             <span className="note-detail-summary-heading__icon" aria-hidden="true">
               <Icon name="fileText" size={22} />
@@ -288,8 +303,8 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
               </p>
             </div>
           )}
-        </section>
-      </div>
+        </AnimatedItem>
+      </AnimatedList>
     </section>
   );
 };

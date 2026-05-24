@@ -1,6 +1,20 @@
 import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
-import { formatDate as defaultFormatDate, getTimeAgo as defaultGetTimeAgo, Icon } from 'shared';
+import { useReducedMotion } from 'motion/react';
+import {
+  AnimatedItem,
+  AnimatedList,
+  AnimatedPage,
+  cardHoverMotion,
+  cardTapMotion,
+  formatDate as defaultFormatDate,
+  getTimeAgo as defaultGetTimeAgo,
+  Icon,
+  presenceMotion,
+  reducedListItemMotion,
+  reducedPresenceMotion,
+  sectionMotion,
+} from 'shared';
 import './NotesDashboardView.css';
 
 const statusLabels = {
@@ -55,6 +69,10 @@ export const NotesDashboardView = ({
   const searchId = useId();
   const sortById = useId();
   const sortOrderId = useId();
+  const shouldReduceMotion = useReducedMotion();
+
+  const hoverMotion = shouldReduceMotion ? undefined : cardHoverMotion;
+  const tapMotion = shouldReduceMotion ? undefined : cardTapMotion;
 
   const formatNoteDate = typeof formatDate === 'function'
     ? formatDate
@@ -94,7 +112,13 @@ export const NotesDashboardView = ({
 
   if (error) {
     return (
-      <section className="ui-center-state" role="alert">
+      <AnimatedPage
+        as="section"
+        className="ui-center-state"
+        role="alert"
+        variants={presenceMotion}
+        reducedVariants={reducedPresenceMotion}
+      >
         <div className="ui-center-state__icon" aria-hidden="true">
           <Icon name="warning" size={44} />
         </div>
@@ -103,7 +127,7 @@ export const NotesDashboardView = ({
         <button type="button" onClick={handleRetry} className="btn btn-primary">
           Попробовать снова
         </button>
-      </section>
+      </AnimatedPage>
     );
   }
 
@@ -114,9 +138,13 @@ export const NotesDashboardView = ({
 
   return (
     <section className="dashboard-page ui-page-shell">
-      <header className="ui-page-header ui-page-header--split">
+      <AnimatedPage
+        as="header"
+        className="ui-page-header ui-page-header--split"
+        variants={sectionMotion}
+      >
         <div className="ui-page-header__content">
-          <p className="ui-page-header__eyebrow">Рабочее пространство</p>
+          <p className="ui-page-header__eyebrow">Autonotes</p>
           <h1 className="ui-page-header__title">Мои конспекты</h1>
           <p className="ui-page-header__description">
             Управляйте загруженными материалами, отслеживайте обработку и быстро находите нужные конспекты.
@@ -129,10 +157,13 @@ export const NotesDashboardView = ({
             <span>Новый конспект</span>
           </Link>
         </div>
-      </header>
+      </AnimatedPage>
 
-      <div className="dashboard-stats" aria-label="Статистика конспектов">
-        <article className="dashboard-stat-card card">
+      <AnimatedList
+        className="dashboard-stats"
+        aria-label="Статистика конспектов"
+      >
+        <AnimatedItem as="article" className="dashboard-stat-card card">
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="books" size={24} />
           </span>
@@ -140,9 +171,9 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">Всего</p>
             <p className="dashboard-stat-card__value">{totalNotes}</p>
           </div>
-        </article>
+        </AnimatedItem>
 
-        <article className="dashboard-stat-card card">
+        <AnimatedItem as="article" className="dashboard-stat-card card">
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="check" size={24} />
           </span>
@@ -150,9 +181,9 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">Готово</p>
             <p className="dashboard-stat-card__value">{completedNotes}</p>
           </div>
-        </article>
+        </AnimatedItem>
 
-        <article className="dashboard-stat-card card">
+        <AnimatedItem as="article" className="dashboard-stat-card card">
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="clock" size={24} />
           </span>
@@ -160,9 +191,9 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">В обработке</p>
             <p className="dashboard-stat-card__value">{processingNotes}</p>
           </div>
-        </article>
+        </AnimatedItem>
 
-        <article className="dashboard-stat-card card">
+        <AnimatedItem as="article" className="dashboard-stat-card card">
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="warning" size={24} />
           </span>
@@ -170,11 +201,17 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">С ошибкой</p>
             <p className="dashboard-stat-card__value">{failedNotes}</p>
           </div>
-        </article>
-      </div>
+        </AnimatedItem>
+      </AnimatedList>
 
       {totalNotes > 0 && (
-        <div className="ui-toolbar dashboard-toolbar" aria-label="Фильтры и сортировка">
+        <AnimatedPage
+          className="ui-toolbar dashboard-toolbar"
+          aria-label="Фильтры и сортировка"
+          variants={presenceMotion}
+          reducedVariants={reducedPresenceMotion}
+          delay={0.04}
+        >
           <div className="ui-field">
             <label className="ui-field__label" htmlFor={searchId}>
               Поиск
@@ -221,11 +258,15 @@ export const NotesDashboardView = ({
               <option value="asc">Сначала старые</option>
             </select>
           </div>
-        </div>
+        </AnimatedPage>
       )}
 
       {totalNotes === 0 ? (
-        <div className="ui-empty-card">
+        <AnimatedPage
+          className="ui-empty-card"
+          variants={presenceMotion}
+          reducedVariants={reducedPresenceMotion}
+        >
           <div className="ui-empty-card__icon" aria-hidden="true">
             <Icon name="books" size={48} />
           </div>
@@ -236,9 +277,13 @@ export const NotesDashboardView = ({
           <Link to="/upload" className="btn btn-primary">
             Создать первый конспект
           </Link>
-        </div>
+        </AnimatedPage>
       ) : safeFilteredNotes.length === 0 ? (
-        <div className="ui-empty-card">
+        <AnimatedPage
+          className="ui-empty-card"
+          variants={presenceMotion}
+          reducedVariants={reducedPresenceMotion}
+        >
           <div className="ui-empty-card__icon" aria-hidden="true">
             <Icon name="search" size={48} />
           </div>
@@ -249,54 +294,64 @@ export const NotesDashboardView = ({
           <button type="button" className="btn btn-secondary" onClick={() => handleSearchChange('')}>
             Очистить поиск
           </button>
-        </div>
+        </AnimatedPage>
       ) : (
-        <div className="dashboard-grid" aria-label="Список конспектов">
+        <AnimatedList
+          className="dashboard-grid"
+          aria-label="Список конспектов"
+        >
           {safeFilteredNotes.map((note) => {
             const fileCount = note.images?.length || note.files?.length || 0;
             const timeAgoText = getNoteTimeAgo(note.createdAt);
 
             return (
-              <Link
+              <AnimatedItem
                 key={note.id}
-                to={`/notes/${note.id}`}
-                className="dashboard-note-card card interactive-card"
-                aria-label={`Открыть конспект ${note.title}`}
+                className="dashboard-note-card-shell"
+                reducedVariants={reducedListItemMotion}
+                whileHover={hoverMotion}
+                whileTap={tapMotion}
               >
-                <div className="dashboard-note-card__header">
-                  <div className="dashboard-note-card__title-wrap">
-                    <h2 className="dashboard-note-card__title">{note.title}</h2>
-                    <p className="dashboard-note-card__date">
-                      {formatNoteDate(note.createdAt)}
-                      {timeAgoText && <span> · {timeAgoText}</span>}
-                    </p>
+                <Link
+                  to={`/notes/${note.id}`}
+                  className="dashboard-note-card card interactive-card"
+                  aria-label={`Открыть конспект ${note.title}`}
+                >
+                  <div className="dashboard-note-card__header">
+                    <div className="dashboard-note-card__title-wrap">
+                      <h2 className="dashboard-note-card__title">{note.title}</h2>
+                      <p className="dashboard-note-card__date">
+                        {formatNoteDate(note.createdAt)}
+                        {timeAgoText && <span> · {timeAgoText}</span>}
+                      </p>
+                    </div>
+
+                    <span className={`status-badge ${getStatusClassName(note.status)}`}>
+                      <Icon name={statusIcons[note.status] || 'clock'} size={14} />
+                      <span>{statusLabels[note.status] || note.status}</span>
+                    </span>
                   </div>
 
-                  <span className={`status-badge ${getStatusClassName(note.status)}`}>
-                    <Icon name={statusIcons[note.status] || 'clock'} size={14} />
-                    <span>{statusLabels[note.status] || note.status}</span>
-                  </span>
-                </div>
+                  <p className="dashboard-note-card__preview">
+                    {getNotePreview(note)}
+                  </p>
 
-                <p className="dashboard-note-card__preview">
-                  {getNotePreview(note)}
-                </p>
+                  <div className="dashboard-note-card__footer">
+                    <span className="dashboard-note-card__meta">
+                      <Icon name="image" size={16} />
+                      {fileCount} {fileCount === 1 ? 'файл' : 'файлов'}
+                    </span>
 
-                <div className="dashboard-note-card__footer">
-                  <span className="dashboard-note-card__meta">
-                    <Icon name="image" size={16} />
-                    {fileCount} {fileCount === 1 ? 'файл' : 'файлов'}
-                  </span>
-
-                  <span className="dashboard-note-card__open">
-                    Открыть
-                    <Icon name="arrowRight" size={16} />
-                  </span>
-                </div>
-              </Link>
+                    <span className="dashboard-note-card__open">
+                      Открыть
+                      <Icon name="arrowRight" size={16} />
+                    </span>
+                  </div>
+                </Link>
+              </AnimatedItem>
             );
           })}
-        </div>
+        </AnimatedList>
       )}
     </section>
   );

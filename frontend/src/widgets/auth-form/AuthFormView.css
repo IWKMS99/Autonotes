@@ -23,20 +23,6 @@
   margin-bottom: var(--spacing-6);
 }
 
-.auth-card__logo {
-  width: 4.5rem;
-  height: 4.5rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: var(--spacing-4);
-  background-color: var(--primary-light);
-  border: 1px solid rgb(37 99 235 / 0.12);
-  border-radius: var(--radius-xl);
-  font-size: 2.25rem;
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.7);
-}
-
 .auth-card__eyebrow {
   margin: 0 0 var(--spacing-2);
   color: var(--primary-color);
@@ -52,7 +38,7 @@
   font-size: var(--font-size-3xl);
   font-weight: 800;
   line-height: 1.15;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
 }
 
 .auth-card__description {

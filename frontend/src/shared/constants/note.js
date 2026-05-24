@@ -17,6 +17,7 @@ export const STATUS_TEXTS = {
 };
 
 export const MAX_FILE_SIZE = 50 * 1024 * 1024;
+export const MAX_UPLOAD_REQUEST_SIZE = 200 * 1024 * 1024;
 
 export const ALLOWED_FILE_TYPES = [
   'image/jpeg',

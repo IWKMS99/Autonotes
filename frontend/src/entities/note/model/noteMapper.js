@@ -1,6 +1,6 @@
 const mapImage = (image) => ({
   ...image,
-  size: image.size || 0,
+  size: image.size || image.fileSizeBytes || 0,
   orderIndex: image.orderIndex ?? 0,
 });
 

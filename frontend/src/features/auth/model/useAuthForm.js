@@ -17,9 +17,13 @@ export const useAuthForm = (mode, onSuccess) => {
     setRequestState(createAsyncState({ status: ASYNC_STATUS.LOADING }));
 
     try {
+      const username = formData.username.trim();
+      const email = formData.email.trim();
+      const password = formData.password;
+
       const token = isRegister
-        ? await registerUser(formData.username, formData.email, formData.password)
-        : await loginUser(formData.username, formData.password);
+        ? await registerUser(username, email, password)
+        : await loginUser(username, password);
 
       setToken(token);
       setRequestState(createAsyncState({ status: ASYNC_STATUS.SUCCESS }));

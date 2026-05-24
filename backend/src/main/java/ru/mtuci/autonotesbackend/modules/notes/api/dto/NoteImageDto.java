@@ -14,4 +14,7 @@ public class NoteImageDto {
 
     @Schema(description = "Порядковый номер при просмотре (сортировка)", example = "0")
     private int orderIndex;
+
+    @Schema(description = "Размер файла в байтах", example = "3145728")
+    private long fileSizeBytes;
 }

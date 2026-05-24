@@ -1,26 +1,40 @@
 import React from 'react';
+import { AnimatedPage } from './AnimatedPage';
+import { presenceMotion, reducedPresenceMotion } from '../lib/motion';
 
 export const LoadingState = ({ text }) => (
-  <div className="ui-center-state">
-    <div className="loading-spinner ui-loading-spinner--lg"></div>
+  <AnimatedPage
+    className="ui-center-state"
+    variants={presenceMotion}
+    reducedVariants={reducedPresenceMotion}
+  >
+    <div className="loading-spinner ui-loading-spinner--lg" />
     <p className="ui-center-state__text">{text}</p>
-  </div>
+  </AnimatedPage>
 );
 
 export const ErrorState = ({ title = 'Ошибка загрузки', message, action }) => (
-  <div className="ui-center-state">
-    <div className="ui-center-state__icon">⚠️</div>
+  <AnimatedPage
+    className="ui-center-state"
+    variants={presenceMotion}
+    reducedVariants={reducedPresenceMotion}
+  >
+    <div className="ui-center-state__icon">!</div>
     <h2>{title}</h2>
     <p className="ui-center-state__text">{message}</p>
     {action}
-  </div>
+  </AnimatedPage>
 );
 
-export const EmptyState = ({ icon = '📄', title, description, action }) => (
-  <div className="ui-center-state">
+export const EmptyState = ({ icon = '•', title, description, action }) => (
+  <AnimatedPage
+    className="ui-center-state"
+    variants={presenceMotion}
+    reducedVariants={reducedPresenceMotion}
+  >
     <div className="ui-center-state__icon">{icon}</div>
     <h2>{title}</h2>
     {description && <p className="ui-center-state__text">{description}</p>}
     {action}
-  </div>
+  </AnimatedPage>
 );

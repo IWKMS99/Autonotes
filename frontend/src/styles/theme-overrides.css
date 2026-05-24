@@ -1,0 +1,318 @@
+/* Theme-aware overrides for screens that still have local hardcoded surfaces */
+
+/* App shell / layout */
+.layout-shell {
+  background: var(--app-shell-background);
+}
+
+.layout-header {
+  background-color: var(--header-background);
+}
+
+.layout-mobile-nav {
+  background-color: var(--surface-color);
+}
+
+.layout-logo__mark,
+.layout-mobile-nav__icon,
+.layout-user-link__avatar,
+.theme-toggle__icon {
+  color: var(--primary-color);
+}
+
+.layout-user-link,
+.theme-toggle {
+  background-color: var(--surface-raised);
+}
+
+/* Auth */
+[data-theme="light"] .auth-page {
+  background:
+    radial-gradient(circle at top left, rgb(37 99 235 / 0.12), transparent 26rem),
+    radial-gradient(circle at bottom right, rgb(124 58 237 / 0.12), transparent 26rem),
+    linear-gradient(135deg, #eff6ff 0%, #f8fafc 100%);
+}
+
+[data-theme="dark"] .auth-page {
+  background:
+    radial-gradient(circle at top left, rgb(37 99 235 / 0.2), transparent 26rem),
+    radial-gradient(circle at bottom right, rgb(124 58 237 / 0.18), transparent 26rem),
+    #020617;
+}
+
+.auth-card {
+  color: var(--text-primary);
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+.auth-card__logo {
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+}
+
+.auth-card__switch {
+  border-top-color: var(--border-color);
+}
+
+/* Shared UI */
+.ui-toolbar,
+.ui-empty-card,
+.ui-alert,
+.ui-center-state {
+  color: var(--text-primary);
+}
+
+.ui-toolbar {
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+.ui-empty-card {
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+/* Dashboard */
+.dashboard-stat-card,
+.dashboard-note-card {
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+.dashboard-stat-card__icon {
+  background-color: var(--icon-surface);
+}
+
+.dashboard-note-card__footer {
+  border-top-color: var(--border-color);
+}
+
+/* Upload */
+.note-upload-form,
+.note-upload-help {
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+.note-upload-section-heading__icon,
+.note-upload-empty-state__icon {
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+}
+
+.note-upload-dropzone {
+  background:
+    linear-gradient(var(--surface-color), var(--surface-color)) padding-box,
+    linear-gradient(135deg, rgb(37 99 235 / 0.35), rgb(124 58 237 / 0.16)) border-box;
+}
+
+.note-upload-dropzone--active {
+  background:
+    linear-gradient(var(--primary-light), var(--primary-light)) padding-box,
+    linear-gradient(135deg, var(--primary-color), #7c3aed) border-box;
+}
+
+.note-upload-dropzone--filled {
+  background:
+    linear-gradient(var(--background-color), var(--background-color)) padding-box,
+    linear-gradient(135deg, rgb(37 99 235 / 0.24), rgb(124 58 237 / 0.12)) border-box;
+}
+
+.note-upload-preview-card {
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+.note-upload-progress__track {
+  background-color: var(--surface-hover);
+}
+
+/* Note detail */
+.note-detail-hero,
+.profile-hero {
+  background: var(--hero-background);
+}
+
+.note-detail-card,
+.note-detail-summary-card,
+.profile-panel {
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+.note-detail-section-heading__icon,
+.note-detail-summary-heading__icon,
+.profile-section-heading__icon {
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+}
+
+.note-detail-file-card,
+.note-detail-files-empty,
+.note-detail-summary-empty {
+  background-color: var(--background-color);
+  border-color: var(--border-color);
+}
+
+.note-detail-file-card__icon {
+  background-color: var(--icon-surface);
+}
+
+.note-detail-markdown {
+  color: var(--text-primary);
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+.note-detail-markdown-inline-code {
+  background-color: var(--surface-hover);
+  border-color: var(--border-color);
+}
+
+.note-detail-markdown-blockquote {
+  background-color: var(--primary-light);
+}
+
+[data-theme="dark"] .note-detail-markdown-code-block {
+  background-color: var(--surface-raised);
+  border: 1px solid rgb(203 213 225 / 0.2);
+}
+
+[data-theme="light"] .note-detail-markdown-code-block {
+  background-color: #0f172a;
+}
+
+[data-theme="dark"] .note-detail-markdown {
+  background-color: var(--surface-subtle);
+  border-color: rgb(203 213 225 / 0.24);
+  box-shadow: none;
+}
+
+[data-theme="dark"] .note-detail-markdown-inline-code {
+  color: #fda4af;
+  background-color: rgb(30 41 59 / 0.9);
+  border-color: rgb(203 213 225 / 0.24);
+}
+
+[data-theme="dark"] .note-detail-markdown-blockquote {
+  color: #dbeafe;
+  background-color: rgb(30 64 175 / 0.2);
+  border-left-color: #60a5fa;
+}
+
+/* Profile */
+.profile-info-field,
+.profile-stat-card {
+  background-color: var(--surface-subtle);
+  border-color: var(--border-color);
+}
+
+.profile-info-field__icon,
+.profile-stat-card__icon {
+  background-color: var(--surface-raised);
+}
+
+.profile-hero__meta-item {
+  color: var(--text-secondary);
+  background-color: rgb(255 255 255 / 0.72);
+  border-color: var(--border-color);
+}
+
+[data-theme="dark"] .profile-hero__meta-item {
+  color: #dbeafe;
+  background-color: rgb(24 34 53 / 0.86);
+  border-color: rgb(203 213 225 / 0.28);
+}
+
+.profile-account-card {
+  background: var(--danger-panel-background);
+}
+
+[data-theme="dark"] .profile-account-card {
+  background:
+    linear-gradient(135deg, rgb(127 29 29 / 0.34), rgb(15 23 42 / 0.94));
+  border-color: rgb(248 113 113 / 0.36);
+}
+
+[data-theme="dark"] .profile-account-card__title {
+  color: #fee2e2;
+}
+
+[data-theme="dark"] .profile-account-card__description {
+  color: #fecaca;
+}
+
+/* Alerts */
+[data-theme="dark"] .ui-alert--error {
+  color: #fecaca;
+  background-color: rgb(127 29 29 / 0.36);
+  border-color: rgb(248 113 113 / 0.34);
+}
+
+[data-theme="dark"] .ui-alert--warning {
+  color: #fde68a;
+  background-color: rgb(120 53 15 / 0.34);
+  border-color: rgb(251 191 36 / 0.32);
+}
+
+[data-theme="dark"] .ui-alert--success {
+  color: #a7f3d0;
+  background-color: rgb(6 78 59 / 0.34);
+  border-color: rgb(52 211 153 / 0.32);
+}
+
+/* Form controls */
+.form-input {
+  color: var(--text-primary);
+  background-color: var(--input-background);
+  border-color: var(--border-color);
+}
+
+.form-input:hover:not(:disabled) {
+  border-color: var(--border-hover);
+}
+
+/* Buttons */
+.btn-secondary {
+  color: var(--text-primary);
+  background-color: var(--surface-color);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: var(--surface-hover);
+  border-color: var(--border-hover);
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  color: var(--text-primary);
+  background-color: var(--surface-hover);
+}
+
+/* Dark theme specific polish */
+[data-theme="dark"] .layout-header {
+  border-bottom-color: rgb(203 213 225 / 0.20);
+}
+
+[data-theme="dark"] .card,
+[data-theme="dark"] .ui-toolbar,
+[data-theme="dark"] .ui-empty-card {
+  box-shadow: var(--shadow-sm);
+}
+
+[data-theme="dark"] .profile-stat-card::after {
+  background-color: rgb(96 165 250 / 0.08);
+}
+
+[data-theme="dark"] .profile-stat-card--success::after {
+  background-color: rgb(52 211 153 / 0.08);
+}
+
+[data-theme="dark"] .profile-stat-card--neutral::after {
+  background-color: rgb(148 163 184 / 0.08);
+}

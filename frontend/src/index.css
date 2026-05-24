@@ -1,5 +1,8 @@
 /* CSS Variables */
-:root {
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+
   /* Colors */
   --primary-color: #2563eb;
   --primary-hover: #1d4ed8;
@@ -8,23 +11,46 @@
   --success-color: #10b981;
   --warning-color: #f59e0b;
   --error-color: #ef4444;
+
   --background-color: #f8fafc;
   --surface-color: #ffffff;
-  --surface-hover: #f8fafc;
-  --text-primary: #1e293b;
-  --text-secondary: #64748b;
+  --surface-raised: #ffffff;
+  --surface-subtle: #f8fafc;
+  --surface-hover: #f1f5f9;
+  --accent-color: #0f766e;
+  --accent-light: rgb(15 118 110 / 0.10);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
   --text-muted: #94a3b8;
+
   --border-color: #e2e8f0;
   --border-hover: #cbd5e1;
 
-  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.06);
-  --shadow-md: 0 8px 18px -12px rgb(15 23 42 / 0.35);
-  --shadow-lg: 0 20px 45px -24px rgb(15 23 42 / 0.45);
-
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
+
+  --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.06);
+  --shadow-md: 0 8px 18px -12px rgb(15 23 42 / 0.32);
+  --shadow-lg: 0 24px 60px -28px rgb(15 23 42 / 0.42);
+
+  /* Theme-specific surfaces */
+  --app-shell-background:
+    radial-gradient(circle at top left, rgb(37 99 235 / 0.08), transparent 32rem),
+    #f8fafc;
+
+  --header-background: rgb(255 255 255 / 0.92);
+  --hero-background:
+    radial-gradient(circle at top left, rgb(37 99 235 / 0.10), transparent 18rem),
+    linear-gradient(135deg, rgb(255 255 255 / 0.98), rgb(239 246 255 / 0.9));
+
+  --danger-panel-background:
+    linear-gradient(135deg, rgb(254 242 242 / 0.92), rgb(255 255 255 / 0.96));
+
+  --input-background: #ffffff;
+  --icon-surface: #f8fafc;
 
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
@@ -53,6 +79,53 @@
   --transition-fast: 150ms ease-in-out;
   --transition-normal: 250ms ease-in-out;
   --transition-slow: 350ms ease-in-out;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --primary-color: #60a5fa;
+  --primary-hover: #93c5fd;
+  --primary-light: rgb(96 165 250 / 0.14);
+  --secondary-color: #94a3b8;
+  --success-color: #34d399;
+  --warning-color: #fbbf24;
+  --error-color: #f87171;
+
+  --background-color: #020617;
+  --surface-color: #111827;
+  --surface-raised: #182235;
+  --surface-subtle: #0b1220;
+  --surface-hover: #1f2937;
+  --accent-color: #2dd4bf;
+  --accent-light: rgb(45 212 191 / 0.13);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #d1d5db;
+  --text-muted: #a8b3c2;
+
+  --border-color: rgb(203 213 225 / 0.22);
+  --border-hover: rgb(203 213 225 / 0.42);
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.32);
+  --shadow-md: 0 12px 30px -18px rgb(0 0 0 / 0.85);
+  --shadow-lg: 0 24px 60px -28px rgb(0 0 0 / 0.95);
+
+  --app-shell-background:
+    radial-gradient(circle at top left, rgb(45 212 191 / 0.10), transparent 30rem),
+    radial-gradient(circle at top right, rgb(96 165 250 / 0.10), transparent 28rem),
+    #020617;
+
+  --header-background: rgb(2 6 23 / 0.9);
+  --hero-background:
+    radial-gradient(circle at top left, rgb(45 212 191 / 0.14), transparent 18rem),
+    linear-gradient(135deg, rgb(24 34 53 / 0.98), rgb(15 23 42 / 0.94));
+
+  --danger-panel-background:
+    linear-gradient(135deg, rgb(69 10 10 / 0.9), rgb(30 41 59 / 0.82));
+
+  --input-background: rgb(15 23 42 / 0.88);
+  --icon-surface: rgb(15 23 42 / 0.88);
 }
 
 * {
@@ -153,8 +226,7 @@ code {
     background-color var(--transition-fast),
     border-color var(--transition-fast),
     color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
+    box-shadow var(--transition-fast);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -175,8 +247,13 @@ code {
 .btn-primary:hover:not(:disabled) {
   background-color: var(--primary-hover);
   border-color: var(--primary-hover);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 .btn-secondary {
@@ -210,7 +287,6 @@ code {
 .btn-danger:hover:not(:disabled) {
   background-color: #dc2626;
   border-color: #dc2626;
-  transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
@@ -308,7 +384,6 @@ code {
 .interactive-card:hover {
   border-color: var(--border-hover);
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
 }
 
 /* Status Styles */
@@ -337,37 +412,6 @@ code {
 .status-failed {
   background-color: #fee2e2;
   color: #991b1b;
-}
-
-/* Animation Classes */
-.fade-in {
-  animation: fadeIn var(--transition-normal) ease-out;
-}
-
-.slide-up {
-  animation: slideUp var(--transition-normal) ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* Loading Styles */
@@ -487,8 +531,35 @@ code {
   }
 }
 
+[data-theme="dark"] .status-processing {
+  background-color: rgb(245 158 11 / 0.18);
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .status-completed {
+  background-color: rgb(16 185 129 / 0.18);
+  color: #34d399;
+}
+
+[data-theme="dark"] .status-failed {
+  background-color: rgb(239 68 68 / 0.18);
+  color: #f87171;
+}
+
+.form-input {
+  background-color: var(--input-background);
+}
+
+.card {
+  background-color: var(--surface-color);
+}
+
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
@@ -498,10 +569,28 @@ code {
     transition-duration: 0.01ms !important;
   }
 
+  .loading-spinner {
+    animation: none !important;
+    border-top-color: var(--border-color);
+  }
+
+  .note-detail-status-state__icon--processing {
+    animation: none !important;
+  }
+
   .card--interactive:hover,
   .interactive-card:hover,
   .btn-primary:hover:not(:disabled),
-  .btn-danger:hover:not(:disabled) {
-    transform: none;
+  .btn-danger:hover:not(:disabled),
+  .note-detail-back-link:hover,
+  .note-upload-dropzone:hover:not(.note-upload-dropzone--loading),
+  .note-upload-dropzone:focus-visible,
+  .note-upload-empty-state__icon--active,
+  .note-upload-preview-card__remove:hover:not(:disabled) {
+    transform: none !important;
+  }
+
+  .note-upload-progress__bar {
+    transition: none !important;
   }
 }
