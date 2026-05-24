@@ -3,9 +3,9 @@ from __future__ import annotations
 from fastapi import FastAPI
 
 try:
-    from ml.model import get_model, predict
-    from ml.schemas import PredictionRequest, PredictionResponse
-    from ml.worker import run_consumer
+    from model import get_model, predict
+    from schemas import PredictionRequest, PredictionResponse
+    from worker import run_consumer
 except ModuleNotFoundError:
     from model import get_model, predict
     from schemas import PredictionRequest, PredictionResponse
