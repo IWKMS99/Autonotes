@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import { getUsernameFromToken, clearToken } from 'entities/user';
 import { AuthPage, DashboardPage, NoteDetailPage, NoteUploadPage, ProfilePage } from 'pages';
 import { LayoutView } from 'widgets';
@@ -12,7 +12,7 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-const ProtectedLayout = ({ children }) => (
+const ProtectedLayout = () => (
   <ProtectedRoute>
     <LayoutView
       username={getUsernameFromToken()}
@@ -21,7 +21,7 @@ const ProtectedLayout = ({ children }) => (
         window.location.href = '/login';
       }}
     >
-      {children}
+      <Outlet />
     </LayoutView>
   </ProtectedRoute>
 );
@@ -31,9 +31,11 @@ export const AppRouter = () => (
     <Route path="/login" element={<AuthPage mode="login" />} />
     <Route path="/register" element={<AuthPage mode="register" />} />
     <Route path="/" element={<Navigate to="/dashboard" replace />} />
-    <Route path="/dashboard" element={<ProtectedLayout><DashboardPage /></ProtectedLayout>} />
-    <Route path="/profile" element={<ProtectedLayout><ProfilePage /></ProtectedLayout>} />
-    <Route path="/upload" element={<ProtectedLayout><NoteUploadPage /></ProtectedLayout>} />
-    <Route path="/notes/:noteId" element={<ProtectedLayout><NoteDetailPage /></ProtectedLayout>} />
+    <Route element={<ProtectedLayout />}>
+      <Route path="/dashboard" element={<DashboardPage />} />
+      <Route path="/profile" element={<ProfilePage />} />
+      <Route path="/upload" element={<NoteUploadPage />} />
+      <Route path="/notes/:noteId" element={<NoteDetailPage />} />
+    </Route>
   </Routes>
 );
