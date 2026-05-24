@@ -160,8 +160,8 @@
 }
 
 .note-detail-card {
-  position: sticky;
-  top: 96px;
+  position: static;
+  top: auto;
 }
 
 .note-detail-section-heading,
@@ -293,6 +293,48 @@
   margin: 0 auto;
   color: var(--text-secondary);
   overflow-wrap: anywhere;
+}
+
+.note-detail-tabs {
+  display: inline-flex;
+  gap: var(--spacing-2);
+  padding: var(--spacing-1);
+  margin: 0 0 var(--spacing-4);
+  background-color: var(--background-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+}
+
+.note-detail-tab {
+  border: 0;
+  padding: var(--spacing-2) var(--spacing-3);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+}
+
+.note-detail-tab:hover {
+  color: var(--text-primary);
+  background-color: var(--surface-color);
+  transform: translateY(-1px);
+}
+
+.note-detail-tab--active {
+  color: var(--primary-color);
+  background-color: var(--primary-light);
+  box-shadow: 0 0 0 1px rgb(59 130 246 / 0.22) inset;
+}
+
+.note-detail-text-panel {
+  min-width: 0;
 }
 
 .note-detail-markdown {

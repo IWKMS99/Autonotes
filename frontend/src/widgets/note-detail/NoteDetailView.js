@@ -1,6 +1,6 @@
-import React from 'react';
+﻿import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
@@ -164,8 +164,12 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
   const images = note.images || [];
   const hasSummary = Boolean(note.summaryText?.trim());
   const hasRecognizedText = Boolean(note.recognizedText?.trim());
+  const [activeTextTab, setActiveTextTab] = useState(hasSummary ? 'summary' : 'recognized');
   const statusText = STATUS_TEXTS[note.status] || note.status;
   const statusIcon = statusIcons[note.status] || 'clock';
+  const tabTransition = shouldReduceMotion
+    ? { duration: 0 }
+    : { duration: 0.24, ease: [0.22, 1, 0.36, 1] };
 
   return (
     <section className="note-detail-page ui-page-shell">
@@ -310,75 +314,108 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
           )}
         </AnimatedItem>
 
-        {hasRecognizedText && (
-          <AnimatedItem as="section" className="card note-detail-summary-card" aria-labelledby="note-recognized-title">
-            <div className="note-detail-summary-heading">
-              <span className="note-detail-summary-heading__icon" aria-hidden="true">
-                <Icon name="fileText" size={22} />
-              </span>
-              <div>
-                <h2 id="note-recognized-title" className="note-detail-summary-heading__title">
-                  Распознанный текст
-                </h2>
-                <p className="note-detail-summary-heading__description">
-                  Дословная расшифровка с фотографий (OCR).
-                </p>
-              </div>
-            </div>
-            <div className="markdown-container note-detail-markdown">
-              <ReactMarkdown
-                remarkPlugins={[remarkMath]}
-                rehypePlugins={[rehypeKatex]}
-                components={markdownComponents}
-              >
-                {normalizeLatexMarkdown(note.recognizedText)}
-              </ReactMarkdown>
-            </div>
-          </AnimatedItem>
-        )}
-
-        <AnimatedItem as="section" className="card note-detail-summary-card" aria-labelledby="note-summary-title">
+        <AnimatedItem as="section" className="card note-detail-summary-card" aria-labelledby="note-content-title">
           <div className="note-detail-summary-heading">
             <span className="note-detail-summary-heading__icon" aria-hidden="true">
               <Icon name="fileText" size={22} />
             </span>
             <div>
-              <h2 id="note-summary-title" className="note-detail-summary-heading__title">
-                Итоговый конспект
+              <h2 id="note-content-title" className="note-detail-summary-heading__title">
+                Текст заметки
               </h2>
               <p className="note-detail-summary-heading__description">
-                Структурированный результат на основе распознанного текста.
+                Переключайтесь между распознанным текстом и итоговым конспектом.
               </p>
             </div>
           </div>
 
-          {hasSummary ? (
-            <div className="markdown-container note-detail-markdown">
-              <ReactMarkdown
-                remarkPlugins={[remarkMath]}
-                rehypePlugins={[rehypeKatex]}
-                components={markdownComponents}
+          <div className="note-detail-tabs" role="tablist" aria-label="Выбор режима текста">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTextTab === 'recognized'}
+              className={`note-detail-tab ${activeTextTab === 'recognized' ? 'note-detail-tab--active' : ''}`}
+              onClick={() => setActiveTextTab('recognized')}
+            >
+              Распознанный текст
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeTextTab === 'summary'}
+              className={`note-detail-tab ${activeTextTab === 'summary' ? 'note-detail-tab--active' : ''}`}
+              onClick={() => setActiveTextTab('summary')}
+            >
+              Конспект
+            </button>
+          </div>
+
+          <AnimatePresence mode="wait" initial={false}>
+            {activeTextTab === 'summary' && hasSummary ? (
+              <motion.div
+                key="summary-content"
+                className="note-detail-text-panel"
+                initial={{ opacity: 0, y: 10, filter: 'blur(3px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -6, filter: 'blur(2px)' }}
+                transition={tabTransition}
               >
-                {normalizeLatexMarkdown(note.summaryText)}
-              </ReactMarkdown>
-            </div>
-          ) : (
-            <div className="note-detail-summary-empty">
-              <span className="note-detail-summary-empty__icon" aria-hidden="true">
-                <Icon name={note.status === 'PROCESSING' ? 'clock' : 'fileText'} size={42} />
-              </span>
-              <h3 className="note-detail-summary-empty__title">
-                {note.status === 'PROCESSING'
-                  ? 'Конспект скоро появится'
-                  : 'Текст конспекта пока недоступен'}
-              </h3>
-              <p className="note-detail-summary-empty__description">
-                {note.status === 'PROCESSING'
-                  ? 'После завершения обработки результат появится в этом блоке.'
-                  : 'Попробуйте создать новый конспект или проверить статус обработки позже.'}
-              </p>
-            </div>
-          )}
+                <div className="markdown-container note-detail-markdown">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
+                    components={markdownComponents}
+                  >
+                    {normalizeLatexMarkdown(note.summaryText)}
+                  </ReactMarkdown>
+                </div>
+              </motion.div>
+            ) : activeTextTab === 'recognized' && hasRecognizedText ? (
+              <motion.div
+                key="recognized-content"
+                className="note-detail-text-panel"
+                initial={{ opacity: 0, y: 10, filter: 'blur(3px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -6, filter: 'blur(2px)' }}
+                transition={tabTransition}
+              >
+                <div className="markdown-container note-detail-markdown">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
+                    components={markdownComponents}
+                  >
+                    {normalizeLatexMarkdown(note.recognizedText)}
+                  </ReactMarkdown>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="empty-content"
+                className="note-detail-text-panel"
+                initial={{ opacity: 0, y: 10, filter: 'blur(3px)' }}
+                animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                exit={{ opacity: 0, y: -6, filter: 'blur(2px)' }}
+                transition={tabTransition}
+              >
+                <div className="note-detail-summary-empty">
+                  <span className="note-detail-summary-empty__icon" aria-hidden="true">
+                    <Icon name={note.status === 'PROCESSING' ? 'clock' : 'fileText'} size={42} />
+                  </span>
+                  <h3 className="note-detail-summary-empty__title">
+                    {activeTextTab === 'summary'
+                      ? 'Текст конспекта пока недоступен'
+                      : 'Распознанный текст пока недоступен'}
+                  </h3>
+                  <p className="note-detail-summary-empty__description">
+                    {note.status === 'PROCESSING'
+                      ? 'После завершения обработки результат появится в этом блоке.'
+                      : 'Попробуйте проверить статус обработки позже или создать новую заметку.'}
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </AnimatedItem>
       </AnimatedList>
     </section>
