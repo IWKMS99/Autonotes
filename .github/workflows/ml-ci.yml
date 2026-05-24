@@ -1,0 +1,27 @@
+name: ML CI
+on:
+  push:
+    paths:
+      - 'ml/**'
+      - '.github/workflows/ml-ci.yml'
+  pull_request:
+    paths:
+      - 'ml/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./ml
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install dependencies
+        run: pip install -r requirements.txt pytest
+      - name: Run Tests
+        run: pytest tests/

@@ -1,0 +1,32 @@
+name: Smoke Tests
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Start Docker Compose
+        run: docker compose up --build -d
+      - name: Wait for services
+        run: sleep 30
+      - name: Check Backend Health
+        run: |
+          for i in {1..10}; do
+            curl -f http://localhost:8090/actuator/health && break
+            echo "Waiting for backend..."
+            sleep 10
+          done
+      - name: Check RabbitMQ
+        run: curl -f -u guest:guest http://localhost:15672/api/health/checks/alarms
+      - name: Check Frontend
+        run: curl -f http://localhost:3000
+      - name: Print Docker Logs on Failure
+        if: failure()
+        run: docker compose logs
