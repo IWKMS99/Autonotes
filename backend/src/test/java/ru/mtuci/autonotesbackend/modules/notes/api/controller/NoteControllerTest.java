@@ -141,6 +141,33 @@ class NoteControllerTest extends BaseIntegrationTest {
     }
 
     @Test
+    void getAllNotes_shouldCapPageSizeToMaxLimit() throws Exception {
+        User user = createUserInDb("paged-limit-user", "paged-limit@test.com");
+        String token = loginAndGetToken("paged-limit-user");
+
+        createNoteInDb(user, "Note 1");
+        createNoteInDb(user, "Note 2");
+
+        mockMvc.perform(get("/api/v1/notes?page=0&size=500").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size").value(100))
+                .andExpect(jsonPath("$.totalElements").value(2));
+    }
+
+    @Test
+    void getAllNotes_shouldFallbackToDefaultSortWhenSortFieldIsUnsupported() throws Exception {
+        User user = createUserInDb("paged-sort-user", "paged-sort@test.com");
+        String token = loginAndGetToken("paged-sort-user");
+
+        createNoteInDb(user, "Note A");
+
+        mockMvc.perform(get("/api/v1/notes?sort=unknown,asc").header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content", hasSize(1)))
+                .andExpect(jsonPath("$.page").value(0));
+    }
+
+    @Test
     void getNoteById_shouldReturnDetails() throws Exception {
         User user = createUserInDb("detail-user", "detail@test.com");
         String token = loginAndGetToken("detail-user");

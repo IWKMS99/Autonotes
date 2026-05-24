@@ -56,6 +56,13 @@ public interface NoteResource {
             @Parameter(hidden = true) SecurityUser securityUser);
 
     @Operation(summary = "Получить конспекты пользователя с пагинацией")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Список конспектов с метаданными пагинации",
+            content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = PagedResponseDto.class)))
     ResponseEntity<PagedResponseDto<NoteListItemDto>> getAllNotes(
             @Parameter(hidden = true) SecurityUser securityUser,
             @Parameter(description = "Параметры пагинации: page, size, sort") Pageable pageable);

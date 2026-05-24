@@ -66,7 +66,7 @@ architecture/src/
 | Операция | Метод |
 |----------|-------|
 | Auth | `POST /auth/register`, `POST /auth/login` |
-| Notes | `POST /notes` (multipart), `GET /notes`, `GET /notes/{id}`, `DELETE /notes/{id}` |
+| Notes | `POST /notes` (multipart), `GET /notes?page&size&sort` → `PagedResponseDto<NoteListItemDto>`, `GET /notes/{id}`, `DELETE /notes/{id}` |
 
 ### RabbitMQ `notes.exchange`
 

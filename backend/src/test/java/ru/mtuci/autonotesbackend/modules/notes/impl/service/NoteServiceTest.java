@@ -218,4 +218,34 @@ class NoteServiceTest {
         assertThat(result.getContent().getFirst().getImageCount()).isEqualTo(3);
         assertThat(result.getContent().getFirst().getSummaryPreview()).isEqualTo("Summary text");
     }
+
+    @Test
+    void findAllLightweightDtosByUserId_shouldTrimSummaryPreviewTo140Chars() {
+        Long userId = 1L;
+        PageRequest pageable = PageRequest.of(0, 20);
+        LectureNote note = new LectureNote();
+        note.setId(11L);
+        note.setTitle("Long Summary");
+        note.setSummaryText("x".repeat(180));
+
+        when(noteRepository.findByUserId(userId, pageable)).thenReturn(new PageImpl<>(List.of(note)));
+        when(noteImageRepository.countByNoteIds(List.of(11L)))
+                .thenReturn(Collections.singletonList(new Object[] {11L, 1L}));
+
+        Page<NoteListItemDto> result = noteService.findAllLightweightDtosByUserId(userId, pageable);
+
+        assertThat(result.getContent().getFirst().getSummaryPreview()).hasSize(143).endsWith("...");
+    }
+
+    @Test
+    void findAllLightweightDtosByUserId_shouldNotRequestImageCountsForEmptyPage() {
+        Long userId = 1L;
+        PageRequest pageable = PageRequest.of(0, 20);
+        when(noteRepository.findByUserId(userId, pageable)).thenReturn(Page.empty(pageable));
+
+        Page<NoteListItemDto> result = noteService.findAllLightweightDtosByUserId(userId, pageable);
+
+        assertThat(result.getContent()).isEmpty();
+        verify(noteImageRepository, never()).countByNoteIds(any());
+    }
 }
