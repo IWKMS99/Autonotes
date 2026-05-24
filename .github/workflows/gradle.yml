@@ -2,10 +2,10 @@ name: Backend CI (Java/Gradle)
 
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
     paths:
       - 'backend/**'
-      - '.github/workflows/backend-ci.yml'
+      - '.github/workflows/gradle.yml'
 
 permissions:
   contents: read
