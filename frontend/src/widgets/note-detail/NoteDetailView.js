@@ -112,10 +112,58 @@ const markdownComponents = {
   hr: () => <hr className="note-detail-markdown-divider" />,
 };
 
+const LATEX_SIGNAL_RE = /(\\(frac|sqrt|sum|int|lim|cdot|times|alpha|beta|gamma|delta|theta|pi|sin|cos|tan|log|ln)\b|\\begin\{[^}]+\}|\\end\{[^}]+\}|[A-Za-z0-9]\s*=\s*[A-Za-z0-9\\]|[A-Za-z0-9]\s*[\^_]\s*\{[^}]+\})/;
+const MATRIX_ENV_RE = /\\begin\{(pmatrix|bmatrix|matrix|vmatrix|Vmatrix)\}([\s\S]*?)\\end\{\1\}/g;
+
+const normalizeMatrixLineBreaks = (text) => text.replace(
+  MATRIX_ENV_RE,
+  (match, env, body) => {
+    const fixedBody = body.replace(/(?<!\\)\\(?![\\A-Za-z])/g, '\\\\');
+    return `\\begin{${env}}${fixedBody}\\end{${env}}`;
+  }
+);
+
+const normalizeLatexMarkdown = (value) => {
+  if (!value || typeof value !== 'string') {
+    return value || '';
+  }
+
+  const lines = value.split('\n');
+  const normalized = [];
+  let inCodeBlock = false;
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+
+    if (trimmed.startsWith('```')) {
+      inCodeBlock = !inCodeBlock;
+      normalized.push(line);
+      return;
+    }
+
+    if (
+      inCodeBlock
+      || !trimmed
+      || trimmed.includes('$')
+      || trimmed.includes('\\(')
+      || trimmed.includes('\\[')
+      || !LATEX_SIGNAL_RE.test(trimmed)
+    ) {
+      normalized.push(line);
+      return;
+    }
+
+    normalized.push(`$$${trimmed}$$`);
+  });
+
+  return normalizeMatrixLineBreaks(normalized.join('\n'));
+};
+
 export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
   const shouldReduceMotion = useReducedMotion();
   const images = note.images || [];
   const hasSummary = Boolean(note.summaryText?.trim());
+  const hasRecognizedText = Boolean(note.recognizedText?.trim());
   const statusText = STATUS_TEXTS[note.status] || note.status;
   const statusIcon = statusIcons[note.status] || 'clock';
 
@@ -207,7 +255,8 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
             Не удалось обработать конспект
           </h2>
           <p className="note-detail-status-state__description note-detail-status-state__description--failed">
-            Попробуйте создать новый конспект с более чёткими изображениями или меньшим количеством файлов.
+            {note.summaryText?.replace(/^Processing failed:\s*/i, '')
+              || 'Попробуйте создать новый конспект с более чёткими изображениями или меньшим количеством файлов.'}
           </p>
           <Link to="/upload" className="btn btn-primary">
             <Icon name="plus" size={18} />
@@ -261,6 +310,33 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
           )}
         </AnimatedItem>
 
+        {hasRecognizedText && (
+          <AnimatedItem as="section" className="card note-detail-summary-card" aria-labelledby="note-recognized-title">
+            <div className="note-detail-summary-heading">
+              <span className="note-detail-summary-heading__icon" aria-hidden="true">
+                <Icon name="fileText" size={22} />
+              </span>
+              <div>
+                <h2 id="note-recognized-title" className="note-detail-summary-heading__title">
+                  Распознанный текст
+                </h2>
+                <p className="note-detail-summary-heading__description">
+                  Дословная расшифровка с фотографий (OCR).
+                </p>
+              </div>
+            </div>
+            <div className="markdown-container note-detail-markdown">
+              <ReactMarkdown
+                remarkPlugins={[remarkMath]}
+                rehypePlugins={[rehypeKatex]}
+                components={markdownComponents}
+              >
+                {normalizeLatexMarkdown(note.recognizedText)}
+              </ReactMarkdown>
+            </div>
+          </AnimatedItem>
+        )}
+
         <AnimatedItem as="section" className="card note-detail-summary-card" aria-labelledby="note-summary-title">
           <div className="note-detail-summary-heading">
             <span className="note-detail-summary-heading__icon" aria-hidden="true">
@@ -271,7 +347,7 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
                 Итоговый конспект
               </h2>
               <p className="note-detail-summary-heading__description">
-                Структурированный результат обработки материалов.
+                Структурированный результат на основе распознанного текста.
               </p>
             </div>
           </div>
@@ -283,7 +359,7 @@ export const NoteDetailView = ({ note, deleteLoading, onDelete }) => {
                 rehypePlugins={[rehypeKatex]}
                 components={markdownComponents}
               >
-                {note.summaryText}
+                {normalizeLatexMarkdown(note.summaryText)}
               </ReactMarkdown>
             </div>
           ) : (
