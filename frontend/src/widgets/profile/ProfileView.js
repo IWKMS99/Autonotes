@@ -1,5 +1,14 @@
 import React from 'react';
-import { formatRuDate, Icon } from 'shared';
+import {
+  AnimatedItem,
+  AnimatedList,
+  AnimatedPage,
+  formatRuDate,
+  Icon,
+  presenceMotion,
+  reducedPresenceMotion,
+  sectionMotion,
+} from 'shared';
 import './ProfileView.css';
 
 const getInitial = (username) => username?.charAt(0)?.toUpperCase() || 'U';
@@ -55,14 +64,23 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
   const safeStats = {
     totalNotes: stats.totalNotes || 0,
     processedNotes: stats.processedNotes || 0,
+    totalFiles: stats.totalFiles || 0,
+    totalSizeBytes: stats.totalSizeBytes || 0,
     totalSize: stats.totalSize || 0,
   };
 
   const processedPercent = getProcessedPercent(safeStats);
+  const hasRealSize = safeStats.totalSizeBytes > 0;
 
   if (!profile) {
     return (
-      <section className="ui-empty-card" role="status">
+      <AnimatedPage
+        as="section"
+        className="ui-empty-card"
+        role="status"
+        variants={presenceMotion}
+        reducedVariants={reducedPresenceMotion}
+      >
         <div className="ui-empty-card__icon" aria-hidden="true">
           <Icon name="user" size={48} />
         </div>
@@ -70,13 +88,18 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
         <p className="ui-empty-card__description">
           Не удалось получить данные пользователя. Попробуйте обновить страницу или войти снова.
         </p>
-      </section>
+      </AnimatedPage>
     );
   }
 
   return (
-    <section className="profile-page ui-page-shell slide-up">
-      <header className="profile-hero card" aria-labelledby="profile-title">
+    <section className="profile-page ui-page-shell">
+      <AnimatedPage
+        as="header"
+        className="profile-hero card"
+        aria-labelledby="profile-title"
+        variants={sectionMotion}
+      >
         <div className="profile-hero__avatar" aria-hidden="true">
           {getInitial(profile.username)}
         </div>
@@ -104,10 +127,10 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
             </span>
           </div>
         </div>
-      </header>
+      </AnimatedPage>
 
-      <div className="profile-content-grid">
-        <section className="profile-panel card" aria-labelledby="profile-info-title">
+      <AnimatedList className="profile-content-grid">
+        <AnimatedItem as="section" className="profile-panel card" aria-labelledby="profile-info-title">
           <div className="profile-section-heading">
             <span className="profile-section-heading__icon" aria-hidden="true">
               <Icon name="document" size={22} />
@@ -149,9 +172,9 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
               value={formatRuDate(profile.createdAt)}
             />
           </div>
-        </section>
+        </AnimatedItem>
 
-        <section className="profile-panel card" aria-labelledby="profile-stats-title">
+        <AnimatedItem as="section" className="profile-panel card" aria-labelledby="profile-stats-title">
           <div className="profile-section-heading">
             <span className="profile-section-heading__icon" aria-hidden="true">
               <Icon name="dashboard" size={22} />
@@ -186,14 +209,14 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
             <ProfileStatCard
               icon="file"
               label="Загружено"
-              value={`${safeStats.totalSize} MB`}
-              description="Общий размер файлов"
+              value={hasRealSize ? `${safeStats.totalSize} MB` : `${safeStats.totalFiles} файлов`}
+              description={hasRealSize ? 'Общий размер файлов' : 'Общее количество загруженных файлов'}
               variant="neutral"
             />
           </div>
-        </section>
+        </AnimatedItem>
 
-        <aside className="profile-account-card card" aria-labelledby="profile-account-title">
+        <AnimatedItem as="aside" className="profile-account-card card" aria-labelledby="profile-account-title">
           <div>
             <h2 id="profile-account-title" className="profile-account-card__title">
               Управление аккаунтом
@@ -211,8 +234,8 @@ export const ProfileView = ({ profile, stats = {}, onLogout }) => {
             <Icon name="logout" size={18} />
             <span>Выйти из аккаунта</span>
           </button>
-        </aside>
-      </div>
+        </AnimatedItem>
+      </AnimatedList>
     </section>
   );
 };

@@ -2,12 +2,19 @@ import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import {
+  AnimatedPage,
   Icon,
   cardHoverMotion,
   cardTapMotion,
   listItemMotion,
   listMotion,
+  presenceMotion,
+  progressMotion,
   reducedListItemMotion,
+  reducedPresenceMotion,
+  reducedProgressMotion,
+  reducedSectionMotion,
+  sectionMotion,
 } from 'shared';
 import './NoteUploadView.css';
 
@@ -50,19 +57,8 @@ export const NoteUploadView = (props) => {
   const hoverMotion = shouldReduceMotion ? undefined : cardHoverMotion;
   const tapMotion = shouldReduceMotion ? undefined : cardTapMotion;
 
-  const fadeInMotion = shouldReduceMotion
-    ? {
-      initial: { opacity: 0 },
-      animate: { opacity: 1 },
-      exit: { opacity: 0 },
-      transition: { duration: 0.12 },
-    }
-    : {
-      initial: { opacity: 0, y: 10 },
-      animate: { opacity: 1, y: 0 },
-      exit: { opacity: 0, y: -6 },
-      transition: { duration: 0.18 },
-    };
+  const fadeInMotion = shouldReduceMotion ? reducedPresenceMotion : presenceMotion;
+  const activeProgressMotion = shouldReduceMotion ? reducedProgressMotion : progressMotion;
 
   const handleDropzoneKeyDown = (event) => {
     if (loading) {
@@ -77,11 +73,11 @@ export const NoteUploadView = (props) => {
 
   return (
     <section className="note-upload-page ui-page-shell">
-      <motion.header
+      <AnimatedPage
+        as="header"
         className="ui-page-header ui-page-header--split"
-        initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
-        animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
+        variants={sectionMotion}
+        reducedVariants={reducedSectionMotion}
       >
         <div className="ui-page-header__content">
           <p className="ui-page-header__eyebrow">Новый материал</p>
@@ -97,10 +93,11 @@ export const NoteUploadView = (props) => {
             <span>К списку конспектов</span>
           </Link>
         </div>
-      </motion.header>
+      </AnimatedPage>
 
       <div className="note-upload-layout">
-        <motion.form
+        <AnimatedPage
+          as="form"
           className="note-upload-form card"
           onSubmit={handleSubmit}
           aria-busy={loading}
@@ -109,9 +106,9 @@ export const NoteUploadView = (props) => {
             error ? errorId : null,
             loading ? progressId : null,
           ].filter(Boolean).join(' ')}
-          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
-          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.22, delay: 0.03 }}
+          variants={sectionMotion}
+          reducedVariants={reducedSectionMotion}
+          delay={0.03}
         >
           <div className="note-upload-form__section">
             <div className="note-upload-section-heading">
@@ -155,7 +152,7 @@ export const NoteUploadView = (props) => {
               <div>
                 <h2 className="note-upload-section-heading__title">Файлы</h2>
                 <p className="note-upload-section-heading__description" id={dropzoneHintId}>
-                  Поддерживаются изображения JPG, PNG и GIF. Максимальный размер одного файла — 50 MB.
+                  Поддерживаются изображения JPG, PNG и GIF. Максимум 50 MB на файл и 200 MB на одну загрузку.
                 </p>
               </div>
             </div>
@@ -196,10 +193,10 @@ export const NoteUploadView = (props) => {
                   <motion.div
                     key="preview"
                     className="note-upload-preview"
-                    initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
-                    animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-                    transition={{ duration: 0.16 }}
+                    variants={fadeInMotion}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
                   >
                     <div className="note-upload-preview__header">
                       <div>
@@ -272,10 +269,10 @@ export const NoteUploadView = (props) => {
                   <motion.div
                     key="empty"
                     className="note-upload-empty-state"
-                    initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
-                    animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-                    exit={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: -8 }}
-                    transition={{ duration: 0.16 }}
+                    variants={fadeInMotion}
+                    initial="initial"
+                    animate="animate"
+                    exit="exit"
                   >
                     <motion.div
                       className={`note-upload-empty-state__icon ${dragActive ? 'note-upload-empty-state__icon--active' : ''}`}
@@ -310,7 +307,10 @@ export const NoteUploadView = (props) => {
                 className="note-upload-progress"
                 id={progressId}
                 aria-live="polite"
-                {...fadeInMotion}
+                variants={fadeInMotion}
+                initial="initial"
+                animate="animate"
+                exit="exit"
               >
                 <div className="note-upload-progress__header">
                   <span className="note-upload-progress__label">Создаём конспект</span>
@@ -328,7 +328,7 @@ export const NoteUploadView = (props) => {
                     className="note-upload-progress__bar"
                     initial={false}
                     animate={{ width: `${uploadProgress}%` }}
-                    transition={{ duration: shouldReduceMotion ? 0.01 : 0.18 }}
+                    {...activeProgressMotion}
                   />
                 </div>
               </motion.div>
@@ -341,7 +341,10 @@ export const NoteUploadView = (props) => {
                 id={errorId}
                 className="ui-alert ui-alert--error"
                 role="alert"
-                {...fadeInMotion}
+                variants={fadeInMotion}
+                initial="initial"
+                animate="animate"
+                exit="exit"
               >
                 {error}
               </motion.div>
@@ -362,14 +365,15 @@ export const NoteUploadView = (props) => {
               <span>{loading ? 'Создаём конспект...' : 'Создать конспект'}</span>
             </button>
           </div>
-        </motion.form>
+        </AnimatedPage>
 
-        <motion.aside
+        <AnimatedPage
+          as="aside"
           className="note-upload-help card"
           aria-labelledby="upload-help-title"
-          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 12 }}
-          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.22, delay: 0.08 }}
+          variants={sectionMotion}
+          reducedVariants={reducedSectionMotion}
+          delay={0.08}
         >
           <h2 id="upload-help-title" className="note-upload-help__title">
             Как получить лучший результат
@@ -393,7 +397,7 @@ export const NoteUploadView = (props) => {
               <span>Для одной темы лучше загружать несколько связанных изображений сразу.</span>
             </li>
           </ul>
-        </motion.aside>
+        </AnimatedPage>
       </div>
     </section>
   );

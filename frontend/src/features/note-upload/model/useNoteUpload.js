@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { createNoteRequest } from 'entities/note';
-
-const MAX_FILE_SIZE = 50 * 1024 * 1024;
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+import {
+  ALLOWED_FILE_TYPES,
+  MAX_FILE_SIZE,
+  MAX_UPLOAD_REQUEST_SIZE,
+} from 'shared';
 
 const getFileSizeMb = (file) => (file.size / 1024 / 1024).toFixed(1);
-
+const getSizeMbText = (bytes) => Math.round(bytes / (1024 * 1024));
 const getFileKey = (file) => `${file.name}-${file.size}-${file.lastModified}`;
 
 const appendUniqueFiles = (currentFiles, nextFiles) => {
@@ -14,6 +16,8 @@ const appendUniqueFiles = (currentFiles, nextFiles) => {
 
   return [...currentFiles, ...uniqueNextFiles];
 };
+
+const getTotalFilesSizeBytes = (files) => files.reduce((acc, file) => acc + (file.size || 0), 0);
 
 export const useNoteUpload = (onSuccess) => {
   const [formData, setFormData] = useState({ title: '', files: [] });
@@ -56,19 +60,24 @@ export const useNoteUpload = (onSuccess) => {
     }
   };
 
-  const validateFiles = (selectedFiles) => {
+  const validateFiles = (selectedFiles, currentFiles) => {
     if (selectedFiles.length === 0) {
       return 'Выберите хотя бы один файл для загрузки';
     }
 
     for (const file of selectedFiles) {
-      if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      if (!ALLOWED_FILE_TYPES.includes(file.type)) {
         return 'Все файлы должны быть изображениями JPG, PNG или GIF';
       }
 
       if (file.size > MAX_FILE_SIZE) {
-        return `Файл "${file.name}" слишком большой. Максимальный размер — 50 MB`;
+        return `Файл "${file.name}" слишком большой. Максимальный размер — ${getSizeMbText(MAX_FILE_SIZE)} MB`;
       }
+    }
+
+    const totalSizeBytes = getTotalFilesSizeBytes([...currentFiles, ...selectedFiles]);
+    if (totalSizeBytes > MAX_UPLOAD_REQUEST_SIZE) {
+      return `Суммарный размер файлов превышает лимит ${getSizeMbText(MAX_UPLOAD_REQUEST_SIZE)} MB для одной загрузки`;
     }
 
     return '';
@@ -99,7 +108,7 @@ export const useNoteUpload = (onSuccess) => {
 
   const validateAndProcessFiles = async (files) => {
     const selectedFiles = Array.from(files || []);
-    const validationError = validateFiles(selectedFiles);
+    const validationError = validateFiles(selectedFiles, formData.files);
 
     if (validationError) {
       setError(validationError);
