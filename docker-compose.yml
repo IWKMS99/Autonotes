@@ -294,7 +294,7 @@ services:
       MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
       MINIO_BUCKET: "${MINIO_BUCKET}"
       OLLAMA_BASE_URL: "${OLLAMA_BASE_URL:-http://host.docker.internal:11434}"
-      OLLAMA_MODEL: "${OLLAMA_MODEL:-qwen2.5vl:7b}"
+      OLLAMA_MODEL: "${OLLAMA_MODEL:-qwen2.5vl:3b}"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:

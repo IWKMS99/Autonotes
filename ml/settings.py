@@ -25,7 +25,12 @@ class Settings(BaseSettings):
     ollama_model: str = Field(default="qwen2.5vl:7b", validation_alias="OLLAMA_MODEL")
     ollama_timeout_sec: int = Field(default=300, validation_alias="OLLAMA_TIMEOUT_SEC")
     ollama_multi_image_mode: Literal["batch", "sequential"] = Field(
-        default="batch", validation_alias="OLLAMA_MULTI_IMAGE_MODE"
+        default="sequential", validation_alias="OLLAMA_MULTI_IMAGE_MODE"
+    )
+    ollama_enable_summary: bool = Field(default=False, validation_alias="OLLAMA_ENABLE_SUMMARY")
+    ollama_fallback_model: str = Field(
+        default="qwen2.5vl:7b",
+        validation_alias="OLLAMA_FALLBACK_MODEL",
     )
 
     # HTTP health server (background thread in worker)
