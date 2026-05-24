@@ -65,7 +65,7 @@ export const fetchNotes = async () => {
   }
 };
 
-export const createNoteRequest = async (title, files) => {
+export const createNoteRequest = async (title, files, onUploadProgress) => {
   try {
     const filesArray = Array.isArray(files) ? files : [files];
     filesArray.forEach(validateFile);
@@ -74,9 +74,22 @@ export const createNoteRequest = async (title, files) => {
     formData.append('title', title);
     filesArray.forEach((file) => formData.append('files', file));
 
-    const response = await apiClient.post('/notes', formData, {
+    const config = {
       headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    };
+
+    if (typeof onUploadProgress === 'function') {
+      config.onUploadProgress = (event) => {
+        if (!event.total) {
+          onUploadProgress(0, event);
+          return;
+        }
+        const percent = Math.min(99, Math.round((event.loaded * 100) / event.total));
+        onUploadProgress(percent, event);
+      };
+    }
+
+    const response = await apiClient.post('/notes', formData, config);
 
     return mapNoteDto(response.data);
   } catch (error) {
