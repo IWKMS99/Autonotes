@@ -5,8 +5,8 @@ from typing import Any
 
 import aio_pika
 
-from model import get_model, predict
-from settings import settings
+from ml.model import get_model, predict
+from ml.settings import settings
 
 logger = logging.getLogger(__name__)
 

@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from settings import settings
-from worker import handle_message
+from ml.settings import settings
+from ml.worker import handle_message
 
 
 def _make_message(body: bytes, headers: dict | None = None) -> MagicMock:
