@@ -10,16 +10,32 @@ export const AnimatedList = ({
   children,
   className = '',
   as = 'div',
+  stagger,
+  delayChildren,
+  layout = false,
   ...props
 }) => {
   const MotionComponent = motion[as] || motion.div;
+  const variants = stagger !== undefined || delayChildren !== undefined
+    ? {
+      ...listMotion,
+      animate: {
+        transition: {
+          ...listMotion.animate.transition,
+          ...(stagger !== undefined ? { staggerChildren: stagger } : {}),
+          ...(delayChildren !== undefined ? { delayChildren } : {}),
+        },
+      },
+    }
+    : listMotion;
 
   return (
     <MotionComponent
       className={className}
       initial="initial"
       animate="animate"
-      variants={listMotion}
+      variants={variants}
+      layout={layout}
       {...props}
     >
       {children}
@@ -31,16 +47,24 @@ export const AnimatedItem = ({
   children,
   className = '',
   as = 'div',
+  layout = false,
+  reduced,
+  variants,
+  reducedVariants,
   ...props
 }) => {
   const shouldReduceMotion = useReducedMotion();
-  const variants = shouldReduceMotion ? reducedListItemMotion : listItemMotion;
+  const isReduced = reduced ?? shouldReduceMotion;
+  const activeVariants = isReduced
+    ? reducedVariants || reducedListItemMotion
+    : variants || listItemMotion;
   const MotionComponent = motion[as] || motion.div;
 
   return (
     <MotionComponent
       className={className}
-      variants={variants}
+      variants={activeVariants}
+      layout={!isReduced && layout}
       {...props}
     >
       {children}
