@@ -1,26 +1,23 @@
 model {
   extend autonotes.mlWorker {
     processConsumer = component 'Process Consumer' {
-      description 'notes.process.queue — ml/worker.py'
+      description 'Consume NoteProcessingEvent из notes.process.queue'
     }
 
     s3Reader = component 'S3 Reader' {
-      #planned
-      description 'S3 GET by filePaths'
+      description 'Чтение изображений из MinIO по filePaths'
     }
 
     ocrPipeline = component 'OCR Pipeline' {
-      #planned
-      description 'recognizedText'
+      description 'Извлечение текста из изображений'
     }
 
     summarizer = component 'Summarizer' {
-      #planned
-      description 'summaryText'
+      description 'Формирование summaryText'
     }
 
     resultPublisher = component 'Result Publisher' {
-      description 'notes.completed — NoteResultDto'
+      description 'Publish NoteResultDto в notes.completed'
     }
 
     processConsumer -> s3Reader
