@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     ollama_multi_image_mode: Literal["batch", "sequential"] = Field(
         default="sequential", validation_alias="OLLAMA_MULTI_IMAGE_MODE"
     )
-    ollama_enable_summary: bool = Field(default=False, validation_alias="OLLAMA_ENABLE_SUMMARY")
+    ollama_enable_summary: bool = Field(default=True, validation_alias="OLLAMA_ENABLE_SUMMARY")
     ollama_fallback_model: str = Field(
         default="qwen2.5vl:7b",
         validation_alias="OLLAMA_FALLBACK_MODEL",

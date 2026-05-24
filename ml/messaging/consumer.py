@@ -87,11 +87,11 @@ class NoteProcessConsumer:
             channel.basic_ack(delivery_tag=delivery_tag)
         except ValidationError as exc:
             logger.error("Invalid message payload, rejecting to DLQ: %s", exc)
-            channel.basic_nack(delivery_tag=delivery_tag, requeue=False)
+            self._safe_nack(channel, delivery_tag, requeue=False)
         except Exception as exc:
             logger.exception("Failed to handle message: %s", exc)
             self._publish_failure_safe(body, str(exc))
-            channel.basic_ack(delivery_tag=delivery_tag)
+            self._safe_ack(channel, delivery_tag)
 
     def _parse_event(self, body: bytes) -> NoteProcessingEvent:
         payload = json.loads(body.decode("utf-8"))
@@ -110,4 +110,21 @@ class NoteProcessConsumer:
             status="FAILED",
             error_message=error_message,
         )
-        self._publisher.publish(result)
+        try:
+            self._publisher.publish(result)
+        except Exception as exc:
+            logger.error("Failed to publish failure result for noteId=%s: %s", note_id, exc)
+
+    @staticmethod
+    def _safe_ack(channel: BlockingChannel, delivery_tag: int) -> None:
+        try:
+            channel.basic_ack(delivery_tag=delivery_tag)
+        except Exception as exc:
+            logger.error("Failed to ack delivery_tag=%s: %s", delivery_tag, exc)
+
+    @staticmethod
+    def _safe_nack(channel: BlockingChannel, delivery_tag: int, requeue: bool) -> None:
+        try:
+            channel.basic_nack(delivery_tag=delivery_tag, requeue=requeue)
+        except Exception as exc:
+            logger.error("Failed to nack delivery_tag=%s: %s", delivery_tag, exc)

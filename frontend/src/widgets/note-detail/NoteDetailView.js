@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import ReactMarkdown from 'react-markdown';
@@ -114,6 +114,8 @@ const markdownComponents = {
 
 const LATEX_SIGNAL_RE = /(\\(frac|sqrt|sum|int|lim|cdot|times|alpha|beta|gamma|delta|theta|pi|sin|cos|tan|log|ln)\b|\\begin\{[^}]+\}|\\end\{[^}]+\}|[A-Za-z0-9]\s*=\s*[A-Za-z0-9\\]|[A-Za-z0-9]\s*[\^_]\s*\{[^}]+\})/;
 const MATRIX_ENV_RE = /\\begin\{(pmatrix|bmatrix|matrix|vmatrix|Vmatrix)\}([\s\S]*?)\\end\{\1\}/g;
+const BLOCK_MATH_DELIMITER_RE = /\\\[((?:.|\n)*?)\\\]/g;
+const INLINE_MATH_DELIMITER_RE = /\\\(((?:\\.|[^\\)])*?)\\\)/g;
 
 const normalizeMatrixLineBreaks = (text) => text.replace(
   MATRIX_ENV_RE,
@@ -128,7 +130,12 @@ const normalizeLatexMarkdown = (value) => {
     return value || '';
   }
 
-  const lines = value.split('\n');
+  const canonicalMath = value
+    .replace(/\\\$/g, '$')
+    .replace(BLOCK_MATH_DELIMITER_RE, (_, expr) => `$$${expr.trim()}$$`)
+    .replace(INLINE_MATH_DELIMITER_RE, (_, expr) => `$${expr.trim()}$`);
+
+  const lines = canonicalMath.split('\n');
   const normalized = [];
   let inCodeBlock = false;
 

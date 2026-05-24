@@ -102,14 +102,18 @@ class NoteProcessor:
             _OcrAttempt(prepare_images_for_vision_png, OCR_PLAIN_USER_PROMPT, None, 0.1, primary),
         ]
         if fallback and fallback != primary:
-            attempts.append(
-                _OcrAttempt(
-                    prepare_images_for_vision_png,
-                    OCR_USER_PROMPT,
-                    OCR_SYSTEM_PROMPT,
-                    0.0,
-                    fallback,
-                )
+            attempts.extend(
+                [
+                    _OcrAttempt(prepare_images_for_vision, OCR_USER_PROMPT, OCR_SYSTEM_PROMPT, 0.0, fallback),
+                    _OcrAttempt(
+                        prepare_images_for_vision_png,
+                        OCR_RETRY_USER_PROMPT,
+                        OCR_SYSTEM_PROMPT,
+                        0.0,
+                        fallback,
+                    ),
+                    _OcrAttempt(prepare_images_for_vision_png, OCR_PLAIN_USER_PROMPT, None, 0.1, fallback),
+                ]
             )
         return attempts
 
@@ -185,24 +189,28 @@ class NoteProcessor:
         if not self._settings.ollama_enable_summary:
             return recognized_text
 
-        user_prompt = SUMMARY_USER_TEMPLATE.format(recognized_text=recognized_text)
-        summary = self._ensure_math_delimiters(
-            self._ollama.chat_text(
-                user_prompt,
-                system_prompt=SUMMARY_SYSTEM_PROMPT,
-                temperature=0.0,
-            )
-        )
-
-        if self._looks_like_copied_ocr(summary, recognized_text):
-            retry_prompt = SUMMARY_RETRY_USER_TEMPLATE.format(recognized_text=recognized_text)
+        try:
+            user_prompt = SUMMARY_USER_TEMPLATE.format(recognized_text=recognized_text)
             summary = self._ensure_math_delimiters(
                 self._ollama.chat_text(
-                    retry_prompt,
+                    user_prompt,
                     system_prompt=SUMMARY_SYSTEM_PROMPT,
                     temperature=0.0,
                 )
             )
+
+            if self._looks_like_copied_ocr(summary, recognized_text):
+                retry_prompt = SUMMARY_RETRY_USER_TEMPLATE.format(recognized_text=recognized_text)
+                summary = self._ensure_math_delimiters(
+                    self._ollama.chat_text(
+                        retry_prompt,
+                        system_prompt=SUMMARY_SYSTEM_PROMPT,
+                        temperature=0.0,
+                    )
+                )
+        except (OllamaServiceError, ConnectionError) as exc:
+            logger.warning("Summary generation failed: %s", exc)
+            return _SUMMARY_FALLBACK_MESSAGE
 
         if validate_ocr_text(summary) or self._looks_like_copied_ocr(summary, recognized_text):
             return _SUMMARY_FALLBACK_MESSAGE
