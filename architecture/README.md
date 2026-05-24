@@ -1,79 +1,55 @@
-# Autonotes — Architecture (LikeC4)
+# Autonotes Architecture (LikeC4)
 
-Диаграммы архитектуры для [issue #7](https://github.com/IWKMS99/Autonotes/issues/7): **Frontend**, **Backend** и **ML Service** (MVP consumer в `/ml`).
+Архитектура проекта описана в формате C4 (C1/C2/C3 + Dynamic) через LikeC4.
 
-Модель — [LikeC4](https://likec4.dev/) as code, синхронизирована со структурой репозитория.
+## Цели архитектуры
+- Явно зафиксировать границы frontend/backend/ml.
+- Показать синхронные и асинхронные контракты.
+- Поддерживать актуальность схем относительно production-кода.
 
-## Диаграммы
+## Набор диаграмм
+- `c1_system_context` - контекст системы и пользователь.
+- `c2_containers` - контейнеры платформы.
+- `c2_async_processing` - цепочка outbox -> rabbitmq -> ml -> result.
+- `c3_backend` - внутренние компоненты backend.
+- `c3_frontend` - FSD-компоненты frontend.
+- `c3_ml` - компоненты ML-сервиса (consumer/pipeline/publisher).
+- `dynamic_auth` - сценарий register/login.
+- `dynamic_create_note` - сценарий upload -> processing -> completed.
 
-| Уровень | View ID | Описание |
-|---------|---------|----------|
-| **C1** | `c1_system_context` | Студент ↔ Autonotes |
-| **C2** | `c2_containers` | Все контейнеры (Frontend, Backend, ML, PG, MinIO, RabbitMQ) |
-| **C2** | `c2_async_processing` | Только async-цепочка: outbox → MQ → ML → result |
-| **C3** | `c3_backend` | Spring: controllers, security, notes, outbox, filestorage |
-| **C3** | `c3_frontend` | React: router, services, UI, Axios |
-| **C3** | `c3_ml` | ML Service: consumer + publisher (MVP); S3/OCR — planned |
-| **Dynamic** | `dynamic_auth` | Sequence: регистрация / логин |
-| **Dynamic** | `dynamic_create_note` | Sequence: upload → ML → polling |
-
-## Быстрый старт
-
-```bash
-cd architecture
-npm install
-npm start
-```
-
-Расширение VS Code: [LikeC4](https://marketplace.visualstudio.com/items?itemName=likec4.likec4-vscode).
-
-## Deployment-моды (Compose)
-
-- **Single (по умолчанию):** 1 backend-инстанс (`backend-1`) для демо и слабого железа.
-- **Cluster:** 3 backend-инстанса (`backend-1..3`) за `nginx-lb`.
-
-Запуск cluster-режима:
-```bash
-COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_SCRAPE_CONFIG=./monitoring/prometheus.cluster.yml docker compose up --build -d
-```
+## Запуск локального viewer
+1. `cd architecture`
+2. `npm install`
+3. `npm start`
 
 ## Экспорт PNG
+- `npm run export:png`
 
-```bash
-npm run export:png
-```
+Файлы экспорта появятся в `architecture/dist/src`.
 
-Файлы: `dist/src/<view-id>.png`.
+## Контракты, отраженные в C4
+### REST
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `POST /api/v1/notes`
+- `GET /api/v1/notes?page&size&sort`
+- `GET /api/v1/notes/{id}`
+- `DELETE /api/v1/notes/{id}`
 
-## Структура исходников
+### Async
+- Backend publish: `NoteProcessingEvent` в `notes.process.queue` (routing `notes.created`).
+- ML publish: `NoteResultDto` в `notes.results.queue` (routing `notes.completed`).
 
-```text
-architecture/src/
-  _spec.c4                      # типы: actor, system, webapp, service, component, ...
-  model.c4                      # C1/C2: контейнеры и инфраструктура
-  model-components-backend.c4   # C3 backend (extend)
-  model-components-frontend.c4  # C3 frontend (extend)
-  model-components-ml.c4        # C3 ML (extend)
-  model.views.c4                # C1, C2
-  model.views-c3.c4             # C3
-  model.views-dynamic.c4        # dynamic sequence views
-```
+### Observability
+- Метрики: `/actuator/prometheus`
+- Трассировка/логи: `requestId`, `correlationId`, `traceId`, `spanId`
 
-## Контракты (кратко)
-
-### REST `/api/v1`
-
-| Операция | Метод |
-|----------|-------|
-| Auth | `POST /auth/register`, `POST /auth/login` |
-| Notes | `POST /notes` (multipart), `GET /notes?page&size&sort` → `PagedResponseDto<NoteListItemDto>`, `GET /notes/{id}`, `DELETE /notes/{id}` |
-
-### RabbitMQ `notes.exchange`
-
-**Out:** `NoteProcessingEvent` → `notes.process.queue` (`notes.created`)
-
-**In:** `NoteResultDto` ← `notes.results.queue` (`notes.completed`)
-
-### MinIO
-
-Backend пишет при upload; ML читает по `filePaths` из события.
+## Файлы модели
+- `src/_spec.c4`
+- `src/model.c4`
+- `src/model-components-backend.c4`
+- `src/model-components-frontend.c4`
+- `src/model-components-ml.c4`
+- `src/model.views.c4`
+- `src/model.views-c3.c4`
+- `src/model.views-dynamic.c4`

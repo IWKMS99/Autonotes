@@ -1,118 +1,65 @@
-﻿# Autonotes
+# Autonotes
 
-**Autonotes** — интеллектуальная платформа для автоматического создания структурированных конспектов из фотографий лекционных досок.
+Autonotes - платформа для создания структурированных конспектов из фото учебных материалов.
 
-Проект построен на микросервисной архитектуре с использованием паттернов надежности данных (Transactional Outbox) и асинхронного взаимодействия.
-
----
+## Что внутри
+- `frontend` (React SPA, FSD) - интерфейс загрузки, просмотра и управления заметками.
+- `backend` (Spring Boot) - API, auth, notes, хранение файлов, outbox, обработка результатов ML.
+- `ml` (FastAPI worker) - consume/publish в RabbitMQ, формирование результата распознавания.
+- инфраструктура: PostgreSQL, MinIO, RabbitMQ, Nginx LB.
+- observability: Prometheus, Grafana, Jaeger, Elasticsearch + Logstash + Kibana.
 
 ## Архитектура
+C4-диаграммы C1/C2/C3 и dynamic-сценарии находятся в [architecture/README.md](./architecture/README.md).
 
-Диаграммы **C1–C3** и сценарии (dynamic) в [LikeC4](https://likec4.dev/): [`architecture/`](./architecture/README.md) — `cd architecture && npm install && npm start`.
+## Быстрый старт
+1. Скопируйте переменные окружения:
+   - `.env.example` -> `.env`
+2. Поднимите стек:
+   - `docker compose up --build -d`
+3. Для cluster-режима (3 backend-инстанса):
+   - `COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_SCRAPE_CONFIG=./monitoring/prometheus.cluster.yml docker compose up --build -d`
 
-Проект состоит из следующих компонентов:
+## Основные URL
+- Frontend: `http://localhost:3000`
+- Backend (через LB): `http://localhost:8090`
+- Swagger: `http://localhost:8090/swagger-ui.html`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3001` (`admin/admin`)
+- Jaeger: `http://localhost:16686`
+- Kibana: `http://localhost:5601`
 
-1. **Frontend (`/frontend`)**: React 19 (SPA) на Feature-Sliced Design (`app/pages/widgets/features/entities/shared`).
-2. **Backend (`/backend`)**: Spring Boot 3 (Java 24).
-   - **API Gateway**: REST API для клиента.
-   - **Reliability**: реализован паттерн **Transactional Outbox** для гарантии доставки событий (At-Least-Once).
-   - **Storage Management**: встроенный **Garbage Collector** для очистки S3 от «файлов-сирот».
-3. **ML Service (`/ml`)**: RabbitMQ worker — загрузка фото из MinIO, распознавание и суммаризация через **Ollama** (`qwen2.5vl:7b`), отправка результата в `notes.completed`.
-   - Подробнее: [`ml/docs/ML_SERVICE.md`](./ml/docs/ML_SERVICE.md).
-4. **Инфраструктура**:
-   - **PostgreSQL**: хранение пользователей, метаданных заметок и таблицы Outbox.
-   - **MinIO**: S3-совместимое хранилище оригиналов изображений.
-   - **RabbitMQ**: очередь сообщений (`notes.exchange` -> `notes.process.queue`).
+## API-контракт (ключевое)
+- `POST /api/v1/auth/register`
+- `POST /api/v1/auth/login`
+- `POST /api/v1/notes` (multipart)
+- `GET /api/v1/notes?page&size&sort`
+- `GET /api/v1/notes/{id}`
+- `DELETE /api/v1/notes/{id}`
 
-## Быстрый старт (Docker Compose)
+Пагинация `GET /notes`: `PagedResponseDto<NoteListItemDto>`, с ограничением `size <= 100` и fallback sort `createdAt,desc`.
 
-### Предварительные требования
-- Docker и Docker Compose
+## Observability-контракт
+- публичные actuator endpoints:
+  - `/actuator/health`
+  - `/actuator/health/**`
+  - `/actuator/prometheus`
+- MDC и трассировка в логах:
+  - `requestId`, `correlationId`, `traceId`, `spanId`, `user`, `instance_id`
+- подробный контракт логирования:
+  - [docs/logging-contract.md](./docs/logging-contract.md)
 
-### Запуск
+## Smoke-check после запуска
+1. Сгенерируйте трафик:
+   - `curl.exe http://localhost:8090/api/v1/system/info`
+2. Проверьте Prometheus targets (`Status -> Targets`):
+   - `autonotes-backend` = `UP`
+3. Проверьте Grafana dashboards:
+   - `Autonotes HTTP Overview`
+   - `Autonotes JVM & Health`
+4. Проверьте Jaeger traces и Kibana индекс `autonotes-logs-*`.
 
-1. Клонируйте репозиторий:
-   ```bash
-   git clone https://github.com/IWKMS99/Autonotes.git autonotes
-   cd autonotes
-   ```
-
-2. Создайте `.env` файл (можно скопировать пример):
-   ```bash
-   cp .env.example .env
-   ```
-
-3. Запустите весь стек:
-   ```bash
-   docker compose up --build -d
-   ```
-
-По умолчанию запускается демо-режим с одним backend-инстансом (`backend-1`).
-
-Кластерный режим с балансировкой на 3 backend-инстанса:
-```bash
-COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_SCRAPE_CONFIG=./monitoring/prometheus.cluster.yml docker compose up --build -d
-```
-
-После запуска сервисы доступны по адресам:
-- **Frontend**: `http://localhost:3000`
-- **Backend API (через LB)**: `http://localhost:8090`
-- **Swagger UI (через LB)**: `http://localhost:8090/swagger-ui.html`
-- **MinIO Console**: `http://localhost:9001`
-- **RabbitMQ Console**: `http://localhost:15672`
-
-## Структура репозитория
-
-- [`backend/`](./backend/README.md) — исходный код сервера (Java 24, Spring Boot 3).
-- [`frontend/`](./frontend/README.md) — исходный код клиента (React 19).
-- `docker-compose.yml` — оркестрация сервисов.
-
-## Использование удаленной Ollama через Tailscale
-
-Если модель запущена на другом ПК, можно поднимать проект локально и подключать ML-сервис к удаленной Ollama.
-
-1. В файле `.env` задайте `OLLAMA_BASE_URL`:
-   - `OLLAMA_BASE_URL=http://<TAILSCALE_IP_ХОСТА_OLLAMA>:11434`
-2. Выполните настройку и меры безопасности по инструкции:
-   - [`ml/docs/ML_SERVICE.md`](./ml/docs/ML_SERVICE.md) -> `Remote Ollama (Tailscale)`
-
-Важно:
-- Модель скачивается и запускается только на ПК-хосте Ollama.
-- Другие ПК только обращаются к Ollama API через Tailscale.
-
-## Observability (E2E)
-
-После `docker compose up --build -d` доступны:
-- **Prometheus**: `http://localhost:9090`
-- **Grafana**: `http://localhost:3001` (`admin/admin`)
-- **Jaeger UI**: `http://localhost:16686`
-- **Kibana**: `http://localhost:5601`
-
-Provisioning выполняется автоматически:
-- Grafana datasource + dashboards из `monitoring/grafana/provisioning`.
-- Kibana data view `autonotes-logs-*` и базовый dashboard через `kibana-init`.
-
-### Smoke-check
-1. Скопируйте env: `cp .env.example .env`.
-2. Поднимите стек: `docker compose up --build -d`.
-3. Сгенерируйте трафик: `curl http://localhost:8090/api/v1/system/info` (несколько раз).
-4. Проверьте:
-   - Prometheus targets `autonotes-backend` и `nginx-lb` в состоянии `UP`.
-   - Grafana dashboards `Autonotes JVM & Health` и `Autonotes HTTP Overview`.
-   - Jaeger traces для backend.
-   - Kibana index/data view `autonotes-logs-*` с полями `traceId/spanId`.
-
-### Prometheus/Grafana checks
-1. Примеры запросов Prometheus:
-   - `up{job="autonotes-backend"}`
-   - `http_server_requests_seconds_count`
-   - `http_server_requests_seconds_bucket`
-   - `jvm_memory_used_bytes`
-   - `hikaricp_connections_active`
-2. Grafana dashboards должны загружаться автоматически из `monitoring/grafana/dashboards`.
-3. Если `p95 Latency` или `5xx Error Ratio` пустые, сгенерируйте трафик на:
-   - `GET /api/v1/system/info`
-   - `POST /api/v1/auth/login`
-   - `GET /api/v1/notes`
-4. Для cluster-режима используйте:
-   `COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_SCRAPE_CONFIG=./monitoring/prometheus.cluster.yml docker compose up --build -d`
+## Подробности по модулям
+- Backend: [backend/README.md](./backend/README.md)
+- Frontend: [frontend/README.md](./frontend/README.md)
+- Архитектура C4: [architecture/README.md](./architecture/README.md)
