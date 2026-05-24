@@ -13,9 +13,29 @@ const validateFile = (file) => {
 
 export const fetchNotes = async () => {
   try {
-    const response = await apiClient.get('/notes');
-    const payload = Array.isArray(response.data) ? response.data : response.data?.content;
-    return mapNotesDto(payload);
+    const firstPageResponse = await apiClient.get('/notes');
+    const firstPayload = firstPageResponse.data;
+
+    if (Array.isArray(firstPayload)) {
+      return mapNotesDto(firstPayload);
+    }
+
+    const firstContent = firstPayload?.content || [];
+    if (firstPayload?.last || (firstPayload?.totalPages ?? 1) <= 1) {
+      return mapNotesDto(firstContent);
+    }
+
+    const totalPages = firstPayload.totalPages;
+    const size = firstPayload.size || 20;
+    const requests = [];
+
+    for (let page = 1; page < totalPages; page += 1) {
+      requests.push(apiClient.get('/notes', { params: { page, size, sort: 'createdAt,desc' } }));
+    }
+
+    const otherResponses = await Promise.all(requests);
+    const merged = [...firstContent, ...otherResponses.flatMap((res) => res.data?.content || [])];
+    return mapNotesDto(merged);
   } catch (error) {
     throwHttpError(error);
   }

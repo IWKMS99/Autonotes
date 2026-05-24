@@ -301,7 +301,7 @@ export const NotesDashboardView = ({
           aria-label="Список конспектов"
         >
           {safeFilteredNotes.map((note) => {
-            const fileCount = note.images?.length || note.files?.length || 0;
+            const fileCount = note.imageCount ?? note.images?.length ?? note.files?.length ?? 0;
             const timeAgoText = getNoteTimeAgo(note.createdAt);
 
             return (
