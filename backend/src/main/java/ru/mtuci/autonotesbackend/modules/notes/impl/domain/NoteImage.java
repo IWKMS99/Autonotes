@@ -32,6 +32,9 @@ public class NoteImage {
     @Column(name = "order_index", nullable = false)
     private int orderIndex;
 
+    @Column(name = "file_size_bytes", nullable = false)
+    private long fileSizeBytes;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;

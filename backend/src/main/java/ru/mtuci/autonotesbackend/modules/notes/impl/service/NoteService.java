@@ -82,6 +82,7 @@ public class NoteService {
                             .fileStoragePath(uploadedPaths.get(i))
                             .originalFileName(files.get(i).getOriginalFilename())
                             .orderIndex(i)
+                            .fileSizeBytes(files.get(i).getSize())
                             .build();
                     note.addImage(image);
                 }

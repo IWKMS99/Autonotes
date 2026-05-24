@@ -92,7 +92,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<ErrorResponseDto> handleMaxSizeException(MaxUploadSizeExceededException ex) {
         log.warn("File upload limit exceeded: {}", ex.getMessage());
-        return createErrorResponse(HttpStatus.PAYLOAD_TOO_LARGE, "File size exceeds the allowable limit (10MB).");
+        return createErrorResponse(HttpStatus.PAYLOAD_TOO_LARGE, "Upload is too large. Total request limit is 200MB.");
     }
 
     @ExceptionHandler(InvalidFileFormatException.class)
