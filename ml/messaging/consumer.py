@@ -49,7 +49,8 @@ class NoteProcessConsumer:
             exchange_type="topic",
             durable=True,
         )
-        self._channel.queue_declare(queue=QUEUE_NOTES_PROCESS, durable=True)
+        # Queue topology (DLX args) is declared by the Spring backend.
+        self._channel.queue_declare(queue=QUEUE_NOTES_PROCESS, passive=True)
         self._channel.queue_bind(
             exchange=EXCHANGE_NOTES,
             queue=QUEUE_NOTES_PROCESS,
