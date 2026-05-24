@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -31,6 +32,8 @@ import ru.mtuci.autonotesbackend.security.SecurityUser;
 @RequiredArgsConstructor
 public class NoteController implements NoteResource {
 
+    private static final int MAX_PAGE_SIZE = 100;
+
     private final NoteFacade noteFacade;
 
     @Override
@@ -50,7 +53,10 @@ public class NoteController implements NoteResource {
             @Parameter(hidden = true) @AuthenticationPrincipal SecurityUser securityUser,
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<NoteListItemDto> notesPage = noteFacade.findAllUserNotes(securityUser.getId(), pageable);
+        int normalizedSize = Math.min(pageable.getPageSize(), MAX_PAGE_SIZE);
+        Pageable normalizedPageable = PageRequest.of(pageable.getPageNumber(), normalizedSize, pageable.getSort());
+
+        Page<NoteListItemDto> notesPage = noteFacade.findAllUserNotes(securityUser.getId(), normalizedPageable);
         return ResponseEntity.ok(PagedResponseDto.from(notesPage));
     }
 
