@@ -234,7 +234,9 @@ class NoteServiceTest {
 
         Page<NoteListItemDto> result = noteService.findAllLightweightDtosByUserId(userId, pageable);
 
-        assertThat(result.getContent().getFirst().getSummaryPreview()).hasSize(143).endsWith("...");
+        assertThat(result.getContent().getFirst().getSummaryPreview())
+                .hasSize(143)
+                .endsWith("...");
     }
 
     @Test
