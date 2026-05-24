@@ -136,8 +136,13 @@ class NoteControllerTest extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.page").value(0))
                 .andExpect(jsonPath("$.size").value(1))
                 .andExpect(jsonPath("$.totalElements").value(2))
+                .andExpect(jsonPath("$.totalPages").value(2))
+                .andExpect(jsonPath("$.first").value(true))
+                .andExpect(jsonPath("$.last").value(false))
+                .andExpect(jsonPath("$.numberOfElements").value(1))
                 .andExpect(jsonPath("$.content[0].title").exists())
-                .andExpect(jsonPath("$.content[0].imageCount").value(0));
+                .andExpect(jsonPath("$.content[0].imageCount").value(0))
+                .andExpect(jsonPath("$.content[0].images").doesNotExist());
     }
 
     @Test
@@ -186,6 +191,17 @@ class NoteControllerTest extends BaseIntegrationTest {
         String token = loginAndGetToken("404-user");
 
         mockMvc.perform(get("/api/v1/notes/999999").header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getNoteById_whenNoteBelongsToAnotherUser_shouldReturn404() throws Exception {
+        User owner = createUserInDb("owner-user", "owner@test.com");
+        createUserInDb("other-user", "other@test.com");
+        String otherUserToken = loginAndGetToken("other-user");
+        LectureNote ownersNote = createNoteInDb(owner, "Owners Secret");
+
+        mockMvc.perform(get("/api/v1/notes/" + ownersNote.getId()).header("Authorization", "Bearer " + otherUserToken))
                 .andExpect(status().isNotFound());
     }
 

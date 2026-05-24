@@ -98,8 +98,8 @@ services:
     healthcheck:
       test: rabbitmq-diagnostics -q ping
       interval: 10s
-      timeout: 5s
-      retries: 5
+      timeout: 10s
+      retries: 10
 
   jaeger:
     image: jaegertracing/all-in-one:1.60.0

@@ -117,3 +117,30 @@ Swagger UI доступен по адресу: **http://localhost:8080/swagger-u
 Канонический контракт: [`../docs/logging-contract.md`](../docs/logging-contract.md).
 
 Проверка локально через общий compose-стек из корня репозитория.
+
+### Prometheus/Grafana quick-check
+
+1. Поднимите стек (single):
+   `docker compose up --build -d`
+2. Убедитесь, что endpoint доступен:
+   `curl http://localhost:8081/actuator/prometheus`
+3. Откройте Prometheus (`http://localhost:9090`) и проверьте queries:
+   `up{job="autonotes-backend"}`
+   `http_server_requests_seconds_count`
+   `http_server_requests_seconds_bucket`
+   `jvm_memory_used_bytes`
+   `hikaricp_connections_active`
+4. Откройте Grafana (`http://localhost:3001`, `admin/admin`) и проверьте dashboards:
+   `Autonotes HTTP Overview`
+   `Autonotes JVM & Health`
+
+### Troubleshooting dashboards
+
+- Если `p95 Latency` пустой:
+  сгенерируйте трафик (`/api/v1/system/info`, `/api/v1/auth/login`, `/api/v1/notes`) и увеличьте time range до `Last 1 hour`.
+- Если `5xx Error Ratio` пустой:
+  panel должен показывать `0` при отсутствии 5xx; проверьте, что выбран `job=autonotes-backend` и есть метрика `http_server_requests_seconds_count`.
+- Если dashboard не появился:
+  проверьте volume mount `monitoring/grafana/dashboards` и provisioning `monitoring/grafana/provisioning`.
+- Если backend target не `UP`:
+  проверьте `PROMETHEUS_SCRAPE_CONFIG` и доступность `http://backend-1:8080/actuator/prometheus` внутри сети compose.

@@ -99,3 +99,18 @@ Provisioning выполняется автоматически:
    - Grafana dashboards `Autonotes JVM & Health` и `Autonotes HTTP Overview`.
    - Jaeger traces для backend.
    - Kibana index/data view `autonotes-logs-*` с полями `traceId/spanId`.
+
+### Prometheus/Grafana checks
+1. Prometheus query examples:
+   - `up{job="autonotes-backend"}`
+   - `http_server_requests_seconds_count`
+   - `http_server_requests_seconds_bucket`
+   - `jvm_memory_used_bytes`
+   - `hikaricp_connections_active`
+2. Grafana dashboards должны загружаться автоматически из `monitoring/grafana/dashboards`.
+3. Если `p95 Latency` или `5xx Error Ratio` пустые, сгенерируйте трафик на:
+   - `GET /api/v1/system/info`
+   - `POST /api/v1/auth/login`
+   - `GET /api/v1/notes`
+4. Для cluster режима используйте:
+   `COMPOSE_PROFILES=cluster NGINX_LB_CONFIG=./nginx/nginx.cluster.conf PROMETHEUS_SCRAPE_CONFIG=./monitoring/prometheus.cluster.yml docker compose up --build -d`
