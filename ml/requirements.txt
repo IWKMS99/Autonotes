@@ -10,3 +10,4 @@ Pillow
 tenacity
 pytest
 pytest-mock
+pytest-asyncio
