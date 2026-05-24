@@ -1,6 +1,6 @@
 import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
-import { Icon } from 'shared';
+import { AnimatedPage, presenceMotion, reducedPresenceMotion } from 'shared';
 import './AuthFormView.css';
 
 export const AuthFormView = ({
@@ -24,12 +24,14 @@ export const AuthFormView = ({
 
   return (
     <main className="auth-page">
-      <section className="auth-card card fade-in" aria-labelledby="auth-title">
+      <AnimatedPage
+        as="section"
+        className="auth-card card"
+        aria-labelledby="auth-title"
+        variants={presenceMotion}
+        reducedVariants={reducedPresenceMotion}
+      >
         <div className="auth-card__header">
-          <div className="auth-card__logo" aria-hidden="true">
-            <Icon name="logo" size={34} />
-          </div>
-
           <p className="auth-card__eyebrow">
             Autonotes
           </p>
@@ -133,7 +135,7 @@ export const AuthFormView = ({
             {isRegister ? 'Войти' : 'Зарегистрироваться'}
           </Link>
         </p>
-      </section>
+      </AnimatedPage>
     </main>
   );
 };
