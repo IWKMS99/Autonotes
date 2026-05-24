@@ -102,6 +102,11 @@
 
 Swagger UI доступен по адресу: **http://localhost:8080/swagger-ui.html**
 
+Ключевой контракт списка конспектов:
+- `GET /api/v1/notes?page=<n>&size=<n>&sort=<field>,<asc|desc>`
+- Ответ: `PagedResponseDto<NoteListItemDto>` с полями `content`, `page`, `size`, `totalElements`, `totalPages`, `first`, `last`, `numberOfElements`.
+- Ограничения backend: `size` ограничен верхним пределом `100`; неподдерживаемые поля `sort` заменяются на `createdAt,desc`.
+
 ## 📊 Observability
 
 В docker-профиле backend публикует:

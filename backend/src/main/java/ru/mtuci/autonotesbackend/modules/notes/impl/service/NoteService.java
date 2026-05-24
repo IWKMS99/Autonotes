@@ -3,10 +3,14 @@ package ru.mtuci.autonotesbackend.modules.notes.impl.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -15,6 +19,7 @@ import ru.mtuci.autonotesbackend.exception.ResourceNotFoundException;
 import ru.mtuci.autonotesbackend.modules.filestorage.api.FileStorageFacade;
 import ru.mtuci.autonotesbackend.modules.filestorage.api.exception.InvalidFileFormatException;
 import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteDto;
+import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteListItemDto;
 import ru.mtuci.autonotesbackend.modules.notes.impl.domain.LectureNote;
 import ru.mtuci.autonotesbackend.modules.notes.impl.domain.NoteImage;
 import ru.mtuci.autonotesbackend.modules.notes.impl.domain.NoteStatus;
@@ -23,6 +28,7 @@ import ru.mtuci.autonotesbackend.modules.notes.impl.dto.NoteResultDto;
 import ru.mtuci.autonotesbackend.modules.notes.impl.event.NoteProcessingEvent;
 import ru.mtuci.autonotesbackend.modules.notes.impl.mapper.NoteMapper;
 import ru.mtuci.autonotesbackend.modules.notes.impl.repository.LectureNoteRepository;
+import ru.mtuci.autonotesbackend.modules.notes.impl.repository.NoteImageRepository;
 import ru.mtuci.autonotesbackend.modules.notes.impl.repository.OutboxEventRepository;
 import ru.mtuci.autonotesbackend.modules.user.impl.domain.User;
 import ru.mtuci.autonotesbackend.modules.user.impl.repository.UserRepository;
@@ -35,6 +41,7 @@ public class NoteService {
     private final LectureNoteRepository noteRepository;
     private final UserRepository userRepository;
     private final OutboxEventRepository outboxEventRepository;
+    private final NoteImageRepository noteImageRepository;
     private final ObjectMapper objectMapper;
     private final FileStorageFacade fileStorageFacade;
     private final TransactionTemplate transactionTemplate;
@@ -175,6 +182,24 @@ public class NoteService {
     }
 
     @Transactional(readOnly = true)
+    public Page<NoteListItemDto> findAllLightweightDtosByUserId(Long userId, Pageable pageable) {
+        Page<LectureNote> notesPage = noteRepository.findByUserId(userId, pageable);
+        List<Long> noteIds =
+                notesPage.getContent().stream().map(LectureNote::getId).toList();
+        Map<Long, Integer> imageCounts = getImageCounts(noteIds);
+
+        return notesPage.map(note -> NoteListItemDto.builder()
+                .id(note.getId())
+                .title(note.getTitle())
+                .status(note.getStatus())
+                .createdAt(note.getCreatedAt())
+                .updatedAt(note.getUpdatedAt())
+                .summaryPreview(toSummaryPreview(note.getSummaryText()))
+                .imageCount(imageCounts.getOrDefault(note.getId(), 0))
+                .build());
+    }
+
+    @Transactional(readOnly = true)
     public LectureNote findByIdAndUserId(Long noteId, Long userId) {
         return noteRepository
                 .findByIdAndUserId(noteId, userId)
@@ -185,5 +210,35 @@ public class NoteService {
     public void deleteByIdAndUserId(Long noteId, Long userId) {
         LectureNote noteToDelete = findByIdAndUserId(noteId, userId);
         noteRepository.delete(noteToDelete);
+    }
+
+    private Map<Long, Integer> getImageCounts(List<Long> noteIds) {
+        if (noteIds.isEmpty()) {
+            return Map.of();
+        }
+
+        List<Object[]> counts = noteImageRepository.countByNoteIds(noteIds);
+        Map<Long, Integer> imageCounts = new HashMap<>();
+        for (Object[] row : counts) {
+            Long noteId = (Long) row[0];
+            Number count = (Number) row[1];
+            imageCounts.put(noteId, count.intValue());
+        }
+
+        return imageCounts;
+    }
+
+    private String toSummaryPreview(String summaryText) {
+        if (summaryText == null || summaryText.isBlank()) {
+            return null;
+        }
+
+        String normalized = summaryText.trim();
+        int maxLen = 140;
+        if (normalized.length() <= maxLen) {
+            return normalized;
+        }
+
+        return normalized.substring(0, maxLen) + "...";
     }
 }

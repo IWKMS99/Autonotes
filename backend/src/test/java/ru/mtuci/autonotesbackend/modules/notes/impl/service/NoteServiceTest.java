@@ -15,6 +15,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -24,10 +27,12 @@ import ru.mtuci.autonotesbackend.exception.ResourceNotFoundException;
 import ru.mtuci.autonotesbackend.modules.filestorage.api.FileStorageFacade;
 import ru.mtuci.autonotesbackend.modules.filestorage.api.exception.InvalidFileFormatException;
 import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteDto;
+import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteListItemDto;
 import ru.mtuci.autonotesbackend.modules.notes.impl.domain.LectureNote;
 import ru.mtuci.autonotesbackend.modules.notes.impl.event.NoteProcessingEvent;
 import ru.mtuci.autonotesbackend.modules.notes.impl.mapper.NoteMapper;
 import ru.mtuci.autonotesbackend.modules.notes.impl.repository.LectureNoteRepository;
+import ru.mtuci.autonotesbackend.modules.notes.impl.repository.NoteImageRepository;
 import ru.mtuci.autonotesbackend.modules.notes.impl.repository.OutboxEventRepository;
 import ru.mtuci.autonotesbackend.modules.user.impl.domain.User;
 import ru.mtuci.autonotesbackend.modules.user.impl.repository.UserRepository;
@@ -43,6 +48,9 @@ class NoteServiceTest {
 
     @Mock
     private OutboxEventRepository outboxEventRepository;
+
+    @Mock
+    private NoteImageRepository noteImageRepository;
 
     @Mock
     private ObjectMapper objectMapper;
@@ -189,5 +197,55 @@ class NoteServiceTest {
         noteService.deleteByIdAndUserId(noteId, userId);
 
         verify(noteRepository).delete(note);
+    }
+
+    @Test
+    void findAllLightweightDtosByUserId_shouldReturnPagedLightweightDtos() {
+        Long userId = 1L;
+        PageRequest pageable = PageRequest.of(0, 20);
+        LectureNote note = new LectureNote();
+        note.setId(10L);
+        note.setTitle("Title");
+        note.setSummaryText("Summary text");
+
+        when(noteRepository.findByUserId(userId, pageable)).thenReturn(new PageImpl<>(List.of(note)));
+        when(noteImageRepository.countByNoteIds(List.of(10L)))
+                .thenReturn(Collections.singletonList(new Object[] {10L, 3L}));
+
+        Page<NoteListItemDto> result = noteService.findAllLightweightDtosByUserId(userId, pageable);
+
+        assertThat(result.getContent()).hasSize(1);
+        assertThat(result.getContent().getFirst().getImageCount()).isEqualTo(3);
+        assertThat(result.getContent().getFirst().getSummaryPreview()).isEqualTo("Summary text");
+    }
+
+    @Test
+    void findAllLightweightDtosByUserId_shouldTrimSummaryPreviewTo140Chars() {
+        Long userId = 1L;
+        PageRequest pageable = PageRequest.of(0, 20);
+        LectureNote note = new LectureNote();
+        note.setId(11L);
+        note.setTitle("Long Summary");
+        note.setSummaryText("x".repeat(180));
+
+        when(noteRepository.findByUserId(userId, pageable)).thenReturn(new PageImpl<>(List.of(note)));
+        when(noteImageRepository.countByNoteIds(List.of(11L)))
+                .thenReturn(Collections.singletonList(new Object[] {11L, 1L}));
+
+        Page<NoteListItemDto> result = noteService.findAllLightweightDtosByUserId(userId, pageable);
+
+        assertThat(result.getContent().getFirst().getSummaryPreview()).hasSize(143).endsWith("...");
+    }
+
+    @Test
+    void findAllLightweightDtosByUserId_shouldNotRequestImageCountsForEmptyPage() {
+        Long userId = 1L;
+        PageRequest pageable = PageRequest.of(0, 20);
+        when(noteRepository.findByUserId(userId, pageable)).thenReturn(Page.empty(pageable));
+
+        Page<NoteListItemDto> result = noteService.findAllLightweightDtosByUserId(userId, pageable);
+
+        assertThat(result.getContent()).isEmpty();
+        verify(noteImageRepository, never()).countByNoteIds(any());
     }
 }
