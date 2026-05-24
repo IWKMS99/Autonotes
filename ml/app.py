@@ -2,9 +2,9 @@ import asyncio
 
 from fastapi import FastAPI
 
-from .model import get_model, predict
-from .schemas import PredictionRequest, PredictionResponse
-from .worker import run_consumer
+from model import get_model, predict
+from schemas import PredictionRequest, PredictionResponse
+from worker import run_consumer
 
 app = FastAPI(title="Autonotes ML Service")
 
