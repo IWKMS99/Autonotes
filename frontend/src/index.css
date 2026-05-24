@@ -14,7 +14,11 @@
 
   --background-color: #f8fafc;
   --surface-color: #ffffff;
+  --surface-raised: #ffffff;
+  --surface-subtle: #f8fafc;
   --surface-hover: #f1f5f9;
+  --accent-color: #0f766e;
+  --accent-light: rgb(15 118 110 / 0.10);
 
   --text-primary: #0f172a;
   --text-secondary: #475569;
@@ -22,6 +26,11 @@
 
   --border-color: #e2e8f0;
   --border-hover: #cbd5e1;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.75rem;
 
   --shadow-sm: 0 1px 2px 0 rgb(15 23 42 / 0.06);
   --shadow-md: 0 8px 18px -12px rgb(15 23 42 / 0.32);
@@ -84,34 +93,39 @@
   --error-color: #f87171;
 
   --background-color: #020617;
-  --surface-color: #0f172a;
-  --surface-hover: #111827;
+  --surface-color: #111827;
+  --surface-raised: #182235;
+  --surface-subtle: #0b1220;
+  --surface-hover: #1f2937;
+  --accent-color: #2dd4bf;
+  --accent-light: rgb(45 212 191 / 0.13);
 
   --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
+  --text-secondary: #d1d5db;
+  --text-muted: #a8b3c2;
 
-  --border-color: rgb(148 163 184 / 0.22);
-  --border-hover: rgb(148 163 184 / 0.38);
+  --border-color: rgb(203 213 225 / 0.22);
+  --border-hover: rgb(203 213 225 / 0.42);
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.32);
   --shadow-md: 0 12px 30px -18px rgb(0 0 0 / 0.85);
   --shadow-lg: 0 24px 60px -28px rgb(0 0 0 / 0.95);
 
   --app-shell-background:
-    radial-gradient(circle at top left, rgb(37 99 235 / 0.14), transparent 32rem),
+    radial-gradient(circle at top left, rgb(45 212 191 / 0.10), transparent 30rem),
+    radial-gradient(circle at top right, rgb(96 165 250 / 0.10), transparent 28rem),
     #020617;
 
-  --header-background: rgb(15 23 42 / 0.9);
+  --header-background: rgb(2 6 23 / 0.9);
   --hero-background:
-    radial-gradient(circle at top left, rgb(96 165 250 / 0.14), transparent 18rem),
-    linear-gradient(135deg, rgb(15 23 42 / 0.98), rgb(17 24 39 / 0.92));
+    radial-gradient(circle at top left, rgb(45 212 191 / 0.14), transparent 18rem),
+    linear-gradient(135deg, rgb(24 34 53 / 0.98), rgb(15 23 42 / 0.94));
 
   --danger-panel-background:
     linear-gradient(135deg, rgb(69 10 10 / 0.9), rgb(30 41 59 / 0.82));
 
-  --input-background: rgb(15 23 42 / 0.72);
-  --icon-surface: rgb(15 23 42 / 0.72);
+  --input-background: rgb(15 23 42 / 0.88);
+  --icon-surface: rgb(15 23 42 / 0.88);
 }
 
 * {
@@ -212,8 +226,7 @@ code {
     background-color var(--transition-fast),
     border-color var(--transition-fast),
     color var(--transition-fast),
-    box-shadow var(--transition-fast),
-    transform var(--transition-fast);
+    box-shadow var(--transition-fast);
   text-decoration: none;
   white-space: nowrap;
 }
@@ -234,8 +247,13 @@ code {
 .btn-primary:hover:not(:disabled) {
   background-color: var(--primary-hover);
   border-color: var(--primary-hover);
-  transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+}
+
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 .btn-secondary {
@@ -269,7 +287,6 @@ code {
 .btn-danger:hover:not(:disabled) {
   background-color: #dc2626;
   border-color: #dc2626;
-  transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
@@ -367,7 +384,6 @@ code {
 .interactive-card:hover {
   border-color: var(--border-hover);
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
 }
 
 /* Status Styles */
@@ -396,37 +412,6 @@ code {
 .status-failed {
   background-color: #fee2e2;
   color: #991b1b;
-}
-
-/* Animation Classes */
-.fade-in {
-  animation: fadeIn var(--transition-normal) ease-out;
-}
-
-.slide-up {
-  animation: slideUp var(--transition-normal) ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 /* Loading Styles */
@@ -582,11 +567,6 @@ code {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
-  }
-
-  .fade-in,
-  .slide-up {
-    animation: none !important;
   }
 
   .loading-spinner {

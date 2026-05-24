@@ -1,15 +1,19 @@
 import React, { useId } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useReducedMotion } from 'motion/react';
+import { useReducedMotion } from 'motion/react';
 import {
+  AnimatedItem,
+  AnimatedList,
+  AnimatedPage,
   cardHoverMotion,
   cardTapMotion,
   formatDate as defaultFormatDate,
   getTimeAgo as defaultGetTimeAgo,
   Icon,
-  listItemMotion,
-  listMotion,
+  presenceMotion,
   reducedListItemMotion,
+  reducedPresenceMotion,
+  sectionMotion,
 } from 'shared';
 import './NotesDashboardView.css';
 
@@ -67,7 +71,6 @@ export const NotesDashboardView = ({
   const sortOrderId = useId();
   const shouldReduceMotion = useReducedMotion();
 
-  const itemMotion = shouldReduceMotion ? reducedListItemMotion : listItemMotion;
   const hoverMotion = shouldReduceMotion ? undefined : cardHoverMotion;
   const tapMotion = shouldReduceMotion ? undefined : cardTapMotion;
 
@@ -109,12 +112,12 @@ export const NotesDashboardView = ({
 
   if (error) {
     return (
-      <motion.section
+      <AnimatedPage
+        as="section"
         className="ui-center-state"
         role="alert"
-        initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
-        animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.18 }}
+        variants={presenceMotion}
+        reducedVariants={reducedPresenceMotion}
       >
         <div className="ui-center-state__icon" aria-hidden="true">
           <Icon name="warning" size={44} />
@@ -124,7 +127,7 @@ export const NotesDashboardView = ({
         <button type="button" onClick={handleRetry} className="btn btn-primary">
           Попробовать снова
         </button>
-      </motion.section>
+      </AnimatedPage>
     );
   }
 
@@ -135,14 +138,13 @@ export const NotesDashboardView = ({
 
   return (
     <section className="dashboard-page ui-page-shell">
-      <motion.header
+      <AnimatedPage
+        as="header"
         className="ui-page-header ui-page-header--split"
-        initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
-        animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
+        variants={sectionMotion}
       >
         <div className="ui-page-header__content">
-          <p className="ui-page-header__eyebrow">Рабочее пространство</p>
+          <p className="ui-page-header__eyebrow">Autonotes</p>
           <h1 className="ui-page-header__title">Мои конспекты</h1>
           <p className="ui-page-header__description">
             Управляйте загруженными материалами, отслеживайте обработку и быстро находите нужные конспекты.
@@ -155,16 +157,13 @@ export const NotesDashboardView = ({
             <span>Новый конспект</span>
           </Link>
         </div>
-      </motion.header>
+      </AnimatedPage>
 
-      <motion.div
+      <AnimatedList
         className="dashboard-stats"
         aria-label="Статистика конспектов"
-        initial="initial"
-        animate="animate"
-        variants={listMotion}
       >
-        <motion.article className="dashboard-stat-card card" variants={itemMotion}>
+        <AnimatedItem as="article" className="dashboard-stat-card card">
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="books" size={24} />
           </span>
@@ -172,9 +171,9 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">Всего</p>
             <p className="dashboard-stat-card__value">{totalNotes}</p>
           </div>
-        </motion.article>
+        </AnimatedItem>
 
-        <motion.article className="dashboard-stat-card card" variants={itemMotion}>
+        <AnimatedItem as="article" className="dashboard-stat-card card">
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="check" size={24} />
           </span>
@@ -182,9 +181,9 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">Готово</p>
             <p className="dashboard-stat-card__value">{completedNotes}</p>
           </div>
-        </motion.article>
+        </AnimatedItem>
 
-        <motion.article className="dashboard-stat-card card" variants={itemMotion}>
+        <AnimatedItem as="article" className="dashboard-stat-card card">
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="clock" size={24} />
           </span>
@@ -192,9 +191,9 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">В обработке</p>
             <p className="dashboard-stat-card__value">{processingNotes}</p>
           </div>
-        </motion.article>
+        </AnimatedItem>
 
-        <motion.article className="dashboard-stat-card card" variants={itemMotion}>
+        <AnimatedItem as="article" className="dashboard-stat-card card">
           <span className="dashboard-stat-card__icon" aria-hidden="true">
             <Icon name="warning" size={24} />
           </span>
@@ -202,16 +201,16 @@ export const NotesDashboardView = ({
             <p className="dashboard-stat-card__label">С ошибкой</p>
             <p className="dashboard-stat-card__value">{failedNotes}</p>
           </div>
-        </motion.article>
-      </motion.div>
+        </AnimatedItem>
+      </AnimatedList>
 
       {totalNotes > 0 && (
-        <motion.div
+        <AnimatedPage
           className="ui-toolbar dashboard-toolbar"
           aria-label="Фильтры и сортировка"
-          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 8 }}
-          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.18, delay: 0.04 }}
+          variants={presenceMotion}
+          reducedVariants={reducedPresenceMotion}
+          delay={0.04}
         >
           <div className="ui-field">
             <label className="ui-field__label" htmlFor={searchId}>
@@ -259,15 +258,14 @@ export const NotesDashboardView = ({
               <option value="asc">Сначала старые</option>
             </select>
           </div>
-        </motion.div>
+        </AnimatedPage>
       )}
 
       {totalNotes === 0 ? (
-        <motion.div
+        <AnimatedPage
           className="ui-empty-card"
-          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
-          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
+          variants={presenceMotion}
+          reducedVariants={reducedPresenceMotion}
         >
           <div className="ui-empty-card__icon" aria-hidden="true">
             <Icon name="books" size={48} />
@@ -279,13 +277,12 @@ export const NotesDashboardView = ({
           <Link to="/upload" className="btn btn-primary">
             Создать первый конспект
           </Link>
-        </motion.div>
+        </AnimatedPage>
       ) : safeFilteredNotes.length === 0 ? (
-        <motion.div
+        <AnimatedPage
           className="ui-empty-card"
-          initial={shouldReduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
-          animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
+          variants={presenceMotion}
+          reducedVariants={reducedPresenceMotion}
         >
           <div className="ui-empty-card__icon" aria-hidden="true">
             <Icon name="search" size={48} />
@@ -297,24 +294,21 @@ export const NotesDashboardView = ({
           <button type="button" className="btn btn-secondary" onClick={() => handleSearchChange('')}>
             Очистить поиск
           </button>
-        </motion.div>
+        </AnimatedPage>
       ) : (
-        <motion.div
+        <AnimatedList
           className="dashboard-grid"
           aria-label="Список конспектов"
-          initial="initial"
-          animate="animate"
-          variants={listMotion}
         >
           {safeFilteredNotes.map((note) => {
             const fileCount = note.images?.length || note.files?.length || 0;
             const timeAgoText = getNoteTimeAgo(note.createdAt);
 
             return (
-              <motion.div
+              <AnimatedItem
                 key={note.id}
                 className="dashboard-note-card-shell"
-                variants={itemMotion}
+                reducedVariants={reducedListItemMotion}
                 whileHover={hoverMotion}
                 whileTap={tapMotion}
               >
@@ -354,10 +348,10 @@ export const NotesDashboardView = ({
                     </span>
                   </div>
                 </Link>
-              </motion.div>
+              </AnimatedItem>
             );
           })}
-        </motion.div>
+        </AnimatedList>
       )}
     </section>
   );

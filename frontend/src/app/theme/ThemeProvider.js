@@ -7,6 +7,7 @@ import React, {
 } from 'react';
 
 const THEME_STORAGE_KEY = 'autonotes-theme';
+const THEME_TRANSITION_MS = 620;
 
 const ThemeContext = createContext(null);
 
@@ -32,6 +33,29 @@ const getInitialTheme = () => {
   return getSystemTheme();
 };
 
+const applyThemeTransition = (origin) => {
+  if (
+    typeof window === 'undefined'
+    || typeof document === 'undefined'
+    || !origin
+    || !document.startViewTransition
+    || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ) {
+    return null;
+  }
+
+  const maxRadius = Math.hypot(
+    Math.max(origin.x, window.innerWidth - origin.x),
+    Math.max(origin.y, window.innerHeight - origin.y)
+  );
+
+  return {
+    maxRadius,
+    x: origin.x,
+    y: origin.y,
+  };
+};
+
 export const ThemeProvider = ({ children }) => {
   const [theme, setTheme] = useState(getInitialTheme);
 
@@ -48,8 +72,33 @@ export const ThemeProvider = ({ children }) => {
     theme,
     isDarkTheme: theme === 'dark',
     setTheme,
-    toggleTheme: () => {
-      setTheme((currentTheme) => (currentTheme === 'dark' ? 'light' : 'dark'));
+    toggleTheme: (origin) => {
+      const transitionConfig = applyThemeTransition(origin);
+
+      if (!transitionConfig) {
+        setTheme((currentTheme) => (currentTheme === 'dark' ? 'light' : 'dark'));
+        return;
+      }
+
+      const transition = document.startViewTransition(() => {
+        setTheme((currentTheme) => (currentTheme === 'dark' ? 'light' : 'dark'));
+      });
+
+      transition.ready.then(() => {
+        document.documentElement.animate(
+          {
+            clipPath: [
+              `circle(0px at ${transitionConfig.x}px ${transitionConfig.y}px)`,
+              `circle(${transitionConfig.maxRadius}px at ${transitionConfig.x}px ${transitionConfig.y}px)`,
+            ],
+          },
+          {
+            duration: THEME_TRANSITION_MS,
+            easing: 'cubic-bezier(0.2, 0.9, 0.2, 1)',
+            pseudoElement: '::view-transition-new(root)',
+          }
+        );
+      }).catch(() => {});
     },
   }), [theme]);
 
