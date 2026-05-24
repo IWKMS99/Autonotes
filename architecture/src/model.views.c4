@@ -1,11 +1,8 @@
 views {
 
   view c1_system_context {
-    title 'C1 — System Context'
-    description '''
-    Студент и платформа Autonotes (upload → async ML → готовый конспект).
-    Детали контейнеров — C2, компонентов — C3, сценарии — dynamic views.
-    '''
+    title 'C1 - System Context'
+    description 'Пользователь взаимодействует с платформой Autonotes через web-интерфейс.'
     include
       student,
       autonotes,
@@ -13,26 +10,14 @@ views {
   }
 
   view c2_containers of autonotes {
-    title 'C2 — Containers'
-    description '''
-    Все контейнеры платформы. ML Service реализован (MVP consumer в /ml).
-    На практике: по умолчанию deploy в single-режиме (1 backend),
-    а показанный здесь multi-backend сценарий соответствует profile=cluster.
-    Async-поток без UI: view c2_async_processing.
-    '''
+    title 'C2 - Containers'
+    description 'Контейнеры платформы: frontend, backend, ml, postgres, minio, rabbitmq.'
     include *
-
-    style mlWorker {
-      color muted
-    }
   }
 
   view c2_async_processing of autonotes {
-    title 'C2 — Async Processing'
-    description '''
-    Цепочка обработки конспекта: upload в backend → outbox → RabbitMQ → ML → result → PostgreSQL.
-    Без Frontend и студента.
-    '''
+    title 'C2 - Async Processing'
+    description 'Асинхронная цепочка: outbox -> RabbitMQ -> ML -> result update.'
     include
       backend,
       rabbitmq,
@@ -49,15 +34,5 @@ views {
     exclude
       student,
       frontend
-
-    style mlWorker {
-      color muted
-    }
-    style frontend {
-      opacity 0%
-    }
-    style student {
-      opacity 0%
-    }
   }
 }

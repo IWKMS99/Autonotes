@@ -2,20 +2,17 @@ views {
 
   dynamic view dynamic_auth {
     variant sequence
-    title 'Dynamic — Auth (login / register)'
-    description '''
-    Регистрация или логин: auth page/widget → auth feature → user entity api → backend → JWT.
-    '''
+    title 'Dynamic - Auth flow'
+    description 'Регистрация/логин пользователя через frontend и backend.'
 
-    student -> autonotes.frontend.pagesLayer 'submit login or register'
-    autonotes.frontend.pagesLayer -> autonotes.frontend.featuresLayer 'useAuthForm'
-    autonotes.frontend.featuresLayer -> autonotes.frontend.entitiesLayer 'login/register use-case'
+    student -> autonotes.frontend.pagesLayer 'submit auth form'
+    autonotes.frontend.pagesLayer -> autonotes.frontend.featuresLayer 'auth scenario'
+    autonotes.frontend.featuresLayer -> autonotes.frontend.entitiesLayer 'auth use-case'
     autonotes.frontend.entitiesLayer -> autonotes.frontend.sharedApiClient
-    autonotes.frontend.sharedApiClient -> autonotes.backend.apiControllers 'POST /api/v1/auth/login or register'
-    autonotes.backend.apiControllers -> autonotes.backend.userAuth 'validate / persist user'
-    autonotes.backend.userAuth -> autonotes.postgres 'JPA users table'
-    autonotes.backend.apiControllers -> autonotes.frontend.sharedApiClient 'AuthResponseDto + JWT'
-    autonotes.frontend.sharedApiClient -> autonotes.frontend.featuresLayer 'token for storage'
+    autonotes.frontend.sharedApiClient -> autonotes.backend.apiControllers 'POST /api/v1/auth/*'
+    autonotes.backend.apiControllers -> autonotes.backend.userAuth
+    autonotes.backend.userAuth -> autonotes.postgres
+    autonotes.backend.apiControllers -> autonotes.frontend.sharedApiClient 'JWT response'
 
     include
       student,
@@ -30,40 +27,29 @@ views {
 
   dynamic view dynamic_create_note {
     variant sequence
-    title 'Dynamic — Create Note (upload → ML → polling)'
-    description '''
-    Happy path: multipart upload, transactional outbox, async ML, polling until COMPLETED.
-    '''
+    title 'Dynamic - Create note flow'
+    description 'Upload изображений, асинхронная обработка и получение итогового конспекта.'
 
-    student -> autonotes.frontend.widgetsLayer 'select title and images'
-    autonotes.frontend.pagesLayer -> autonotes.frontend.featuresLayer 'wire upload scenario'
-    autonotes.frontend.featuresLayer -> autonotes.frontend.entitiesLayer 'create note request + polling'
+    student -> autonotes.frontend.widgetsLayer 'select images and title'
+    autonotes.frontend.pagesLayer -> autonotes.frontend.featuresLayer 'start upload use-case'
+    autonotes.frontend.featuresLayer -> autonotes.frontend.entitiesLayer 'create note + polling'
     autonotes.frontend.entitiesLayer -> autonotes.frontend.sharedApiClient
-    autonotes.frontend.sharedApiClient -> autonotes.backend.apiControllers 'POST /api/v1/notes multipart'
+    autonotes.frontend.sharedApiClient -> autonotes.backend.apiControllers 'POST /api/v1/notes'
     autonotes.backend.apiControllers -> autonotes.backend.notesCore
-    autonotes.backend.notesCore -> autonotes.backend.filestorage 'save each image'
+    autonotes.backend.notesCore -> autonotes.backend.filestorage
     autonotes.backend.filestorage -> autonotes.minio 'S3 PUT'
-    autonotes.backend.notesCore -> autonotes.postgres 'note PROCESSING + OutboxEvent'
-    autonotes.backend.notesCore -> autonotes.backend.outboxPublisher 'outbox row in same tx'
-    autonotes.backend.outboxPublisher -> autonotes.rabbitmq 'NoteProcessingEvent, routing notes.created'
-    autonotes.rabbitmq -> autonotes.mlWorker.processConsumer 'notes.process.queue'
+    autonotes.backend.notesCore -> autonotes.postgres 'note + outbox'
+    autonotes.backend.outboxPublisher -> autonotes.rabbitmq 'notes.created'
+    autonotes.rabbitmq -> autonotes.mlWorker.processConsumer 'consume processing event'
     autonotes.mlWorker.processConsumer -> autonotes.mlWorker.s3Reader
-    autonotes.mlWorker.s3Reader -> autonotes.minio 'S3 GET by filePaths'
+    autonotes.mlWorker.s3Reader -> autonotes.minio 'S3 GET'
     autonotes.mlWorker.processConsumer -> autonotes.mlWorker.ocrPipeline
     autonotes.mlWorker.ocrPipeline -> autonotes.mlWorker.summarizer
     autonotes.mlWorker.summarizer -> autonotes.mlWorker.resultPublisher
-    autonotes.mlWorker.resultPublisher -> autonotes.rabbitmq 'NoteResultDto, routing notes.completed'
-    autonotes.rabbitmq -> autonotes.backend.resultConsumer 'notes.results.queue'
-    autonotes.backend.resultConsumer -> autonotes.backend.notesCore 'processCompletion'
-    autonotes.backend.notesCore -> autonotes.postgres 'status COMPLETED, recognizedText, summaryText'
-    autonotes.frontend.featuresLayer -> autonotes.frontend.entitiesLayer 'poll GET /api/v1/notes/{id} while PROCESSING'
-    autonotes.frontend.entitiesLayer -> autonotes.frontend.sharedApiClient
-    autonotes.frontend.sharedApiClient -> autonotes.backend.apiControllers 'GET /api/v1/notes/{id}'
-    autonotes.backend.apiControllers -> autonotes.backend.notesCore
-    autonotes.backend.notesCore -> autonotes.postgres
-    autonotes.backend.apiControllers -> autonotes.frontend.sharedApiClient 'NoteDetailDto'
-    autonotes.frontend.sharedApiClient -> autonotes.frontend.entitiesLayer
-    autonotes.frontend.entitiesLayer -> autonotes.frontend.widgetsLayer 'render detail markdown'
+    autonotes.mlWorker.resultPublisher -> autonotes.rabbitmq 'notes.completed'
+    autonotes.rabbitmq -> autonotes.backend.resultConsumer
+    autonotes.backend.resultConsumer -> autonotes.backend.notesCore 'apply result'
+    autonotes.backend.notesCore -> autonotes.postgres 'update COMPLETED'
 
     include
       student,
