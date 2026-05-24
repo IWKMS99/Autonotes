@@ -1,6 +1,10 @@
 import { apiClient, throwHttpError, ALLOWED_FILE_TYPES, MAX_FILE_SIZE } from 'shared';
 import { mapNoteDto, mapNotesDto } from '../model/noteMapper';
 
+const DEFAULT_PAGE_SIZE = 20;
+const MAX_FETCH_PAGES = 50;
+const PAGE_BATCH_SIZE = 5;
+
 const validateFile = (file) => {
   if (!ALLOWED_FILE_TYPES.includes(file.type)) {
     throw new Error('Неподдерживаемый формат файла. Используйте JPG, PNG или GIF.');
@@ -25,16 +29,36 @@ export const fetchNotes = async () => {
       return mapNotesDto(firstContent);
     }
 
-    const totalPages = firstPayload.totalPages;
-    const size = firstPayload.size || 20;
-    const requests = [];
+    const totalPages = Number.isFinite(firstPayload?.totalPages) ? firstPayload.totalPages : 1;
+    const pagesToLoad = Math.min(totalPages, MAX_FETCH_PAGES);
+    const size = firstPayload.size || DEFAULT_PAGE_SIZE;
+    const merged = [...firstContent];
 
-    for (let page = 1; page < totalPages; page += 1) {
-      requests.push(apiClient.get('/notes', { params: { page, size, sort: 'createdAt,desc' } }));
+    for (let startPage = 1; startPage < pagesToLoad; startPage += PAGE_BATCH_SIZE) {
+      const requests = [];
+      const endPage = Math.min(startPage + PAGE_BATCH_SIZE, pagesToLoad);
+
+      for (let page = startPage; page < endPage; page += 1) {
+        requests.push(apiClient.get('/notes', { params: { page, size, sort: 'createdAt,desc' } }));
+      }
+
+      const settled = await Promise.allSettled(requests);
+      settled.forEach((result, index) => {
+        if (result.status === 'fulfilled') {
+          merged.push(...(result.value.data?.content || []));
+          return;
+        }
+        // Keep already loaded pages to avoid breaking dashboard if one page fails.
+        // eslint-disable-next-line no-console
+        console.warn(`Failed to load notes page ${startPage + index}:`, result.reason);
+      });
     }
 
-    const otherResponses = await Promise.all(requests);
-    const merged = [...firstContent, ...otherResponses.flatMap((res) => res.data?.content || [])];
+    if (totalPages > MAX_FETCH_PAGES) {
+      // eslint-disable-next-line no-console
+      console.warn(`Notes list truncated to first ${MAX_FETCH_PAGES} pages.`);
+    }
+
     return mapNotesDto(merged);
   } catch (error) {
     throwHttpError(error);
