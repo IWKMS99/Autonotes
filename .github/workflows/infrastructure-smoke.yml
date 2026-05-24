@@ -1,9 +1,6 @@
 name: Infrastructure and E2E Smoke Tests
 on:
-  pull_request:
-    branches: [ "main" ]
-  push:
-    branches: [ "main" ]
+  workflow_call:
 jobs:
   smoke-test:
     runs-on: ubuntu-latest
