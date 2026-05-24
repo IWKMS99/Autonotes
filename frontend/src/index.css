@@ -134,12 +134,16 @@
 
 html {
   min-height: 100%;
+  overflow-x: hidden;
   background-color: var(--background-color);
+  text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
+  min-width: 320px;
   min-height: 100%;
+  overflow-x: hidden;
   font-family: var(--font-family);
   font-size: var(--font-size-base);
   line-height: 1.5;
@@ -148,7 +152,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
 button,
 input,
 select,
@@ -165,6 +168,27 @@ a {
 }
 
 img {
+  max-width: 100%;
+}
+
+svg {
+  flex-shrink: 0;
+}
+
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: anywhere;
+}
+
+input,
+select,
+textarea,
+button {
   max-width: 100%;
 }
 
@@ -191,20 +215,19 @@ code {
 
 /* Utility Classes */
 .container {
-  max-width: 1200px;
+  width: min(100% - 2rem, 1200px);
   margin: 0 auto;
-  padding: 0 var(--spacing-4);
 }
 
-@media (min-width: 640px) {
+@media (max-width: 640px) {
   .container {
-    padding: 0 var(--spacing-6);
+    width: min(100% - 1.5rem, 1200px);
   }
 }
 
-@media (min-width: 1024px) {
+@media (max-width: 380px) {
   .container {
-    padding: 0 var(--spacing-8);
+    width: min(100% - 1rem, 1200px);
   }
 }
 
@@ -229,6 +252,15 @@ code {
     box-shadow var(--transition-fast);
   text-decoration: none;
   white-space: nowrap;
+}
+
+@media (pointer: coarse) {
+  .btn,
+  button,
+  [role="button"],
+  .form-input {
+    min-height: 44px;
+  }
 }
 
 .btn:disabled {
@@ -506,10 +538,6 @@ code {
     display: block !important;
   }
 
-  .container {
-    padding: 0 var(--spacing-4) !important;
-  }
-
   .katex {
     font-size: 1em;
   }
@@ -520,14 +548,17 @@ code {
 }
 
 @media (max-width: 640px) {
-  :root {
+  :root,
+  [data-theme="light"],
+  [data-theme="dark"] {
     --font-size-4xl: 1.875rem;
     --font-size-3xl: 1.5rem;
     --font-size-2xl: 1.25rem;
+    --font-size-xl: 1.125rem;
   }
 
-  .container {
-    padding: 0 var(--spacing-3) !important;
+  .btn {
+    white-space: normal;
   }
 }
 
