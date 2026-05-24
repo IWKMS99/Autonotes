@@ -20,7 +20,9 @@ export const useDashboardNotes = () => {
         setRequestState(createAsyncState({ status: ASYNC_STATUS.SUCCESS }));
       }
     } catch (error) {
-      setRequestState(createAsyncState({ status: ASYNC_STATUS.ERROR, error: error.message || 'Ошибка загрузки конспектов' }));
+      if (!isSilent) {
+        setRequestState(createAsyncState({ status: ASYNC_STATUS.ERROR, error: error.message || 'Ошибка загрузки конспектов' }));
+      }
     }
   }, []);
 
