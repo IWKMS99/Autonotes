@@ -1,10 +1,12 @@
 package ru.mtuci.autonotesbackend.observability;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.actuate.observability.AutoConfigureObservability;
 import ru.mtuci.autonotesbackend.BaseIntegrationTest;
@@ -19,10 +21,19 @@ class ActuatorSecurityIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+    void readinessShouldBePublic() throws Exception {
+        mockMvc.perform(get("/actuator/health/readiness"))
+                .andExpect(
+                        result -> assertThat(result.getResponse().getStatus()).isNotIn(401, 403));
+    }
+
+    @Test
     void prometheusShouldBePublic() throws Exception {
         mockMvc.perform(get("/actuator/prometheus"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("# HELP")));
+                .andExpect(content().contentTypeCompatibleWith("text/plain"))
+                .andExpect(content().string(Matchers.containsString("# HELP")))
+                .andExpect(content().string(Matchers.containsString("# TYPE")));
     }
 
     @Test
@@ -36,5 +47,14 @@ class ActuatorSecurityIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(header().exists(LogContextKeys.HEADER_REQUEST_ID))
                 .andExpect(header().exists(LogContextKeys.HEADER_CORRELATION_ID));
+    }
+
+    @Test
+    void prometheusShouldContainHttpMetricsAfterRequest() throws Exception {
+        mockMvc.perform(get("/api/v1/system/info")).andExpect(status().isOk());
+
+        mockMvc.perform(get("/actuator/prometheus"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(Matchers.containsString("http_server_requests_seconds")));
     }
 }

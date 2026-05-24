@@ -2,11 +2,14 @@ package ru.mtuci.autonotesbackend.modules.notes.impl;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import ru.mtuci.autonotesbackend.modules.notes.api.NoteFacade;
 import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteDetailDto;
 import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteDto;
+import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteListItemDto;
 import ru.mtuci.autonotesbackend.modules.notes.impl.domain.LectureNote;
 import ru.mtuci.autonotesbackend.modules.notes.impl.mapper.NoteMapper;
 import ru.mtuci.autonotesbackend.modules.notes.impl.service.NoteService;
@@ -25,8 +28,8 @@ public class NoteFacadeImpl implements NoteFacade {
     }
 
     @Override
-    public List<NoteDto> findAllUserNotes(Long userId) {
-        return noteService.findAllDtosByUserId(userId);
+    public Page<NoteListItemDto> findAllUserNotes(Long userId, Pageable pageable) {
+        return noteService.findAllLightweightDtosByUserId(userId, pageable);
     }
 
     @Override

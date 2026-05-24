@@ -12,9 +12,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.multipart.MultipartFile;
 import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteDetailDto;
 import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteDto;
+import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteListItemDto;
 import ru.mtuci.autonotesbackend.modules.notes.impl.domain.LectureNote;
 import ru.mtuci.autonotesbackend.modules.notes.impl.mapper.NoteMapper;
 import ru.mtuci.autonotesbackend.modules.notes.impl.service.NoteService;
@@ -55,17 +59,17 @@ class NoteFacadeImplTest {
 
     @Test
     void findAllUserNotes_shouldDelegateToService() {
-        // Arrange
         Long userId = 1L;
-        List<NoteDto> expectedNotes = List.of(new NoteDto(), new NoteDto());
-        when(noteService.findAllDtosByUserId(userId)).thenReturn(expectedNotes);
+        PageRequest pageable = PageRequest.of(0, 20);
+        Page<NoteListItemDto> expectedNotes = new PageImpl<>(List.of(
+                NoteListItemDto.builder().id(1L).title("A").build(),
+                NoteListItemDto.builder().id(2L).title("B").build()));
+        when(noteService.findAllLightweightDtosByUserId(userId, pageable)).thenReturn(expectedNotes);
 
-        // Act
-        List<NoteDto> result = noteFacade.findAllUserNotes(userId);
+        Page<NoteListItemDto> result = noteFacade.findAllUserNotes(userId, pageable);
 
-        // Assert
         assertThat(result).isSameAs(expectedNotes);
-        verify(noteService).findAllDtosByUserId(userId);
+        verify(noteService).findAllLightweightDtosByUserId(userId, pageable);
     }
 
     @Test

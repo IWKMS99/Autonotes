@@ -5,4 +5,7 @@ pydantic-settings
 pytest
 pytest-asyncio
 aio-pika
+<<<<<<< HEAD
 httpx
+=======
+>>>>>>> origin/master
