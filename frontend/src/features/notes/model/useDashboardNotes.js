@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { fetchNotes } from 'entities/note';
 import { ASYNC_STATUS, createAsyncState, NOTE_STATUS, formatRuDateTime } from 'shared';
 
@@ -8,6 +8,8 @@ export const useDashboardNotes = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
+  const pollIntervalRef = useRef(null);
+  const prevProcessingKey = useRef('');
 
   const loadNotes = useCallback(async (isSilent = false) => {
     try {
@@ -31,11 +33,67 @@ export const useDashboardNotes = () => {
   }, [loadNotes]);
 
   useEffect(() => {
-    const hasProcessing = notes.some((note) => note.status === NOTE_STATUS.PROCESSING);
-    if (!hasProcessing) return undefined;
+    // Optimized polling: only poll when there are notes in PROCESSING state and
+    // avoid recreating interval if the set of processing IDs didn't change.
+    const processingIds = notes.filter((n) => n.status === NOTE_STATUS.PROCESSING).map((n) => n.id);
+    const hasProcessing = processingIds.length > 0;
+    if (!hasProcessing) {
+      // clear any existing polling if there is one
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+        prevProcessingKey.current = '';
+      }
+      return undefined;
+    }
 
-    const interval = setInterval(() => loadNotes(true), 5000);
-    return () => clearInterval(interval);
+    const key = processingIds.join(',');
+    // if already polling the same set of ids, keep the existing interval
+    if (prevProcessingKey.current === key) return undefined;
+
+    // otherwise restart polling for the new set of ids
+    prevProcessingKey.current = key;
+    let mounted = true;
+
+    let fetchNotesStatusFn = null;
+    const poll = async () => {
+      try {
+        if (!fetchNotesStatusFn) {
+          // import here to avoid circular deps at module init
+          const mod = await import('entities/note');
+          fetchNotesStatusFn = mod.fetchNotesStatus;
+        }
+        const statuses = await fetchNotesStatusFn(processingIds);
+        if (!mounted || !Array.isArray(statuses)) return;
+
+        setNotes((prev) => prev.map((note) => {
+          const updated = statuses.find((s) => s.id === note.id);
+          return updated ? { ...note, status: updated.status, updatedAt: updated.updatedAt, summaryPreview: updated.summaryPreview } : note;
+        }));
+      } catch (e) {
+        // ignore polling errors silently to not disturb UI
+        // eslint-disable-next-line no-console
+        console.debug('Polling error', e);
+      }
+    };
+
+    // clear previous interval if any
+    if (pollIntervalRef.current) {
+      clearInterval(pollIntervalRef.current);
+      pollIntervalRef.current = null;
+    }
+
+    // run immediately once and then poll on an interval
+    poll();
+    pollIntervalRef.current = setInterval(poll, 5000);
+
+    return () => {
+      mounted = false;
+      if (pollIntervalRef.current) {
+        clearInterval(pollIntervalRef.current);
+        pollIntervalRef.current = null;
+      }
+    };
   }, [notes, loadNotes]);
 
   const filteredAndSortedNotes = useMemo(() => {
