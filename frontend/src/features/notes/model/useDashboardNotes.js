@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchNotes } from 'entities/note';
 import { ASYNC_STATUS, createAsyncState, NOTE_STATUS, formatRuDateTime } from 'shared';
 
@@ -8,6 +8,7 @@ export const useDashboardNotes = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
+  const processingIdsRef = useRef([]);
 
   const loadNotes = useCallback(async (isSilent = false) => {
     try {
@@ -38,7 +39,11 @@ export const useDashboardNotes = () => {
   const processingKey = useMemo(() => processingIds.join(','), [processingIds]);
 
   useEffect(() => {
-    if (!processingIds.length) return undefined;
+    processingIdsRef.current = processingIds;
+  }, [processingIds]);
+
+  useEffect(() => {
+    if (!processingKey) return undefined;
 
     let mounted = true;
 
@@ -50,7 +55,7 @@ export const useDashboardNotes = () => {
           const mod = await import('entities/note');
           fetchNotesStatusFn = mod.fetchNotesStatus;
         }
-        const statuses = await fetchNotesStatusFn(processingIds);
+        const statuses = await fetchNotesStatusFn(processingIdsRef.current);
         if (!mounted || !Array.isArray(statuses)) return;
 
         setNotes((prev) => prev.map((note) => {
