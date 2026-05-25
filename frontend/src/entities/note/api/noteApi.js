@@ -78,16 +78,36 @@ export const createNoteRequest = async (title, files, onUploadProgress) => {
       headers: { 'Content-Type': 'multipart/form-data' },
     };
 
-    if (typeof onUploadProgress === 'function') {
-      config.onUploadProgress = (event) => {
-        if (!event.total) {
-          onUploadProgress(0, event);
+    // Always provide an onUploadProgress handler to axios. If caller didn't
+    // pass a callback, the handler becomes a no-op. This ensures consistent
+    // behavior and makes upload progress observable in tests and in the UI.
+    config.onUploadProgress = (progressEvent) => {
+      try {
+        if (typeof onUploadProgress !== 'function') {
           return;
         }
-        const percent = Math.min(99, Math.round((event.loaded * 100) / event.total));
-        onUploadProgress(percent, event);
-      };
-    }
+
+        // progressEvent.lengthComputable indicates if Content-Length header is present
+        if (!progressEvent.lengthComputable || !progressEvent.total) {
+          // If total size is unknown, we can't calculate exact progress
+          // but we can still indicate that upload is happening
+          onUploadProgress(0);
+          return;
+        }
+
+        // Calculate actual upload progress based on bytes loaded vs total
+        const percentComplete = Math.min(
+          99, // Cap at 99% - 100% is when response is received
+          Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        );
+
+        onUploadProgress(percentComplete);
+      } catch (e) {
+        // Swallow errors from progress handler to avoid breaking upload
+        // eslint-disable-next-line no-console
+        console.error('Upload progress handler error', e);
+      }
+    };
 
     const response = await apiClient.post('/notes', formData, config);
 
