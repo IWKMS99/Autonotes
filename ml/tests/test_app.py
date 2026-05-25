@@ -1,10 +1,11 @@
 from fastapi.testclient import TestClient
+
 from ml.app import app
 
 client = TestClient(app)
 
 
-def test_predict_endpoint():
-    response = client.post("/predict", json={"text": "hello"})
+def test_health_endpoint():
+    response = client.get("/health")
     assert response.status_code == 200
-    assert response.json() == {"prediction": "predicted for: hello"}
+    assert response.json() == {"status": "ok"}

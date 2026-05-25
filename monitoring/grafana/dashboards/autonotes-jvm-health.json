@@ -18,7 +18,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
+        "w": 8,
         "x": 0,
         "y": 0
       },
@@ -39,7 +39,7 @@
       "pluginVersion": "11.1.0",
       "targets": [
         {
-          "expr": "avg(system_cpu_usage{application=\"AutonotesBackend\"})",
+          "expr": "avg(system_cpu_usage{application=\"AutonotesBackend\",job=~\"$job\",instance=~\"$instance\"}) or vector(0)",
           "refId": "A"
         }
       ],
@@ -50,14 +50,14 @@
       "datasource": "Prometheus",
       "fieldConfig": {
         "defaults": {
-          "unit": "bytes"
+          "unit": "s"
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 12,
-        "x": 12,
+        "w": 8,
+        "x": 8,
         "y": 0
       },
       "id": 2,
@@ -70,11 +70,11 @@
       "pluginVersion": "11.1.0",
       "targets": [
         {
-          "expr": "sum(jvm_memory_used_bytes{application=\"AutonotesBackend\", area=\"heap\"}) by (instance)",
+          "expr": "process_uptime_seconds{application=\"AutonotesBackend\",job=~\"$job\",instance=~\"$instance\"} or vector(0)",
           "refId": "A"
         }
       ],
-      "title": "JVM Heap Used",
+      "title": "Process Uptime",
       "type": "timeseries"
     },
     {
@@ -85,9 +85,9 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 24,
-        "x": 0,
-        "y": 8
+        "w": 8,
+        "x": 16,
+        "y": 0
       },
       "id": 3,
       "options": {
@@ -99,11 +99,182 @@
       "pluginVersion": "11.1.0",
       "targets": [
         {
-          "expr": "up{job=\"autonotes-backend\"}",
+          "expr": "up{job=~\"$job\"}",
           "refId": "A"
         }
       ],
       "title": "Backend Targets Up",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "bytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 8
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "expr": "sum by (instance) (jvm_memory_used_bytes{application=\"AutonotesBackend\",job=~\"$job\",instance=~\"$instance\",area=\"heap\"})",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (instance) (jvm_memory_used_bytes{application=\"AutonotesBackend\",job=~\"$job\",instance=~\"$instance\",area=\"nonheap\"})",
+          "refId": "B"
+        }
+      ],
+      "title": "JVM Memory Used (Heap/Non-Heap)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 8
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "expr": "jvm_threads_live_threads{application=\"AutonotesBackend\",job=~\"$job\",instance=~\"$instance\"} or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "JVM Live Threads",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 16
+      },
+      "id": 6,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "expr": "sum by (instance) (rate(jvm_gc_pause_seconds_sum{application=\"AutonotesBackend\",job=~\"$job\",instance=~\"$instance\"}[5m])) or vector(0)",
+          "refId": "A"
+        }
+      ],
+      "title": "GC Pause (rate)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom"
+        }
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "expr": "sum by (instance) (hikaricp_connections_active{application=\"AutonotesBackend\",job=~\"$job\",instance=~\"$instance\"}) or vector(0)",
+          "refId": "A"
+        },
+        {
+          "expr": "sum by (instance) (hikaricp_connections_idle{application=\"AutonotesBackend\",job=~\"$job\",instance=~\"$instance\"}) or vector(0)",
+          "refId": "B"
+        },
+        {
+          "expr": "sum by (instance) (hikaricp_connections_pending{application=\"AutonotesBackend\",job=~\"$job\",instance=~\"$instance\"}) or vector(0)",
+          "refId": "C"
+        }
+      ],
+      "title": "Hikari Connections",
+      "type": "timeseries"
+    },
+    {
+      "datasource": "Prometheus",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 24
+      },
+      "id": 8,
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        }
+      },
+      "pluginVersion": "11.1.0",
+      "targets": [
+        {
+          "expr": "sum(rate(logback_events_total{application=\"AutonotesBackend\",job=~\"$job\",instance=~\"$instance\",level=\"warn\"}[5m])) or vector(0)",
+          "refId": "A"
+        },
+        {
+          "expr": "sum(rate(logback_events_total{application=\"AutonotesBackend\",job=~\"$job\",instance=~\"$instance\",level=\"error\"}[5m])) or vector(0)",
+          "refId": "B"
+        }
+      ],
+      "title": "Logback Warn/Error Rate",
       "type": "timeseries"
     }
   ],
@@ -114,7 +285,50 @@
     "jvm"
   ],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": true,
+          "text": "autonotes-backend",
+          "value": "autonotes-backend"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(up,job)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "job",
+        "multi": false,
+        "name": "job",
+        "options": [],
+        "query": "label_values(up,job)",
+        "refresh": 1,
+        "regex": "autonotes-backend",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      },
+      {
+        "current": {
+          "selected": true,
+          "text": "All",
+          "value": ".*"
+        },
+        "datasource": "Prometheus",
+        "definition": "label_values(jvm_memory_used_bytes{application=\"AutonotesBackend\",job=~\"$job\"},instance)",
+        "hide": 0,
+        "includeAll": true,
+        "label": "instance",
+        "multi": false,
+        "name": "instance",
+        "options": [],
+        "query": "label_values(jvm_memory_used_bytes{application=\"AutonotesBackend\",job=~\"$job\"},instance)",
+        "refresh": 2,
+        "regex": "",
+        "skipUrlSync": false,
+        "sort": 1,
+        "type": "query"
+      }
+    ]
   },
   "time": {
     "from": "now-15m",
@@ -122,5 +336,5 @@
   },
   "title": "Autonotes JVM & Health",
   "uid": "autonotes-jvm-health",
-  "version": 1
+  "version": 2
 }

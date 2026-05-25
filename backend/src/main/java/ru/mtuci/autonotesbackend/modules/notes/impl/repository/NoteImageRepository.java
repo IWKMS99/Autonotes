@@ -1,6 +1,7 @@
 package ru.mtuci.autonotesbackend.modules.notes.impl.repository;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -16,4 +17,7 @@ public interface NoteImageRepository extends JpaRepository<NoteImage, Long> {
 
     @Query("SELECT ni.fileStoragePath FROM NoteImage ni WHERE ni.fileStoragePath IN :paths")
     Set<String> findExistingPaths(@Param("paths") Collection<String> paths);
+
+    @Query("SELECT ni.note.id, COUNT(ni.id) FROM NoteImage ni WHERE ni.note.id IN :noteIds GROUP BY ni.note.id")
+    List<Object[]> countByNoteIds(@Param("noteIds") Collection<Long> noteIds);
 }

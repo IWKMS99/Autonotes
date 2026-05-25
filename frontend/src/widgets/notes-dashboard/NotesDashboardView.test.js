@@ -38,6 +38,7 @@ describe('NotesDashboardView smoke', () => {
         status: 'COMPLETED',
         createdAt: new Date().toISOString(),
         summaryText: 'summary',
+        imageCount: 7,
         images: [{ id: 1 }],
       },
     ];
@@ -59,6 +60,7 @@ describe('NotesDashboardView smoke', () => {
     );
 
     expect(screen.getByText('Physics')).toBeInTheDocument();
+    expect(screen.getByText(/7/)).toBeInTheDocument();
     expect(screen.getByLabelText('Фильтры и сортировка')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: /Открыть конспект/i })).toBeInTheDocument();
   });

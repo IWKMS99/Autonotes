@@ -1,15 +1,17 @@
 .note-upload-page {
   width: 100%;
+  min-width: 0;
 }
 
 .note-upload-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 320px;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
   gap: var(--spacing-6);
   align-items: start;
 }
 
 .note-upload-form {
+  min-width: 0;
   padding: var(--spacing-6);
 }
 
@@ -18,6 +20,7 @@
 }
 
 .note-upload-section-heading {
+  min-width: 0;
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-3);
@@ -27,10 +30,11 @@
 .note-upload-section-heading__icon {
   width: 2.75rem;
   height: 2.75rem;
-  flex: 0 0 auto;
+  flex: 0 0 2.75rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  color: var(--primary-color);
   background-color: var(--primary-light);
   border-radius: var(--radius-xl);
   font-size: 1.35rem;
@@ -41,11 +45,13 @@
   color: var(--text-primary);
   font-size: var(--font-size-xl);
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .note-upload-section-heading__description {
   margin: var(--spacing-1) 0 0;
   color: var(--text-secondary);
+  overflow-wrap: anywhere;
 }
 
 .note-upload-title-input {
@@ -54,6 +60,7 @@
 
 .note-upload-dropzone {
   position: relative;
+  min-width: 0;
   min-height: 280px;
   padding: var(--spacing-6);
   display: flex;
@@ -113,6 +120,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--primary-color);
   background-color: var(--primary-light);
   border-radius: 50%;
   font-size: 2.5rem;
@@ -128,11 +136,13 @@
   color: var(--text-primary);
   font-size: var(--font-size-xl);
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .note-upload-empty-state__description {
   margin: 0 0 var(--spacing-4);
   color: var(--text-secondary);
+  overflow-wrap: anywhere;
 }
 
 .note-upload-empty-state__button {
@@ -141,14 +151,20 @@
 
 .note-upload-preview {
   width: 100%;
+  min-width: 0;
   text-align: left;
 }
 
 .note-upload-preview__header {
+  min-width: 0;
   display: flex;
   justify-content: space-between;
   gap: var(--spacing-3);
   margin-bottom: var(--spacing-4);
+}
+
+.note-upload-preview__header > div {
+  min-width: 0;
 }
 
 .note-upload-preview__title {
@@ -156,26 +172,30 @@
   color: var(--text-primary);
   font-size: var(--font-size-lg);
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .note-upload-preview__description {
   margin: var(--spacing-1) 0 0;
   color: var(--text-secondary);
   font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
 }
 
 .note-upload-preview__change-files {
   align-self: flex-start;
+  flex: 0 0 auto;
 }
 
 .note-upload-preview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: var(--spacing-4);
 }
 
 .note-upload-preview-card {
   position: relative;
+  min-width: 0;
   min-height: 150px;
   overflow: hidden;
   background-color: var(--surface-color);
@@ -197,6 +217,7 @@
   right: var(--spacing-2);
   width: 2rem;
   height: 2rem;
+  min-height: 2rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -219,6 +240,7 @@
   right: 0;
   bottom: 0;
   left: 0;
+  min-width: 0;
   padding: var(--spacing-6) var(--spacing-3) var(--spacing-3);
   color: white;
   background: linear-gradient(transparent, rgb(15 23 42 / 0.86));
@@ -240,6 +262,7 @@
 }
 
 .note-upload-progress {
+  min-width: 0;
   margin-bottom: var(--spacing-5);
 }
 
@@ -286,6 +309,7 @@
 }
 
 .note-upload-help {
+  min-width: 0;
   padding: var(--spacing-5);
   position: sticky;
   top: 96px;
@@ -296,6 +320,7 @@
   color: var(--text-primary);
   font-size: var(--font-size-lg);
   font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .note-upload-help__list {
@@ -308,6 +333,7 @@
 }
 
 .note-upload-help__list li {
+  min-width: 0;
   display: flex;
   align-items: flex-start;
   gap: var(--spacing-3);
@@ -316,11 +342,29 @@
   line-height: 1.55;
 }
 
-.note-upload-help__list li span:first-child {
+.note-upload-help__list li span:first-child,
+.note-upload-help__list li svg {
   flex: 0 0 auto;
 }
 
-@media (max-width: 960px) {
+/* Tablet */
+@media (max-width: 1024px) {
+  .note-upload-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(240px, 280px);
+    gap: var(--spacing-5);
+  }
+
+  .note-upload-form {
+    padding: var(--spacing-5);
+  }
+
+  .note-upload-help {
+    padding: var(--spacing-4);
+  }
+}
+
+/* Tablet portrait */
+@media (max-width: 900px) {
   .note-upload-layout {
     grid-template-columns: 1fr;
   }
@@ -328,8 +372,13 @@
   .note-upload-help {
     position: static;
   }
+
+  .note-upload-preview-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
 }
 
+/* Mobile */
 @media (max-width: 640px) {
   .note-upload-form {
     padding: var(--spacing-4);
@@ -339,21 +388,103 @@
     margin-bottom: var(--spacing-6);
   }
 
+  .note-upload-section-heading {
+    gap: var(--spacing-3);
+  }
+
+  .note-upload-section-heading__icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-basis: 2.5rem;
+  }
+
+  .note-upload-title-input {
+    font-size: var(--font-size-base);
+  }
+
   .note-upload-dropzone {
-    min-height: 240px;
+    min-height: 220px;
     padding: var(--spacing-4);
+    border-radius: var(--radius-lg);
+  }
+
+  .note-upload-empty-state__icon {
+    width: 4rem;
+    height: 4rem;
+    margin-bottom: var(--spacing-3);
+  }
+
+  .note-upload-preview__header {
+    flex-direction: column;
+  }
+
+  .note-upload-preview__change-files {
+    width: 100%;
+  }
+
+  .note-upload-preview-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-3);
+  }
+
+  .note-upload-preview-card__image {
+    height: 132px;
+  }
+
+  .note-upload-actions {
+    flex-direction: column-reverse;
+    margin-top: var(--spacing-5);
+  }
+
+  .note-upload-cancel-link,
+  .note-upload-submit-button {
+    width: 100%;
+  }
+
+  .note-upload-help {
+    padding: var(--spacing-4);
+  }
+}
+
+/* Narrow mobile */
+@media (max-width: 420px) {
+  .note-upload-form {
+    padding: var(--spacing-3);
+  }
+
+  .note-upload-dropzone {
+    min-height: 200px;
+    padding: var(--spacing-3);
   }
 
   .note-upload-preview-grid {
     grid-template-columns: 1fr;
   }
 
-  .note-upload-actions {
-    flex-direction: column-reverse;
+  .note-upload-preview-card__image {
+    height: 170px;
   }
 
-  .note-upload-cancel-link,
-  .note-upload-submit-button {
-    width: 100%;
+  .note-upload-section-heading {
+    flex-direction: column;
+  }
+
+  .note-upload-help__list {
+    gap: var(--spacing-3);
+  }
+}
+
+@media (max-width: 340px) {
+  .note-upload-form,
+  .note-upload-help {
+    padding: var(--spacing-3);
+  }
+
+  .note-upload-dropzone {
+    min-height: 180px;
+  }
+
+  .note-upload-preview-card__image {
+    height: 150px;
   }
 }

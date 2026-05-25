@@ -8,12 +8,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.multipart.MultipartFile;
 import ru.mtuci.autonotesbackend.exception.dto.ErrorResponseDto;
 import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteDetailDto;
 import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteDto;
+import ru.mtuci.autonotesbackend.modules.notes.api.dto.NoteListItemDto;
+import ru.mtuci.autonotesbackend.modules.notes.api.dto.PagedResponseDto;
 import ru.mtuci.autonotesbackend.security.SecurityUser;
 
 @Tag(name = "03. Конспекты", description = "API для управления конспектами")
@@ -52,8 +55,15 @@ public interface NoteResource {
             @Parameter(description = "Список файлов изображений", required = true) List<MultipartFile> files,
             @Parameter(hidden = true) SecurityUser securityUser);
 
-    @Operation(summary = "Получить все конспекты пользователя")
-    ResponseEntity<List<NoteDto>> getAllNotes(@Parameter(hidden = true) SecurityUser securityUser);
+    @Operation(summary = "Получить конспекты пользователя с пагинацией")
+    @ApiResponse(
+            responseCode = "200",
+            description = "Список конспектов с метаданными пагинации",
+            content =
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = PagedResponseDto.class)))
+    ResponseEntity<PagedResponseDto<NoteListItemDto>> getAllNotes(
+            @Parameter(hidden = true) SecurityUser securityUser,
+            @Parameter(description = "Параметры пагинации: page, size, sort") Pageable pageable);
 
     @Operation(summary = "Получить детальную информацию о конспекте")
     ResponseEntity<NoteDetailDto> getNoteById(
