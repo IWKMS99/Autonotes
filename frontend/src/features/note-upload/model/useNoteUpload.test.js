@@ -168,19 +168,49 @@ describe('useNoteUpload', () => {
     expect(result.current.dragActive).toBe(true);
   });
 
-  test('prevents drag during loading', () => {
+  test('prevents drag during loading', async () => {
     const { result } = renderHook(() => useNoteUpload(() => {}));
+    const file = new File(['content'], 'test.jpg', { type: 'image/jpeg' });
 
-    // Simulate loading state (indirectly by checking logic)
-    // We can't directly set loading, but the hook should ignore drag during loading
+    act(() => {
+      result.current.handleInputChange({
+        target: { name: 'title', value: 'Test Note' },
+      });
+    });
+
+    act(() => {
+      result.current.handleFileChange({
+        target: { files: [file] },
+      });
+    });
+
+    await waitFor(() => {
+      expect(result.current.formData.files).toHaveLength(1);
+    });
+
+    createNoteRequest.mockImplementation(
+      () => new Promise(() => {})
+    );
+
+    act(() => {
+      result.current.handleSubmit(
+        new Event('submit', { bubbles: true })
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(true);
+    });
+
     const dragEvent = new Event('dragenter', { bubbles: true });
     dragEvent.preventDefault = jest.fn();
+    dragEvent.stopPropagation = jest.fn();
 
     act(() => {
       result.current.handleDrag(dragEvent);
     });
 
-    expect(result.current.dragActive).toBe(true);
+    expect(result.current.dragActive).toBe(false);
   });
 
   test('handles file drop', async () => {
@@ -331,4 +361,3 @@ describe('useNoteUpload', () => {
     expect(result.current.error).toContain('файл');
   });
 });
-

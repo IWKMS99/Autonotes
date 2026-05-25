@@ -43,20 +43,17 @@ export const fetchNotes = async () => {
       }
 
       const settled = await Promise.allSettled(requests);
-      settled.forEach((result, index) => {
+      settled.forEach((result) => {
         if (result.status === 'fulfilled') {
           merged.push(...(result.value.data?.content || []));
           return;
         }
         // Keep already loaded pages to avoid breaking dashboard if one page fails.
-        // eslint-disable-next-line no-console
-        console.warn(`Failed to load notes page ${startPage + index}:`, result.reason);
       });
     }
 
     if (totalPages > MAX_FETCH_PAGES) {
-      // eslint-disable-next-line no-console
-      console.warn(`Notes list truncated to first ${MAX_FETCH_PAGES} pages.`);
+      // Keep the list bounded for responsiveness in the UI.
     }
 
     return mapNotesDto(merged);
@@ -104,8 +101,6 @@ export const createNoteRequest = async (title, files, onUploadProgress) => {
         onUploadProgress(percentComplete);
       } catch (e) {
         // Swallow errors from progress handler to avoid breaking upload
-        // eslint-disable-next-line no-console
-        console.error('Upload progress handler error', e);
       }
     };
 

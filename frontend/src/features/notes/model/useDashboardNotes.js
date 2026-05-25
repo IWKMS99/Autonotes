@@ -57,15 +57,14 @@ export const useDashboardNotes = () => {
         }
         const statuses = await fetchNotesStatusFn(processingIdsRef.current);
         if (!mounted || !Array.isArray(statuses)) return;
+        const statusesById = new Map(statuses.map((status) => [status.id, status]));
 
         setNotes((prev) => prev.map((note) => {
-          const updated = statuses.find((s) => s.id === note.id);
+          const updated = statusesById.get(note.id);
           return updated ? { ...note, status: updated.status, updatedAt: updated.updatedAt, summaryPreview: updated.summaryPreview } : note;
         }));
       } catch (e) {
         // ignore polling errors silently to not disturb UI
-        // eslint-disable-next-line no-console
-        console.debug('Polling error', e);
       }
     };
 
