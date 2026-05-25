@@ -1,9 +1,9 @@
 name: Backend CI (Java/Gradle)
 on:
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
   push:
-    branches: [ "main" ]
+    branches: [ "master" ]
 permissions:
   contents: read
   pull-requests: write
