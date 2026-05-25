@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { fetchNotes } from 'entities/note';
 import { ASYNC_STATUS, createAsyncState, NOTE_STATUS, formatRuDateTime } from 'shared';
 
@@ -8,6 +8,7 @@ export const useDashboardNotes = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortOrder, setSortOrder] = useState('desc');
+  const processingIdsRef = useRef([]);
 
   const loadNotes = useCallback(async (isSilent = false) => {
     try {
@@ -20,7 +21,9 @@ export const useDashboardNotes = () => {
         setRequestState(createAsyncState({ status: ASYNC_STATUS.SUCCESS }));
       }
     } catch (error) {
-      setRequestState(createAsyncState({ status: ASYNC_STATUS.ERROR, error: error.message || 'Ошибка загрузки конспектов' }));
+      if (!isSilent) {
+        setRequestState(createAsyncState({ status: ASYNC_STATUS.ERROR, error: error.message || 'Ошибка загрузки конспектов' }));
+      }
     }
   }, []);
 
@@ -28,13 +31,52 @@ export const useDashboardNotes = () => {
     loadNotes();
   }, [loadNotes]);
 
-  useEffect(() => {
-    const hasProcessing = notes.some((note) => note.status === NOTE_STATUS.PROCESSING);
-    if (!hasProcessing) return undefined;
+  const processingIds = useMemo(() => notes
+    .filter((n) => n.status === NOTE_STATUS.PROCESSING)
+    .map((n) => n.id)
+    .sort((a, b) => String(a).localeCompare(String(b))), [notes]);
 
-    const interval = setInterval(() => loadNotes(true), 5000);
-    return () => clearInterval(interval);
-  }, [notes, loadNotes]);
+  const processingKey = useMemo(() => processingIds.join(','), [processingIds]);
+
+  useEffect(() => {
+    processingIdsRef.current = processingIds;
+  }, [processingIds]);
+
+  useEffect(() => {
+    if (!processingKey) return undefined;
+
+    let mounted = true;
+
+    let fetchNotesStatusFn = null;
+    const poll = async () => {
+      try {
+        if (!fetchNotesStatusFn) {
+          // import here to avoid circular deps at module init
+          const mod = await import('entities/note');
+          fetchNotesStatusFn = mod.fetchNotesStatus;
+        }
+        const statuses = await fetchNotesStatusFn(processingIdsRef.current);
+        if (!mounted || !Array.isArray(statuses)) return;
+        const statusesById = new Map(statuses.map((status) => [status.id, status]));
+
+        setNotes((prev) => prev.map((note) => {
+          const updated = statusesById.get(note.id);
+          return updated ? { ...note, status: updated.status, updatedAt: updated.updatedAt, summaryPreview: updated.summaryPreview } : note;
+        }));
+      } catch (e) {
+        // ignore polling errors silently to not disturb UI
+      }
+    };
+
+    // run immediately once and then poll on an interval
+    poll();
+    const interval = setInterval(poll, 5000);
+
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
+  }, [processingKey]);
 
   const filteredAndSortedNotes = useMemo(() => {
     const filtered = notes.filter((note) => note.title.toLowerCase().includes(searchQuery.toLowerCase())

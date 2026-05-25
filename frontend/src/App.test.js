@@ -26,7 +26,9 @@ jest.mock('react-router-dom', () => {
         return matched.props.element;
       }
 
+      // eslint-disable-next-line testing-library/no-node-access
       const layoutRoute = routes.find((route) => route.props.children);
+      // eslint-disable-next-line testing-library/no-node-access
       const childRoutes = React.Children.toArray(layoutRoute?.props.children).filter(React.isValidElement);
       const matchedChild = childRoutes.find((route) => matchPath(route.props.path, currentPath));
 

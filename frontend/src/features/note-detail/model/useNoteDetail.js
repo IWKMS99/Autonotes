@@ -18,7 +18,9 @@ export const useNoteDetail = (noteId, onDeleted) => {
         setRequestState(createAsyncState({ status: ASYNC_STATUS.SUCCESS }));
       }
     } catch (error) {
-      setRequestState(createAsyncState({ status: ASYNC_STATUS.ERROR, error: error.message || 'Ошибка загрузки конспекта' }));
+      if (!isSilent) {
+        setRequestState(createAsyncState({ status: ASYNC_STATUS.ERROR, error: error.message || 'Ошибка загрузки конспекта' }));
+      }
     }
   }, [noteId]);
 
@@ -49,5 +51,6 @@ export const useNoteDetail = (noteId, onDeleted) => {
     requestState,
     deleteLoading,
     deleteNote,
+    retry: () => loadNote(false),
   };
 };

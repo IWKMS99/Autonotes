@@ -28,14 +28,9 @@ export const useNoteUpload = (onSuccess) => {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const fileInputRef = useRef(null);
-  const progressIntervalRef = useRef(null);
   const successTimeoutRef = useRef(null);
 
   useEffect(() => () => {
-    if (progressIntervalRef.current) {
-      clearInterval(progressIntervalRef.current);
-    }
-
     if (successTimeoutRef.current) {
       clearTimeout(successTimeoutRef.current);
     }
@@ -217,33 +212,16 @@ export const useNoteUpload = (onSuccess) => {
     setUploadProgress(0);
 
     try {
-      progressIntervalRef.current = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 90) {
-            clearInterval(progressIntervalRef.current);
-            progressIntervalRef.current = null;
-            return prev;
-          }
+      const handleUploadProgress = (nextPercent) => {
+        setUploadProgress((prev) => (nextPercent > prev ? nextPercent : prev));
+      };
 
-          return prev + 10;
-        });
-      }, 200);
-
-      await createNoteRequest(formData.title.trim(), formData.files);
+      await createNoteRequest(formData.title.trim(), formData.files, handleUploadProgress);
 
       setUploadProgress(100);
 
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
-
       successTimeoutRef.current = setTimeout(onSuccess, 500);
     } catch (err) {
-      if (progressIntervalRef.current) {
-        clearInterval(progressIntervalRef.current);
-        progressIntervalRef.current = null;
-      }
 
       setError(err.message || 'Ошибка при загрузке конспекта');
       setUploadProgress(0);

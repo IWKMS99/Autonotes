@@ -15,7 +15,17 @@ export const NoteDetailPage = () => {
   }
 
   if (isError(model.requestState)) {
-    return <ErrorState message={model.requestState.error} action={<Link to="/dashboard" className="btn btn-primary">Назад к списку</Link>} />;
+    return (
+      <ErrorState
+        message={model.requestState.error}
+        action={(
+          <>
+            <button className="btn btn-primary" onClick={model.retry}>Повторить</button>
+            <Link to="/dashboard" className="btn btn-secondary">Назад к списку</Link>
+          </>
+        )}
+      />
+    );
   }
 
   if (!model.note) {

@@ -11,7 +11,12 @@ export const ProfilePage = () => {
   }
 
   if (isError(model.requestState)) {
-    return <ErrorState message={model.requestState.error} />;
+    return (
+      <ErrorState
+        message={model.requestState.error}
+        action={<button className="btn btn-primary" onClick={model.retry}>Повторить</button>}
+      />
+    );
   }
 
   return <ProfileView profile={model.profile} stats={model.stats} onLogout={model.logout} />;

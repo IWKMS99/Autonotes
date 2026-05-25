@@ -43,20 +43,17 @@ export const fetchNotes = async () => {
       }
 
       const settled = await Promise.allSettled(requests);
-      settled.forEach((result, index) => {
+      settled.forEach((result) => {
         if (result.status === 'fulfilled') {
           merged.push(...(result.value.data?.content || []));
           return;
         }
         // Keep already loaded pages to avoid breaking dashboard if one page fails.
-        // eslint-disable-next-line no-console
-        console.warn(`Failed to load notes page ${startPage + index}:`, result.reason);
       });
     }
 
     if (totalPages > MAX_FETCH_PAGES) {
-      // eslint-disable-next-line no-console
-      console.warn(`Notes list truncated to first ${MAX_FETCH_PAGES} pages.`);
+      // Keep the list bounded for responsiveness in the UI.
     }
 
     return mapNotesDto(merged);
@@ -65,7 +62,7 @@ export const fetchNotes = async () => {
   }
 };
 
-export const createNoteRequest = async (title, files) => {
+export const createNoteRequest = async (title, files, onUploadProgress) => {
   try {
     const filesArray = Array.isArray(files) ? files : [files];
     filesArray.forEach(validateFile);
@@ -74,9 +71,40 @@ export const createNoteRequest = async (title, files) => {
     formData.append('title', title);
     filesArray.forEach((file) => formData.append('files', file));
 
-    const response = await apiClient.post('/notes', formData, {
+    const config = {
       headers: { 'Content-Type': 'multipart/form-data' },
-    });
+    };
+
+    // Always provide an onUploadProgress handler to axios. If caller didn't
+    // pass a callback, the handler becomes a no-op. This ensures consistent
+    // behavior and makes upload progress observable in tests and in the UI.
+    config.onUploadProgress = (progressEvent) => {
+      try {
+        if (typeof onUploadProgress !== 'function') {
+          return;
+        }
+
+        // progressEvent.lengthComputable indicates if Content-Length header is present
+        if (!progressEvent.lengthComputable || !progressEvent.total) {
+          // If total size is unknown, we can't calculate exact progress
+          // but we can still indicate that upload is happening
+          onUploadProgress(0);
+          return;
+        }
+
+        // Calculate actual upload progress based on bytes loaded vs total
+        const percentComplete = Math.min(
+          99, // Cap at 99% - 100% is when response is received
+          Math.round((progressEvent.loaded * 100) / progressEvent.total)
+        );
+
+        onUploadProgress(percentComplete);
+      } catch (e) {
+        // Swallow errors from progress handler to avoid breaking upload
+      }
+    };
+
+    const response = await apiClient.post('/notes', formData, config);
 
     return mapNoteDto(response.data);
   } catch (error) {
