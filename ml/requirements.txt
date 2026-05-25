@@ -5,7 +5,6 @@ pydantic-settings
 pika
 boto3
 ollama
-httpx
 Pillow
 tenacity
 pytest
@@ -13,3 +12,9 @@ pytest-mock
 pytest-asyncio
 aio-pika
 httpx
+Pillow
+tenacity
+pytest
+pytest-mock
+pytest-asyncio
+aio-pika
