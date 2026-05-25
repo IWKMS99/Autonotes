@@ -5,8 +5,6 @@ import threading
 
 import uvicorn
 
-from ml.model import get_model, predict
-from ml.settings import settings
 from ml.app import app
 from ml.messaging.consumer import NoteProcessConsumer
 from ml.settings import get_settings
